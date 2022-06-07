@@ -4,9 +4,9 @@
 \name{m4ra-package}
 \alias{m4ra-package}
 \alias{_PACKAGE}
-\title{m4ra: Many-to-Many Multi-Modal Routing Engine}
+\title{m4ra: Many-to-Many Multi-Modal Routing Aggregator}
 \description{
-Many-to-~any ~ulti~Modal ~outing ~ngine.
+Many-to-many multi-modal routing aggregator, combining 'dodgr' and 'gtfsrouter' for complete routing through urban networks.
 }
 \seealso{
 Useful links:
