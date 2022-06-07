@@ -18,4 +18,4 @@ scripts/
 ^\.pre-commit-config\.yaml$
 ^temp*
 WORDLIST$
-precommit/
+.hooks/
