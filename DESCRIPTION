@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Engine
-Version: 0.0.1.001
+Version: 0.0.1.002
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
