@@ -4,13 +4,14 @@
 \alias{m4ra}
 \title{Many-to-many multi-modal routing function}
 \usage{
-m4ra(net, gtfs, from = NULL, to = NULL)
+m4ra(net, gtfs = NULL, from = NULL, to = NULL, quiet = FALSE)
 }
 \arguments{
 \item{net}{An urban network in \code{osmdata_sc} format from the \pkg{osmdata}
 package.}
 
-\item{gtfs}{A GTFS feed in \code{gtfs} format from the \pkg{gtfsrouter} package.}
+\item{gtfs}{An optional GTFS feed in \code{gtfs} format from the \pkg{gtfsrouter}
+package.}
 
 \item{from}{A vector of start points for routing, specified as Open Street
 Map (OSM) identifier ("ID") values, generally from the ID column of
@@ -18,6 +19,8 @@ Map (OSM) identifier ("ID") values, generally from the ID column of
 with the \pkg{dodgr} \code{match_pts_to_verts} function.}
 
 \item{to}{An optional vector of end points for routing.}
+
+\item{quiet}{If \code{FALSE}, display progress information on screen.}
 }
 \value{
 (Unsure at this stage)

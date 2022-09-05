@@ -5,7 +5,6 @@
 #' "M4RA_CACHE_DIR".
 #'
 #' @inheritParams m4ra
-#' @param quiet If `FALSE`, display progress information on screen.
 #' @return A character vector of local locations of cached versions of the
 #' variously weighted network representations used in \link{m4ra}.
 #' @export
