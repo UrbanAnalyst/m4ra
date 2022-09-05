@@ -15,6 +15,14 @@ m4ra_weight_networks <- function (net, quiet = TRUE) {
     requireNamespace ("geodist")
 
     wt_profiles <- c ("foot", "bicycle")
+
+    filenames <- cache_networks (net, wt_profiles)
+
+    return (filenames)
+}
+
+cache_networks <- function (net, wt_profiles) {
+
     hash <- m4ra_network_hash (net)
 
     filenames <- NULL
