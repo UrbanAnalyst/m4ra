@@ -16,12 +16,13 @@ m4ra_weight_networks <- function (net, quiet = TRUE) {
 
     wt_profiles <- c ("foot", "bicycle")
 
-    filenames <- cache_networks (net, wt_profiles)
+    filenames <- cache_networks (net,
+        wt_profiles = wt_profiles, quiet = quiet)
 
     return (filenames)
 }
 
-cache_networks <- function (net, wt_profiles) {
+cache_networks <- function (net, wt_profiles, quiet = TRUE) {
 
     hash <- m4ra_network_hash (net)
 
