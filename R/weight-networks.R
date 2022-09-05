@@ -11,6 +11,9 @@
 #' @export
 m4ra_weight_networks <- function (net, quiet = TRUE) {
 
+    requireNamespace ("dplyr")
+    requireNamespace ("geodist")
+
     wt_profiles <- c ("foot", "bicycle")
     hash <- m4ra_network_hash (net)
 
