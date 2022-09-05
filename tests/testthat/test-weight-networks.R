@@ -6,7 +6,10 @@ Sys.setenv ("M4RA_CACHE_DIR" = tempdir ())
 
 test_that ("weight networks", {
 
-    f <- m4ra_weight_networks (m4ra_hampi)
+    expect_message (
+        f <- m4ra_weight_networks (m4ra_hampi, quiet = FALSE),
+        "Weighting network with"
+    )
 
     expect_type (f, "character")
     expect_length (f, 2L)
