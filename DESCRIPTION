@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.0.1.012
+Version: 0.0.1.013
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
@@ -16,6 +16,7 @@ Depends:
 Imports:
     checkmate,
     cli,
+    digest,
     dodgr,
     fs,
     fst,
