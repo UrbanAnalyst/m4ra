@@ -25,12 +25,15 @@ m4ra_weight_networks <- function (net, quiet = TRUE) {
             paste0 ("mr4a-", hash, "-", w, ".Rds")
         )
 
-        if (!quiet) {
-            cli::cli_alert_info ("Weighting network with '{w}' profile")
-        }
-        net_w <- dodgr::weight_streetnet (net, wt_profile = w)
+        if (!file.exists (filename)) {
 
-        fst::write_fst (net_w, filename)
+            if (!quiet) {
+                cli::cli_alert_info ("Weighting network with '{w}' profile")
+            }
+            net_w <- dodgr::weight_streetnet (net, wt_profile = w)
+
+            fst::write_fst (net_w, filename)
+        }
 
         filenames <- c (filenames, filename)
     }
