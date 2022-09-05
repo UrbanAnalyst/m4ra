@@ -29,6 +29,7 @@ m4ra_cache_dir <- function () {
 #'
 #' @inheritParams m4ra
 #' @return Single character value with unique hash of given network.
+#' @family cache
 #' @export
 m4ra_network_hash <- function (net) {
 

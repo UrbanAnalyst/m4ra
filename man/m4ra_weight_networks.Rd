@@ -21,3 +21,8 @@ Uses a default cache location specified by \code{rappdirs::user_cache_dir()}. Th
 location can be over-ridden by specifying a local environment variable,
 "M4RA_CACHE_DIR".
 }
+\seealso{
+Other cache: 
+\code{\link{m4ra_network_hash}()}
+}
+\concept{cache}

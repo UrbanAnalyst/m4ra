@@ -13,6 +13,7 @@
 #' @param to An optional vector of end points for routing.
 #' @param quiet If `FALSE`, display progress information on screen.
 #' @return (Unsure at this stage)
+#' @family main
 #' @export
 m4ra <- function (net, gtfs = NULL, from = NULL, to = NULL, quiet = FALSE) {
 

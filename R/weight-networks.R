@@ -7,6 +7,7 @@
 #' @inheritParams m4ra
 #' @return A character vector of local locations of cached versions of the
 #' variously weighted network representations used in \link{m4ra}.
+#' @family cache
 #' @export
 m4ra_weight_networks <- function (net, quiet = TRUE) {
 

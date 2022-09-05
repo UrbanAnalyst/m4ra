@@ -1,0 +1,30 @@
+url: https://atfutures.github.io/m4ra
+title: m4ra
+
+template:
+  bootstrap: 5
+
+reference:
+- title: Main functions
+  contents:
+  - has_concept("main")
+- title: Save, Load, and Caching
+  contents:
+  - has_concept("cache")
+- title: Package Data
+  contents:
+  - has_concept("data")
+
+navbar:
+  title: m4ra
+  type: default
+  left:
+  - text: Home
+    href: index.html
+    #- text: Vignettes
+    #href: articles/index.html
+  - text: Functions
+    href: reference/index.html
+  right:
+  - icon: fa-github fa-lg
+    href: https://github.com/ATFutures/m4ra

@@ -18,3 +18,8 @@ This can be used to identify cached versions of a given network, in
 particular to determine whether or not weighted versions of a given network
 have been previously cached.
 }
+\seealso{
+Other cache: 
+\code{\link{m4ra_weight_networks}()}
+}
+\concept{cache}
