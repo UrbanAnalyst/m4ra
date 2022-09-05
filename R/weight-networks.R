@@ -22,7 +22,7 @@ m4ra_weight_networks <- function (net, quiet = TRUE) {
 
         filename <- file.path (
             m4ra_cache_dir (),
-            paste0 ("mr4a-", hash, "-", w, ".Rds")
+            paste0 ("m4ra-", hash, "-", w, ".Rds")
         )
 
         if (!file.exists (filename)) {
