@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.0.1.008
+Version: 0.0.1.009
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
@@ -21,3 +21,6 @@ Imports:
     rappdirs
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

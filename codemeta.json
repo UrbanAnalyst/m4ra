@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.1.008",
+  "version": "0.0.1.009",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -28,6 +28,21 @@
       "givenName": "Mark",
       "familyName": "Padgham",
       "email": "mark.padgham@email.com"
+    }
+  ],
+  "softwareSuggestions": [
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "testthat",
+      "name": "testthat",
+      "version": ">= 3.0.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=testthat"
     }
   ],
   "softwareRequirements": {
@@ -105,7 +120,7 @@
     },
     "SystemRequirements": {}
   },
-  "fileSize": "7.054KB",
+  "fileSize": "7.811KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
   "contIntegration": "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check"
 }
