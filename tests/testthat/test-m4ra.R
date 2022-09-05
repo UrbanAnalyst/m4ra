@@ -15,6 +15,12 @@ test_that ("m4ra errors", {
         "Assertion on \'from\' failed: Must be of type \'character\', not \'NULL\'")
     expect_error (m4ra (net = net, from = "a"),
         "Unknown class")
+
+    net <- m4ra_hampi
+    expect_error (m4ra (net = net, from = "a", gtfs = 1L),
+        "Assertion on \'gtfs\' failed: Must inherit from class \'gtfs\', but has class \'integer\'")
+    expect_error (m4ra (net = net, from = "a", to = 1L),
+        "Assertion on \'to\' failed: Must be of type \'character\', not \'integer\'")
 })
 
 test_that ("m4ra function", {
