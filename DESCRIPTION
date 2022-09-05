@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.0.1.010
+Version: 0.0.1.011
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
@@ -11,7 +11,8 @@ Description: Many-to-many multi-modal routing aggregator, combining 'dodgr' and
 License: GPL-3
 URL: https://github.com/ATFutures/m4ra
 BugReports: https://github.com/ATFutures/m4ra/issues
-Encoding: UTF-8
+Depends: 
+    R (>= 2.10)
 Imports:
     checkmate,
     cli,
@@ -19,6 +20,8 @@ Imports:
     fs,
     fst,
     rappdirs
+Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Suggests: 

@@ -1,0 +1,13 @@
+# script to generate `data/hampi.rda`, an `sc` version of `dodgr::hampi` (in `sf`)
+
+```{r load, echo = FALSE}
+library (osmdata)
+```
+```{r}
+m4ra_hampi <- opq ("hampi india") %>%
+    add_osm_feature (key = "highway") %>%
+    osmdata_sc (quiet = FALSE)
+```
+```{r}
+usethis::use_data (m4ra_hampi, overwrite = TRUE, compress = 'xz')
+```

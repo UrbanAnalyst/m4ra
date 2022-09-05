@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.1.010",
+  "version": "0.0.1.011",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -48,6 +48,12 @@
   "softwareRequirements": {
     "1": {
       "@type": "SoftwareApplication",
+      "identifier": "R",
+      "name": "R",
+      "version": ">= 2.10"
+    },
+    "2": {
+      "@type": "SoftwareApplication",
       "identifier": "checkmate",
       "name": "checkmate",
       "provider": {
@@ -58,7 +64,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=checkmate"
     },
-    "2": {
+    "3": {
       "@type": "SoftwareApplication",
       "identifier": "cli",
       "name": "cli",
@@ -70,7 +76,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=cli"
     },
-    "3": {
+    "4": {
       "@type": "SoftwareApplication",
       "identifier": "dodgr",
       "name": "dodgr",
@@ -82,7 +88,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=dodgr"
     },
-    "4": {
+    "5": {
       "@type": "SoftwareApplication",
       "identifier": "fs",
       "name": "fs",
@@ -94,7 +100,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=fs"
     },
-    "5": {
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "fst",
       "name": "fst",
@@ -106,7 +112,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=fst"
     },
-    "6": {
+    "7": {
       "@type": "SoftwareApplication",
       "identifier": "rappdirs",
       "name": "rappdirs",
@@ -120,7 +126,10 @@
     },
     "SystemRequirements": {}
   },
-  "fileSize": "7.811KB",
+  "fileSize": "86.564KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
-  "contIntegration": "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check"
+  "contIntegration": [
+    "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",
+    "https://app.codecov.io/gh/ATFutures/m4ra"
+  ]
 }
