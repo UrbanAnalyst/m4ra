@@ -1,5 +1,5 @@
 #include "pathfinders.h"
-#include "heap.h"
+#include "bheap.h"
 
 #include <algorithm> // std::fill
 
@@ -118,7 +118,6 @@ void PF::PathFinder::scan_edges_heur (const DGraphEdge *edge,
 /**********************************************************************
  ************************  PATH ALGORITHMS    *************************
  **********************************************************************/
-
 
 void PF::PathFinder::AStar (std::vector<double>& d,
         std::vector<double>& w,

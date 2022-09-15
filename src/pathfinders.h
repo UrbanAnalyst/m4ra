@@ -1,5 +1,7 @@
 #pragma once
 
+// Modified from code by Shane Saunders
+
 #include <vector>
 #include <memory>
 #include <set>
@@ -84,25 +86,6 @@ class PathFinder {
                 const bool *m_closed_vec,
                 const size_t &v0,
                 const std::vector<double> &heur);
-        // with A* heuristic for dists-categorical
-        void scan_edge_types_heur (
-                const DGraphEdge *edge,
-                std::vector<double>& d,
-                std::vector<double>& w,
-                std::vector<long int>& prev,
-                bool *m_open_vec,
-                const bool *m_closed_vec,
-                const size_t &v0,
-                const std::vector<double> &heur);
-        // run_sp_categorical for threshold dists
-        void scan_edge_types (
-                const DGraphEdge *edge,
-                std::vector<double>& d,
-                std::vector<double>& w,
-                std::vector<long int>& prev,
-                bool *m_open_vec,
-                const bool *m_closed_vec,
-                const size_t &v0);
 
         void AStar (std::vector<double>& d,
                 std::vector<double>& w,
@@ -113,7 +96,7 @@ class PathFinder {
 
     private:
         Heap *m_heap;        // pointer: heap
-        // Convert to vector<bool>? (save memory, might be a performace hit though)
+        // Convert to vector<bool>? (save memory, might be a performance hit though)
         bool *m_open;           // array: frontier set state of vertices
         bool *m_closed;         // also for bi-dir
 
