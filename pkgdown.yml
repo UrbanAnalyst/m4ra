@@ -2,7 +2,7 @@ pandoc: 2.14.2
 pkgdown: 2.0.6
 pkgdown_sha: ~
 articles: {}
-last_built: 2022-09-15T09:29Z
+last_built: 2022-09-15T09:32Z
 urls:
   reference: https://atfutures.github.io/m4ra/reference
   article: https://atfutures.github.io/m4ra/articles
