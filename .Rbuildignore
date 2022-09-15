@@ -17,6 +17,7 @@ scripts/
 ^codemeta\.json$
 ^\.github$
 ^\.pre-commit-config\.yaml$
+^_pkgdown\.yml$
 ^temp*
 WORDLIST$
 .hooks/
