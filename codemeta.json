@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.1.027",
+  "version": "0.0.1.028",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -160,13 +160,43 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rappdirs"
     },
-    "SystemRequirements": {}
+    "9": {
+      "@type": "SoftwareApplication",
+      "identifier": "Rcpp",
+      "name": "Rcpp",
+      "version": ">= 0.12.6",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=Rcpp"
+    },
+    "10": {
+      "@type": "SoftwareApplication",
+      "identifier": "RcppParallel",
+      "name": "RcppParallel",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=RcppParallel"
+    },
+    "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "94.003KB",
+  "fileSize": "179.703KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
   "contIntegration": [
     "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",
     "https://app.codecov.io/gh/ATFutures/m4ra"
   ],
-  "developmentStatus": "https://www.repostatus.org/#concept"
+  "developmentStatus": "https://www.repostatus.org/#concept",
+  "keywords": [
+    "gtfs",
+    "open-street-map",
+    "routing-engine"
+  ]
 }

@@ -1,4 +1,7 @@
 #' @keywords internal
+#' @useDynLib m4ra, .registration = TRUE
+#' @importFrom Rcpp evalCpp
+#' @importFrom RcppParallel RcppParallelLibs
 #' @aliases m4ra-package
 "_PACKAGE"
 

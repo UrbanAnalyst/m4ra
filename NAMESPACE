@@ -3,3 +3,6 @@
 export(m4ra)
 export(m4ra_network_hash)
 export(m4ra_weight_networks)
+importFrom(Rcpp,evalCpp)
+importFrom(RcppParallel,RcppParallelLibs)
+useDynLib(m4ra, .registration = TRUE)
