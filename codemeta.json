@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.1.38",
+  "version": "0.0.1.039",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -150,6 +150,11 @@
     },
     "8": {
       "@type": "SoftwareApplication",
+      "identifier": "methods",
+      "name": "methods"
+    },
+    "9": {
+      "@type": "SoftwareApplication",
       "identifier": "rappdirs",
       "name": "rappdirs",
       "provider": {
@@ -160,7 +165,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=rappdirs"
     },
-    "9": {
+    "10": {
       "@type": "SoftwareApplication",
       "identifier": "Rcpp",
       "name": "Rcpp",
@@ -173,7 +178,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=Rcpp"
     },
-    "10": {
+    "11": {
       "@type": "SoftwareApplication",
       "identifier": "RcppParallel",
       "name": "RcppParallel",
@@ -187,9 +192,16 @@
     },
     "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "720.785KB",
+  "fileSize": "720.798KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
-  "contIntegration": ["https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check", "https://app.codecov.io/gh/ATFutures/m4ra"],
+  "contIntegration": [
+    "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",
+    "https://app.codecov.io/gh/ATFutures/m4ra"
+  ],
   "developmentStatus": "https://www.repostatus.org/#concept",
-  "keywords": ["gtfs", "open-street-map", "routing-engine"]
+  "keywords": [
+    "gtfs",
+    "open-street-map",
+    "routing-engine"
+  ]
 }
