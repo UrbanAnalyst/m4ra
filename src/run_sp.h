@@ -42,6 +42,4 @@ size_t get_chunk_size (const size_t nfrom);
 Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector fromi,
-        Rcpp::IntegerVector toi_in,
-        const std::string& heap_type,
-        const bool is_spatial);
+        Rcpp::IntegerVector toi_in);
