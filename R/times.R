@@ -120,7 +120,7 @@ calculate_timemat <- function (graph,
 #' removed.
 #'
 #' @param d Travel time matrix.
-#' @return Reduced version of 'd' with compound junction vertices removed.
+#' @return Index into rows of columns of 'd' of those elements to be removed.
 #' @noRd
 one_row_col_index <- function (d, what = "start") {
 
