@@ -86,15 +86,6 @@ calculate_timemat <- function (graph,
                                from_index,
                                to_index) {
 
-    flip <- FALSE
-    if (length (from_index$index) > length (to_index$index)) {
-        flip <- TRUE
-        graph <- flip_graph (graph)
-        temp <- from_index
-        from_index <- to_index
-        to_index <- temp
-    }
-
     d <- rcpp_get_sp_dists_par (
         graph,
         vert_map,
@@ -113,9 +104,52 @@ calculate_timemat <- function (graph,
         colnames (d) <- vert_map$vert
     }
 
-    if (flip) {
-        d <- t (d)
-    }
+    index_no_start <- one_row_col_index (d, "start")
+    index_no_end <- one_row_col_index (d, "end")
+    d <- d [-index_no_start, -index_no_end]
+
+    rownames (d) <- gsub ("\\_(start|end)$", "", rownames (d))
+    colnames (d) <- gsub ("\\_(start|end)$", "", colnames (d))
 
     return (d)
+}
+
+#' Remove compound junctions from rows/cols of time matrices
+#'
+#' Matrices have row and column entries representing "_start" and "_end" points
+#' of compound junctions, as well as potentially un-compounded versions of same
+#' vertices. Travel times to or from these won't have been adjusted for turn
+#' penalties or waiting times, so will be unrealistically short and need to be
+#' removed.
+#'
+#' @param d Travel time matrix.
+#' @return Reduced version of 'd' with compound junction vertices removed.
+#' @noRd
+one_row_col_index <- function (d, what = "start") {
+
+    what <- match.arg (what, c ("start", "end"))
+    if (what == "start") {
+        whatnot <- "\\_end$"
+        nms <- rownames (d)
+    } else {
+        nms <- colnames (d)
+        whatnot <- "\\_start$"
+    }
+
+    # index of "end" from start pts, or vice-versa:
+    index <- grep (whatnot, nms) 
+
+    # then index of pts which should be start or end pts, but occur without
+    # suffix. These will generally have times, but they won't be adjusted for
+    # turn penalties or wait times, so will be unrealistically short and need
+    # to be removed.
+    ptn <- paste0 ("\\_", what, "$")
+    index1 <- grep (ptn, nms)
+    no_what <- gsub (ptn, "", nms [index1])
+    # those are plain names which then have to located within nms:
+    no_what <- grep (paste0 (no_what, collapse = "|"), nms, value = TRUE)
+    no_what <- no_what [which (!grepl ("\\_(start|end)$", no_what))]
+    index_no_what <- match (no_what, nms)
+
+    sort (unique (c (index, index_no_what)))
 }
