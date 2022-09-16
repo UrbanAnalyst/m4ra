@@ -17,7 +17,10 @@
 #' between all points specified in `from`. If both `from` and `to` are `NULL`,
 #' pairwise distances are calculated between all nodes in `graph`.
 #'
-#' @family distances
+#' @family times
+#' @examples
+#' net <- dodgr::weight_streetnet (m4ra_hampi, wt_profile = "foot")
+#' traveltimes <- m4ra_times (net)
 #' @export
 m4ra_times <- function (graph,
                         from = NULL,
