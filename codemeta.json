@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.1.034",
+  "version": "0.0.1.035",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",

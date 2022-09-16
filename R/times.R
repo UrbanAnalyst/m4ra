@@ -93,12 +93,17 @@ calculate_timemat <- function (graph,
         colnames (d) <- vert_map$vert
     }
 
-    index_no_start <- one_row_col_index (d, "start")
-    index_no_end <- one_row_col_index (d, "end")
-    d <- d [-index_no_start, -index_no_end]
+    if (get_turn_penalty (graph) > 0) {
 
-    rownames (d) <- gsub ("\\_(start|end)$", "", rownames (d))
-    colnames (d) <- gsub ("\\_(start|end)$", "", colnames (d))
+        index_no_start <- one_row_col_index (d, "start")
+        index_no_end <- one_row_col_index (d, "end")
+        if (length (index_no_start) > 0 && length (index_no_end) > 0) {
+            d <- d [-index_no_start, -index_no_end]
+        }
+
+        rownames (d) <- gsub ("\\_(start|end)$", "", rownames (d))
+        colnames (d) <- gsub ("\\_(start|end)$", "", colnames (d))
+    }
 
     return (d)
 }
@@ -134,6 +139,12 @@ one_row_col_index <- function (d, what = "start") {
     # to be removed.
     ptn <- paste0 ("\\_", what, "$")
     index1 <- grep (ptn, nms)
+
+    if (length (index) == 0L && length (index1) == 0L) {
+        # no compound junctions
+        return (integer (0L))
+    }
+
     no_what <- gsub (ptn, "", nms [index1])
     # those are plain names which then have to located within nms:
     no_what <- grep (paste0 (no_what, collapse = "|"), nms, value = TRUE)
