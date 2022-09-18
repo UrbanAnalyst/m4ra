@@ -13,12 +13,4 @@ get_to_from_index <- utils::getFromNamespace ("get_to_from_index", "dodgr")
 
 to_from_with_tp <- utils::getFromNamespace ("to_from_with_tp", "dodgr")
 
-# This is only in versions > v0.2.15
-# get_turn_penalty <- utils::getFromNamespace ("get_turn_penalty", "dodgr")
-get_turn_penalty <- function (graph) {
-    tp <- attr (graph, "turn_penalty")
-    if (!is.numeric (tp)) {
-        tp <- 0.0
-    }
-    return (tp)
-}
+get_turn_penalty <- utils::getFromNamespace ("get_turn_penalty", "dodgr")
