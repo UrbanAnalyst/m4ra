@@ -11,8 +11,6 @@ make_vert_map <- utils::getFromNamespace ("make_vert_map", "dodgr")
 
 get_to_from_index <- utils::getFromNamespace ("get_to_from_index", "dodgr")
 
-to_from_with_tp <- utils::getFromNamespace ("to_from_with_tp", "dodgr")
-
 are_turns_restricted <- utils::getFromNamespace ("are_turns_restricted", "dodgr")
 
 # This is only in versions > v0.2.15
