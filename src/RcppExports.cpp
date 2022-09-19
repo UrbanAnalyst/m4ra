@@ -25,9 +25,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_save_sp_dists_par
+Rcpp::NumericMatrix rcpp_save_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector from_index, Rcpp::CharacterVector from_names_in, Rcpp::IntegerVector toi_in, const std::string path);
+RcppExport SEXP _m4ra_rcpp_save_sp_dists_par(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP from_indexSEXP, SEXP from_names_inSEXP, SEXP toi_inSEXP, SEXP pathSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type graph(graphSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type vert_map_in(vert_map_inSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type from_index(from_indexSEXP);
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type from_names_in(from_names_inSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type toi_in(toi_inSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type path(pathSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_save_sp_dists_par(graph, vert_map_in, from_index, from_names_in, toi_in, path));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_m4ra_rcpp_get_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_get_sp_dists_par, 4},
+    {"_m4ra_rcpp_save_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_save_sp_dists_par, 6},
     {NULL, NULL, 0}
 };
 

@@ -36,6 +36,10 @@ test_that ("times with turn penalty", {
     expect_s3_class (net, "dodgr_streetnet_sc")
     expect_true (attr (net, "turn_penalty") > 0)
 
+    tp <- get_turn_penalty (net)
+    expect_type (tp, "double")
+    expect_true (tp > 0)
+
     tmat <- m4ra_times (net)
     expect_type (tmat, "double")
 
