@@ -166,7 +166,7 @@ struct SaveOneDist : public RcppParallel::Worker
             const std::string fname =
                 path + "m4ra_from_" + cut_string_end (from [from_i], "_start");
             std::ofstream out_file;
-            out_file.open (fname.c_str (), std::ofstream::binary);
+            out_file.open (fname.c_str (), std::ofstream::out);
 
             for (size_t j = 0; j < toi.size (); j++)
             {
