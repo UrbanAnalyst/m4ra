@@ -8,3 +8,10 @@ rcpp_get_sp_dists_par <- function(graph, vert_map_in, fromi, toi_in) {
     .Call(`_m4ra_rcpp_get_sp_dists_par`, graph, vert_map_in, fromi, toi_in)
 }
 
+#' rcpp_save_sp_dists_par
+#'
+#' @noRd
+rcpp_save_sp_dists_par <- function(graph, vert_map_in, from_index, from_names_in, toi_in, path) {
+    .Call(`_m4ra_rcpp_save_sp_dists_par`, graph, vert_map_in, from_index, from_names_in, toi_in, path)
+}
+
