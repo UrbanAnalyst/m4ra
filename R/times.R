@@ -47,6 +47,10 @@ m4ra_times <- function (graph,
     }
     graph [[gr_cols$d_weighted]] <- graph [[gr_cols$time_weighted]]
 
+    vert_map <- make_vert_map (graph, gr_cols, xy = TRUE)
+    from_index <- get_to_from_index (graph, vert_map, gr_cols, from)
+    to_index <- get_to_from_index (graph, vert_map, gr_cols, to)
+
     if (get_turn_penalty (graph) > 0.0) {
         if (methods::is (graph, "dodgr_contracted")) {
             warning (
@@ -56,12 +60,17 @@ m4ra_times <- function (graph,
             )
         }
         graph <- create_compound_junctions (graph)$graph
+        res <- create_compound_junctions (graph)
+        compound_junctions <- res$edge_map
+        graph <- res$graph
+
+        # remap any 'from' and 'to' vertices to compound junction versions:
+        is_spatial <- TRUE
+        vert_map <- make_vert_map (graph, gr_cols, is_spatial)
+
+        from_index <- remap_tf_index_for_tp (from_index, vert_map, from = TRUE)
+        to_index <- remap_tf_index_for_tp (to_index, vert_map, from = FALSE)
     }
-
-    vert_map <- make_vert_map (graph, gr_cols, xy = TRUE)
-
-    from_index <- get_to_from_index (graph, vert_map, gr_cols, from)
-    to_index <- get_to_from_index (graph, vert_map, gr_cols, to)
 
     d <- calculate_timemat (
         graph,
@@ -98,61 +107,9 @@ calculate_timemat <- function (graph,
 
     if (get_turn_penalty (graph) > 0) {
 
-        index_no_start <- one_row_col_index (d, "start")
-        index_no_end <- one_row_col_index (d, "end")
-        if (length (index_no_start) > 0 && length (index_no_end) > 0) {
-            d <- d [-index_no_start, -index_no_end]
-        }
-
         rownames (d) <- gsub ("\\_(start|end)$", "", rownames (d))
         colnames (d) <- gsub ("\\_(start|end)$", "", colnames (d))
     }
 
     return (d)
-}
-
-#' Remove compound junctions from rows/cols of time matrices
-#'
-#' Matrices have row and column entries representing "_start" and "_end" points
-#' of compound junctions, as well as potentially un-compounded versions of same
-#' vertices. Travel times to or from these won't have been adjusted for turn
-#' penalties or waiting times, so will be unrealistically short and need to be
-#' removed.
-#'
-#' @param d Travel time matrix.
-#' @return Index into rows of columns of 'd' of those elements to be removed.
-#' @noRd
-one_row_col_index <- function (d, what = "start") {
-
-    what <- match.arg (what, c ("start", "end"))
-    if (what == "start") {
-        whatnot <- "\\_end$"
-        nms <- rownames (d)
-    } else {
-        nms <- colnames (d)
-        whatnot <- "\\_start$"
-    }
-
-    # index of "end" from start pts, or vice-versa:
-    index <- grep (whatnot, nms) 
-
-    # then index of pts which should be start or end pts, but occur without
-    # suffix. These will generally have times, but they won't be adjusted for
-    # turn penalties or wait times, so will be unrealistically short and need
-    # to be removed.
-    ptn <- paste0 ("\\_", what, "$")
-    index1 <- grep (ptn, nms)
-
-    if (length (index) == 0L && length (index1) == 0L) {
-        # no compound junctions
-        return (integer (0L))
-    }
-
-    no_what <- gsub (ptn, "", nms [index1])
-    # those are plain names which then have to located within nms:
-    no_what <- grep (paste0 (no_what, collapse = "|"), nms, value = TRUE)
-    no_what <- no_what [which (!grepl ("\\_(start|end)$", no_what))]
-    index_no_what <- match (no_what, nms)
-
-    sort (unique (c (index, index_no_what)))
 }
