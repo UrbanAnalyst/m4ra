@@ -54,7 +54,6 @@ class BHeap : public Heap {
         size_t nItems() const { return itemCount; }
 
         long int nComps() const { return compCount; }
-        void dump() const;
 
         double getmin();
 
@@ -87,7 +86,6 @@ class BHeapInt : public HeapInt {
         size_t nItems() const { return itemCount; }
 
         long int nComps() const { return compCount; }
-        void dump() const;
 
         int getmin();
 

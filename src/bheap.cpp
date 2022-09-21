@@ -48,10 +48,12 @@ size_t BHeap::min()
     return a[1].item;
 }
 
+// # nocov start - this function is not actually used here
 double BHeap::getmin()
 {
     return a[1].key;
 }
+// # nocov end
 
 /* --- insert() ---
  * Inserts an item $item$ with associated key value $key$ into the heap.
@@ -186,12 +188,6 @@ void BHeap::siftUp(size_t p, size_t q)
     /* Insert the root in the correct place in the heap. */
     a[j] = y;
     aPos[y.item] = j;
-}
-
-/*--- BHeap (debugging) -----------------------------------------------------*/
-void BHeap::dump() const
-{
-
 }
 
 
