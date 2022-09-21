@@ -2,6 +2,41 @@
 test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
     identical (Sys.getenv ("GITHUB_WORKFLOW"), "test-coverage"))
 
+test_that ("time errors", {
+
+    expect_error (
+        m4ra_times ("a"),
+        "'graph' must be a 'dodgr_streetnet_sc' object"
+    )
+
+    net0 <- net <- dodgr::weight_streetnet (
+        m4ra_hampi,
+        wt_profile = "bicycle",
+        turn_penalty = TRUE
+    )
+    net$time_weighted <- NULL
+    expect_error (
+        m4ra_times (net),
+        "Graph does not contain a weighted time column"
+    )
+
+    net <- net0
+    net_c <- dodgr::dodgr_contract_graph (net)
+    v <- dodgr::dodgr_vertices (net_c)
+    set.seed (1L)
+    from <- sample (v$id, size = 10L)
+
+    expect_warning (
+        d <- m4ra_times (net_c, from = from),
+        "graphs with turn penalties should be submitted in full, not contracted form"
+    )
+
+    # matrix is returned in spite of warning:
+    expect_type (d, "double")
+    expect_equal (nrow (d), length (from))
+    expect_equal (ncol (d), nrow (v))
+})
+
 test_that ("times without turn penalty", {
 
     net <- dodgr::weight_streetnet (
@@ -90,4 +125,10 @@ test_that ("save times to local cache", {
     d1 <- d1 [d1_index]
     d2 <- d2 [d2_index]
     expect_true (max (abs (d1 - d2)) < 0.1)
+
+    # calling again will error because of non-empty path:
+    expect_error (
+        fnames <- m4ra_times (net, from = from, path = path),
+        "must be an empty directory"
+    )
 })
