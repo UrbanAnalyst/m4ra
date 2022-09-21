@@ -10,6 +10,12 @@ rcpp_get_sp_dists_par <- function(graph, vert_map_in, fromi, toi_in) {
 
 #' rcpp_save_sp_dists_par
 #'
+#' This function doesn't return anything useful. The R function which calls it
+#' ultimately returns the paths to all files created here, but that is not
+#' really possible with Rcpp, because of difficulties getting CharacterVectors
+#' to play nicely with RcppParallel::RVector. The file name matching is easily
+#' done on the R side anyway.
+#'
 #' @noRd
 rcpp_save_sp_dists_par <- function(graph, vert_map_in, from_index, from_names_in, toi_in, path) {
     .Call(`_m4ra_rcpp_save_sp_dists_par`, graph, vert_map_in, from_index, from_names_in, toi_in, path)
