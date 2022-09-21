@@ -19,6 +19,11 @@ test_that ("time errors", {
         m4ra_times (net),
         "Graph does not contain a weighted time column"
     )
+    net$time <- NULL
+    expect_error (
+        m4ra_times (net),
+        "graph has no time column"
+    )
 
     net <- net0
     net_c <- dodgr::dodgr_contract_graph (net)
