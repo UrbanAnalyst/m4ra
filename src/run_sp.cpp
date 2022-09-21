@@ -198,31 +198,6 @@ size_t run_sp::make_vert_map (const Rcpp::DataFrame &vert_map_in,
     return (nverts);
 }
 
-// Flows from the pathfinder output are reallocated based on matching vertex
-// pairs to edge indices. Note, however, that contracted graphs frequently
-// have duplicate vertex pairs with different distances. The following
-// therefore uses two maps, one to hold the ultimate index from vertex
-// pairs, and the other to hold minimal distances. This is used in flow routines
-// only.
-void run_sp::make_vert_to_edge_maps (const std::vector <std::string> &from,
-        const std::vector <std::string> &to, const std::vector <double> &wt,
-        std::unordered_map <std::string, size_t> &verts_to_edge_map,
-        std::unordered_map <std::string, double> &verts_to_dist_map)
-{
-    for (size_t i = 0; i < from.size (); i++)
-    {
-        std::string two_verts = "f" + from [i] + "t" + to [i];
-        verts_to_edge_map.emplace (two_verts, i);
-        if (verts_to_dist_map.find (two_verts) == verts_to_dist_map.end ())
-            verts_to_dist_map.emplace (two_verts, wt [i]);
-        else if (wt [i] < verts_to_dist_map.at (two_verts))
-        {
-            verts_to_dist_map [two_verts] = wt [i];
-            verts_to_edge_map [two_verts] = i;
-        }
-    }
-}
-
 //' rcpp_get_sp_dists_par
 //'
 //' @noRd
