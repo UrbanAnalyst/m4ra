@@ -249,6 +249,12 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
 
 //' rcpp_save_sp_dists_par
 //'
+//' This function doesn't return anything useful. The R function which calls it
+//' ultimately returns the paths to all files created here, but that is not
+//' really possible with Rcpp, because of difficulties getting CharacterVectors
+//' to play nicely with RcppParallel::RVector. The file name matching is easily
+//' done on the R side anyway.
+//'
 //' @noRd
 // [[Rcpp::export]]
 bool rcpp_save_sp_dists_par (const Rcpp::DataFrame graph,
