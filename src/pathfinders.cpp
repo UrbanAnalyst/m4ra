@@ -50,38 +50,6 @@ void PF::PathFinder::init_arrays (
     m_open_vec [v] = true;
 }
 
-void PF::PathFinder::scan_edges (const DGraphEdge *edge,
-        std::vector<double>& d,
-        std::vector<double>& w,
-        std::vector<long int>& prev,
-        bool *m_open_vec,
-        const bool *m_closed_vec,
-        const size_t &v0)
-{
-    while (edge) {
-        size_t et = edge->target;
-        if (!m_closed_vec [et])
-        {
-            double wt = w [v0] + edge->wt;
-            if (wt < w [et]) {
-                d [et] = d [v0] + edge->dist;
-                w [et] = wt;
-                prev [et] = static_cast <int> (v0);
-
-                if (m_open_vec [et]) {
-                    m_heap->decreaseKey(et, wt);
-                }
-                else {
-                    m_heap->insert (et, wt);
-                    m_open_vec [et] = true;
-                }
-            } else
-                m_closed [et] = true;
-        }
-        edge = edge->nextOut;
-    }
-}
-
 void PF::PathFinder::scan_edges_heur (const DGraphEdge *edge,
         std::vector<double>& d,
         std::vector<double>& w,
