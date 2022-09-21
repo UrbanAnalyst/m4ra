@@ -31,4 +31,8 @@ Calculate matrix of pair-wise travel times between points.
 net <- dodgr::weight_streetnet (m4ra_hampi, wt_profile = "foot")
 traveltimes <- m4ra_times (net)
 }
-\concept{times}
+\seealso{
+Other main: 
+\code{\link{m4ra}()}
+}
+\concept{main}
