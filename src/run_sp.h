@@ -40,7 +40,7 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
         Rcpp::IntegerVector fromi,
         Rcpp::IntegerVector toi_in);
 
-Rcpp::NumericMatrix rcpp_save_sp_dists_par (const Rcpp::DataFrame graph,
+bool rcpp_save_sp_dists_par (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector from_index,
         Rcpp::CharacterVector from_names_in,

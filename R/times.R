@@ -146,6 +146,11 @@ save_time_vecs <- function (graph,
         path <- paste0 (path, .Platform$file.sep)
     }
 
+    flist <- list.files (path)
+    if (length (flist) > 0L) {
+        stop ("path '", path, "' must be an empty directory.")
+    }
+
     from_names <- gsub ("\\_start$", "", from_index$id)
 
     chk <- rcpp_save_sp_dists_par (
@@ -157,5 +162,9 @@ save_time_vecs <- function (graph,
         path
     )
 
-    return (chk)
+    flist <- list.files (path)
+    flist_from_names <- gsub ("^m4ra\\_from\\_", "", flist)
+    index <- match (from, flist_from_names)
+
+    return (flist [index])
 }

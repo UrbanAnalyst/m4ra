@@ -26,7 +26,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_save_sp_dists_par
-Rcpp::NumericMatrix rcpp_save_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector from_index, Rcpp::CharacterVector from_names_in, Rcpp::IntegerVector toi_in, const std::string path);
+bool rcpp_save_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector from_index, Rcpp::CharacterVector from_names_in, Rcpp::IntegerVector toi_in, const std::string path);
 RcppExport SEXP _m4ra_rcpp_save_sp_dists_par(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP from_indexSEXP, SEXP from_names_inSEXP, SEXP toi_inSEXP, SEXP pathSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

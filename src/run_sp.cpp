@@ -251,7 +251,7 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
 //'
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::NumericMatrix rcpp_save_sp_dists_par (const Rcpp::DataFrame graph,
+bool rcpp_save_sp_dists_par (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector from_index,
         Rcpp::CharacterVector from_names_in,
