@@ -162,8 +162,8 @@ save_time_vecs <- function (graph,
         path
     )
 
-    flist <- list.files (path)
-    flist_from_names <- gsub ("^m4ra\\_from\\_", "", flist)
+    flist <- list.files (path, full.names = TRUE)
+    flist_from_names <- gsub ("^.*m4ra\\_from\\_", "", flist)
     index <- match (from, flist_from_names)
 
     return (flist [index])
