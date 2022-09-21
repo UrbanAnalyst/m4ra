@@ -13,7 +13,6 @@
 #include <RcppParallel.h>
 
 #include "pathfinders.h"
-#include "utils.h"
 
 class DGraph;
 class PathFinder;
