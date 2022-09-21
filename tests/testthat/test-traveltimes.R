@@ -49,3 +49,45 @@ test_that ("times with turn penalty", {
     expect_true (all (rownames (tmat) %in% v$id))
     expect_true (all (colnames (tmat) %in% v$id))
 })
+
+test_that ("save times to local cache", {
+
+    net <- dodgr::weight_streetnet (
+        m4ra_hampi,
+        wt_profile = "bicycle",
+        turn_penalty = TRUE
+    )
+
+    v <- dodgr::dodgr_vertices (net)
+    set.seed (1L)
+    from <- sample (v$id, size = 10)
+
+    path <- file.path (tempdir (), "m4ra")
+    if (dir.exists (path)) {
+        unlink (path, recursive = TRUE)
+    }
+    dir.create (path, recursive = TRUE)
+    fnames <- m4ra_times (net, from = from, path = path)
+
+    expect_type (fnames, "character")
+    expect_equal (length (fnames), length (from))
+    expect_true (all (file.exists (fnames)))
+    expect_true (all (grepl ("m4ra\\_from\\_", fnames)))
+    fnames_from_id <- gsub ("^m4ra\\_from\\_", "", basename (fnames))
+    expect_identical (fnames_from_id, from) # order is the same!!
+
+    # confirm that the saved version is numerically close to version calculated
+    # directly:
+    d1 <- as.numeric (readLines (fnames [1]))
+    d1 [d1 < 0] <- NA
+    d2 <- m4ra_times (net, from = from [1])
+    d2 <- as.numeric (d2)
+
+    d1_index <- which (!is.na (d1))
+    d2_index <- which (!is.na (d2))
+    expect_identical (d1_index, d2_index)
+
+    d1 <- d1 [d1_index]
+    d2 <- d2 [d2_index]
+    expect_true (max (abs (d1 - d2)) < 0.1)
+})
