@@ -174,7 +174,7 @@ struct SaveOneDist : public RcppParallel::Worker
                 {
                     dtemp = d [toi [j]];
                 }
-                out_file << dtemp << std::endl;
+                out_file << std::setprecision (10) << dtemp << std::endl;
             }
             out_file.close ();
         }

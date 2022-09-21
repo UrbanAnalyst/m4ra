@@ -124,7 +124,10 @@ test_that ("save times to local cache", {
 
     d1 <- d1 [d1_index]
     d2 <- d2 [d2_index]
-    expect_true (max (abs (d1 - d2)) < 0.1)
+    # saved files are written with 'setprecision(10)'. For distances of up to
+    # 1000's of metres, that will give a precision of around 1e-6, tested here
+    # as 1e-4 to allow for machine differences.
+    expect_true (max (abs (d1 - d2)) < 1e-4)
 
     # calling again will error because of non-empty path:
     expect_error (
