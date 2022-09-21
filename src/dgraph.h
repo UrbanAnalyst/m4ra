@@ -8,7 +8,11 @@ typedef std::size_t size_t;
 
 /* Directed Graphs
  * ----------------------------------------------------------------------------
- * Author: Mark Padgham, modified from code by Shane Saunders
+ * Author: Mark Padgham
+ * Copied straight from 'dodgr' code, with these functions removed here:
+ * - edgeExists
+ * - reachable
+ * - print
  */
 
 
@@ -73,9 +77,6 @@ class DGraph {
         void clear();
         void addNewEdge(size_t srcVertexNo, size_t destVertexNo,
                 double dist, double wt, size_t edge_id);
-        bool edgeExists(size_t v, size_t w) const;
-        bool reachable(size_t s) const;
-        void print() const;
     private:
         void initVertices();
     

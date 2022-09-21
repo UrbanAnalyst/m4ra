@@ -1,6 +1,10 @@
 /* Directed Graphs
  * ----------------------------------------------------------------------------
- * Author: Mark Padgham, modified from code by Shane Saunders
+ * Author: Mark Padgham
+ * Copied straight from 'dodgr' code, with these functions removed here:
+ * - edgeExists
+ * - reachable
+ * - print
  */
 #include "dgraph.h"
 
@@ -97,69 +101,4 @@ void DGraph::addNewEdge(size_t source, size_t target,
     }
     vertex->inTail = newEdge;
     vertex->inSize++;
-}
-
-bool DGraph::edgeExists(size_t v, size_t w) const
-{
-    /* Scan all existing edges from v to determine whether an edge to w exists.
-    */
-    const DGraphEdge *edge = m_vertices[v].outHead;
-    while(edge) {
-        if(edge->target == w) return true;
-        edge = edge->nextOut;
-    }
-    return false;
-}
-
-/* --- reachable() ---
- * Test whether all vertices are reachable from the source vertex s.
- */
-bool DGraph::reachable (size_t s) const
-{
-    std::vector<size_t> stack(m_vertices.size());
-    size_t tos = 0;
-
-    std::vector<size_t> visited(m_vertices.size(), 0);
-
-    size_t vertexCount = 0;
-    visited [s] = 1;
-    stack [tos++] = s;
-    DGraphEdge *edge;
-    size_t v, w;
-    while (tos) {
-        v = stack [--tos];
-        vertexCount++;
-        edge = m_vertices [v].outHead;
-        while (edge) {
-            w = edge->target;
-            if (!visited [w]) {
-                visited [w] = 1;
-                stack [tos++] = w;
-            }
-            edge = edge->nextOut;
-        }
-    }
-
-    return vertexCount == m_vertices.size();
-}
-
-
-/* --- print() ---
- * Prints a text representation of the graph to the standard output.
- */
-void DGraph::print() const
-{
-    const DGraphEdge *edge;
-
-    Rcpp::Rcout << "Graph (vertex: edge{dist} list) = " << std::endl;
-
-    for(size_t i = 0; i < m_vertices.size(); i++) {
-        Rcpp::Rcout << i << ": ";
-        edge = m_vertices[i].outHead;
-        while(edge) {
-            Rcpp::Rcout << edge->target << "{" << edge->dist << "} ";
-            edge = edge->nextOut;
-        }
-        Rcpp::Rcout << std::endl;
-    }
 }

@@ -270,7 +270,6 @@ bool rcpp_save_sp_dists_par (const Rcpp::DataFrame graph,
         Rcpp::as <std::vector <std::string> > (from_names_in);
 
     size_t nfrom = static_cast <size_t> (from_index.size ());
-    size_t nto = static_cast <size_t> (toi.size ());
 
     const std::vector <std::string> from = graph [".vx0"];
     const std::vector <std::string> to = graph [".vx1"];
