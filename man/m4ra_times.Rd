@@ -4,7 +4,7 @@
 \alias{m4ra_times}
 \title{m4ra_times}
 \usage{
-m4ra_times(graph, from = NULL, to = NULL)
+m4ra_times(graph, from = NULL, to = NULL, path = NULL)
 }
 \arguments{
 \item{graph}{A \code{dodgr} network returned from the \link{weight_streetnet}
@@ -15,7 +15,10 @@ function.}
 be calculated (see Notes)}
 
 \item{to}{Vector or matrix of points \strong{to} which route distances are to be
-calculated (see Notes)
+calculated (see Notes)}
+
+\item{path}{If specified, save individual travel time vectors for each 'from'
+point at that local directory.
 
 \code{from} and \code{to} values can be either two-column matrices or
 equivalent of longitude and latitude coordinates, or else single columns

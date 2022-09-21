@@ -9,6 +9,8 @@
 #' be calculated (see Notes)
 #' @param to Vector or matrix of points **to** which route distances are to be
 #' calculated (see Notes)
+#' @param path If specified, save individual travel time vectors for each 'from'
+#' point at that local directory.
 #'
 #' `from` and `to` values can be either two-column matrices or
 #' equivalent of longitude and latitude coordinates, or else single columns
@@ -24,10 +26,15 @@
 #' @export
 m4ra_times <- function (graph,
                         from = NULL,
-                        to = NULL) {
+                        to = NULL,
+                        path = NULL) {
 
     if (!methods::is (graph, "dodgr_streetnet_sc")) {
         stop ("'graph' must be a 'dodgr_streetnet_sc' object")
+    }
+    if (!is.null (path)) {
+        checkmate::assert_character (path)
+        checkmate::assert_directory_exists (path)
     }
 
     graph <- tbl_to_df (graph)
@@ -72,12 +79,25 @@ m4ra_times <- function (graph,
         to_index <- remap_tf_index_for_tp (to_index, vert_map, from = FALSE)
     }
 
-    d <- calculate_timemat (
-        graph,
-        vert_map,
-        from_index,
-        to_index
-    )
+    if (is.null (path)) {
+
+        d <- calculate_timemat (
+            graph,
+            vert_map,
+            from_index,
+            to_index
+        )
+
+    } else {
+
+        d <- save_time_vecs (
+            graph,
+            vert_map,
+            from_index,
+            to_index,
+            path
+        )
+    }
 
     return (d)
 }
@@ -112,4 +132,30 @@ calculate_timemat <- function (graph,
     }
 
     return (d)
+}
+
+save_time_vecs <- function (graph,
+                            vert_map,
+                            from_index,
+                            to_index,
+                            path) {
+
+    path <- normalizePath (path)
+    path_end <- substr (path, nchar (path), nchar (path))
+    if (path_end != .Platform$file.sep) {
+        path <- paste0 (path, .Platform$file.sep)
+    }
+
+    from_names <- gsub ("\\_start$", "", from_index$id)
+
+    chk <- rcpp_save_sp_dists_par (
+        graph,
+        vert_map,
+        from_index$index,
+        from_names,
+        to_index$index,
+        path
+    )
+
+    return (chk)
 }
