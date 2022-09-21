@@ -114,7 +114,7 @@ struct OneDist : public RcppParallel::Worker
 struct SaveOneDist : public RcppParallel::Worker
 {
     RcppParallel::RVector <int> dp_fromi;
-    const std::vector <std::string> from;
+    const std::vector <std::string> from_names;
     const std::vector <size_t> toi;
     const size_t nverts;
     const std::vector <double> vx;
@@ -125,14 +125,14 @@ struct SaveOneDist : public RcppParallel::Worker
     // constructor
     SaveOneDist (
             const RcppParallel::RVector <int> fromi,
-            const std::vector <std::string> from_in,
+            const std::vector <std::string> from_names_in,
             const std::vector <size_t> toi_in,
             const size_t nverts_in,
             const std::vector <double> vx_in,
             const std::vector <double> vy_in,
             const std::string path_in,
             const std::shared_ptr <DGraph> g_in) :
-        dp_fromi (fromi), from (from_in), toi (toi_in),
+        dp_fromi (fromi), from_names (from_names_in), toi (toi_in),
         nverts (nverts_in), vx (vx_in), vy (vy_in), 
         path (path_in), g (g_in)
     {
@@ -163,8 +163,7 @@ struct SaveOneDist : public RcppParallel::Worker
             }
             pathfinder->AStar (d, w, prev, heuristic, from_i, toi);
 
-            const std::string fname =
-                path + "m4ra_from_" + cut_string_end (from [from_i], "_start");
+            const std::string fname = path + "m4ra_from_" + from_names [i];
             std::ofstream out_file;
             out_file.open (fname.c_str (), std::ofstream::out);
 
