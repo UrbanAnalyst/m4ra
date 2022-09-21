@@ -164,7 +164,7 @@ save_time_vecs <- function (graph,
 
     flist <- list.files (path, full.names = TRUE)
     flist_from_names <- gsub ("^m4ra\\_from\\_", "", basename (flist))
-    index <- match (from, flist_from_names)
+    index <- match (from_names, flist_from_names)
 
     return (flist [index])
 }
