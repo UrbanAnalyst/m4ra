@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.1.052",
+  "version": "0.0.1.053",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -122,7 +122,7 @@
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=dodgr"
+      "sameAs": "https://github.com/atfutures/dodgr"
     },
     "6": {
       "@type": "SoftwareApplication",
@@ -192,7 +192,7 @@
     },
     "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "806.301KB",
+  "fileSize": "806.426KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
   "contIntegration": [
     "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",
