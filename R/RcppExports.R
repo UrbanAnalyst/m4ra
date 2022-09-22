@@ -24,7 +24,7 @@ rcpp_save_sp_dists_par <- function(graph, vert_map_in, from_index, from_names_in
 #' rcpp_scan_times
 #'
 #' @noRd
-rcpp_scan_time_files <- function(tt, times, path, t0) {
-    invisible(.Call(`_m4ra_rcpp_scan_time_files`, tt, times, path, t0))
+rcpp_scan_time_files <- function(tt, times, path) {
+    invisible(.Call(`_m4ra_rcpp_scan_time_files`, tt, times, path))
 }
 

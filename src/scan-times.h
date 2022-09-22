@@ -11,5 +11,4 @@
 
 void rcpp_scan_time_files (const Rcpp::DataFrame tt,
         Rcpp::NumericVector &times,
-        const std::string &path,
-        const double t0);
+        const std::string &path);
