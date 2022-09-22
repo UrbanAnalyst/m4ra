@@ -41,10 +41,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_scan_time_files
+void rcpp_scan_time_files(const Rcpp::DataFrame tt, Rcpp::NumericVector& times, const std::string& path, const double t0);
+RcppExport SEXP _m4ra_rcpp_scan_time_files(SEXP ttSEXP, SEXP timesSEXP, SEXP pathSEXP, SEXP t0SEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type tt(ttSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type times(timesSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< const double >::type t0(t0SEXP);
+    rcpp_scan_time_files(tt, times, path, t0);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_m4ra_rcpp_get_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_get_sp_dists_par, 4},
     {"_m4ra_rcpp_save_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_save_sp_dists_par, 6},
+    {"_m4ra_rcpp_scan_time_files", (DL_FUNC) &_m4ra_rcpp_scan_time_files, 4},
     {NULL, NULL, 0}
 };
 
