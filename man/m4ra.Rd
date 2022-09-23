@@ -30,6 +30,7 @@ Perform a many-to-many multi-modal routing query
 }
 \seealso{
 Other main: 
+\code{\link{m4ra_gtfs_traveltimes}()},
 \code{\link{m4ra_times}()}
 }
 \concept{main}

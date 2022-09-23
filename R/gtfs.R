@@ -10,6 +10,7 @@
 #' day for which the matrix is to be calculated.
 #' @return An integer matrix of fastest travel times between all stops for the
 #' specified 'start_time_limits'
+#' @family main
 #' @export
 
 m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {

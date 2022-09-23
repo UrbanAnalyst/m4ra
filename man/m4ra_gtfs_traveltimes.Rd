@@ -24,3 +24,9 @@ specified 'start_time_limits'
 \description{
 Construct a travel time matrix between all pairs of stops in a 'GTFS' feed.
 }
+\seealso{
+Other main: 
+\code{\link{m4ra_times}()},
+\code{\link{m4ra}()}
+}
+\concept{main}
