@@ -20,7 +20,12 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 
     stops <- unique (gtfs$stops$stop_id)
 
-    num_cores <- parallel::detectCores ()
+    nc <- Sys.getenv ("M4RA_NUM_CORES")
+    if (nzchar (nc)) {
+        num_cores <- as.integer (nc)
+    } else {
+        num_cores <- parallel::detectCores ()
+    }
 
     tt <- parallel::mclapply (stops, function (s) {
 

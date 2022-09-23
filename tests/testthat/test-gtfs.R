@@ -8,6 +8,7 @@ test_that ("gtfs travel times", {
     gtfs <- gtfsrouter::extract_gtfs (z)
     gtfs <- gtfsrouter::gtfs_timetable (gtfs, day = "Monday")
 
+    Sys.setenv ("M4RA_NUM_CORES" = 1L)
     start_time_limits <- 12:13 * 3500
     tt <- m4ra_gtfs_traveltimes (gtfs, start_time_limits = start_time_limits)
 
