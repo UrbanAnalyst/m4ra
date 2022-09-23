@@ -26,7 +26,7 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 
         out <- rep (NA_integer_, length (stops))
 
-        tt <- gtfs_traveltimes (
+        tt <- gtfsrouter::gtfs_traveltimes (
             gtfs,
             from = s,
             start_time_limits = start_time_limits,
