@@ -1,7 +1,7 @@
 # Internal gtfsrouter functions called directly here:
 
-rcpp_traveltimes <- utils::getFromNamespace ("gtfsrouter", "rcpp_traveltimes")
+rcpp_traveltimes <- utils::getFromNamespace ("rcpp_traveltimes", "gtfsrouter")
 
-convert_start_time_limits <- utils::getFromNamespace ("gtfsrouter", "convert_start_time_limits")
+convert_start_time_limits <- utils::getFromNamespace ("convert_start_time_limits", "gtfsrouter")
 
-station_name_to_ids <- utils::getFromNamespace ("gtfsrouter", "station_name_to_ids")
+station_name_to_ids <- utils::getFromNamespace ("station_name_to_ids", "gtfsrouter")
