@@ -19,6 +19,8 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
         gtfs <- gtfsrouter::gtfs_timetable (gtfs)
     }
 
+    start_time_limits <- convert_start_time_limits (start_time_limits)
+
     stops <- unique (gtfs$stops$stop_id)
 
     nc <- Sys.getenv ("M4RA_NUM_CORES")
