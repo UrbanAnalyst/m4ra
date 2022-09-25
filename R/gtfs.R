@@ -19,6 +19,7 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
         gtfs <- gtfsrouter::gtfs_timetable (gtfs)
     }
 
+    # gtfsrouter internal fn:
     start_time_limits <- convert_start_time_limits (start_time_limits)
 
     stops <- gtfs$stops$stop_id
@@ -30,29 +31,36 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
         num_cores <- parallel::detectCores ()
     }
 
-    tt <- parallel::mclapply (stops, function (s) {
+    # gtfsrouter::traveltimes default params:
+    minimise_transfers <- FALSE
+    max_traveltime <- 60 * 60
 
-        out <- rep (NA_integer_, length (stops))
+    dur <- parallel::mclapply (stops, function (s) {
 
-        tt <- gtfsrouter::gtfs_traveltimes (
-            gtfs,
-            from = s,
-            start_time_limits = start_time_limits,
-            from_is_id = TRUE
+        from_is_id <- TRUE
+        grep_fixed <- FALSE
+        # gtfsrouter internal fn:
+        start_stn <- station_name_to_ids (s, gtfs, from_is_id, grep_fixed)
+
+        # gtfsrouter internal fn:
+        stns <- rcpp_traveltimes (
+            gtfs$timetable,
+            gtfs$transfers,
+            nrow (gtfs$stop_ids),
+            start_stn,
+            start_time_limits [1],
+            start_time_limits [2],
+            minimise_transfers,
+            max_traveltime
         )
-        if (nrow (tt) == 0L) {
-            return (out)
-        }
 
-        index <- match (tt$stop_id, stops)
-        out [index] <- tt$duration
-
-        return (out)
+        return (stns [-1, 2])
     }, mc.cores = num_cores)
 
-    tt <- do.call (rbind, tt)
+    dur <- do.call (rbind, dur)
+    dur [dur == .Machine$integer.max] <- NA_integer_
 
-    rownames (tt) <- colnames (tt) <- stops
+    rownames (dur) <- colnames (dur) <- stops
 
-    return (tt)
+    return (dur)
 }
