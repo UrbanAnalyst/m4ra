@@ -24,9 +24,9 @@
 #' traveltimes <- m4ra_times_single_mode (net)
 #' @export
 m4ra_times_single_mode <- function (graph,
-                        from = NULL,
-                        to = NULL,
-                        path = NULL) {
+                                    from = NULL,
+                                    to = NULL,
+                                    path = NULL) {
 
     if (!methods::is (graph, "dodgr_streetnet_sc")) {
         stop ("'graph' must be a 'dodgr_streetnet_sc' object")
