@@ -128,7 +128,7 @@ times_from_net_to_gtfs <- function (graph, gtfs) {
     graph [[grcols$from]] <- graph [[grcols$to]]
     graph [[grcols$to]] <- fr_temp
 
-    tmat <- t (m4ra_times (graph, from = stop_ids))
+    tmat <- t (m4ra_times_single_mode (graph, from = stop_ids))
 
     index <- match (stops$osm_id, stop_ids)
     tmat <- tmat [, index]
@@ -142,7 +142,7 @@ times_from_gtfs_to_net <- function (graph, gtfs) {
 
     stop_ids <- unique (stops$osm_id)
 
-    tmat <- m4ra_times (graph, from = stop_ids)
+    tmat <- m4ra_times_single_mode (graph, from = stop_ids)
 
     index <- match (stops$osm_id, stop_ids)
     tmat <- tmat [index, ]

@@ -5,7 +5,7 @@ test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
 test_that ("time errors", {
 
     expect_error (
-        m4ra_times ("a"),
+        m4ra_times_single_mode ("a"),
         "'graph' must be a 'dodgr_streetnet_sc' object"
     )
 
@@ -16,12 +16,12 @@ test_that ("time errors", {
     )
     net$time_weighted <- NULL
     expect_error (
-        m4ra_times (net),
+        m4ra_times_single_mode (net),
         "Graph does not contain a weighted time column"
     )
     net$time <- NULL
     expect_error (
-        m4ra_times (net),
+        m4ra_times_single_mode (net),
         "graph has no time column"
     )
 
@@ -32,7 +32,7 @@ test_that ("time errors", {
     from <- sample (v$id, size = 10L)
 
     expect_warning (
-        d <- m4ra_times (net_c, from = from),
+        d <- m4ra_times_single_mode (net_c, from = from),
         "graphs with turn penalties should be submitted in full, not contracted form"
     )
 
@@ -52,7 +52,7 @@ test_that ("times without turn penalty", {
     expect_s3_class (net, "dodgr_streetnet_sc")
     expect_equal (attr (net, "turn_penalty"), 0)
 
-    tmat <- m4ra_times (net)
+    tmat <- m4ra_times_single_mode (net)
     expect_type (tmat, "double")
 
     v <- dodgr::dodgr_vertices (net)
@@ -80,7 +80,7 @@ test_that ("times with turn penalty", {
     expect_type (tp, "double")
     expect_true (tp > 0)
 
-    tmat <- m4ra_times (net)
+    tmat <- m4ra_times_single_mode (net)
     expect_type (tmat, "double")
 
     v <- dodgr::dodgr_vertices (net)
@@ -107,7 +107,7 @@ test_that ("save times to local cache", {
         unlink (path, recursive = TRUE)
     }
     dir.create (path, recursive = TRUE)
-    fnames <- m4ra_times (net, from = from, path = path)
+    fnames <- m4ra_times_single_mode (net, from = from, path = path)
 
     expect_type (fnames, "character")
     expect_equal (length (fnames), length (from))
@@ -120,7 +120,7 @@ test_that ("save times to local cache", {
     # directly:
     d1 <- as.numeric (readLines (fnames [1]))
     d1 [d1 < 0] <- NA
-    d2 <- m4ra_times (net, from = from [1])
+    d2 <- m4ra_times_single_mode (net, from = from [1])
     d2 <- as.numeric (d2)
 
     d1_index <- which (!is.na (d1))
@@ -136,7 +136,7 @@ test_that ("save times to local cache", {
 
     # calling again will error because of non-empty path:
     expect_error (
-        fnames <- m4ra_times (net, from = from, path = path),
+        fnames <- m4ra_times_single_mode (net, from = from, path = path),
         "must be an empty directory"
     )
 })

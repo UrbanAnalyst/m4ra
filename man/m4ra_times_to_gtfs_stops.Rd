@@ -31,7 +31,7 @@ to to all points in a street network.
 \seealso{
 Other main: 
 \code{\link{m4ra_gtfs_traveltimes}()},
-\code{\link{m4ra_times}()},
+\code{\link{m4ra_times_single_mode}()},
 \code{\link{m4ra}()}
 }
 \concept{main}

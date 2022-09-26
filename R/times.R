@@ -1,6 +1,6 @@
-#' m4ra_times
+#' m4ra_times_single_mode
 #'
-#' Calculate matrix of pair-wise travel times between points.
+#' Calculate matrix of pair-wise single-mode travel times between points.
 #'
 #' @param graph A `dodgr` network returned from the \link{weight_streetnet}
 #' function using a network obtained with the \pkg{osmdata} `osmdata_sc`
@@ -22,9 +22,9 @@
 #' @family main
 #' @examples
 #' net <- dodgr::weight_streetnet (m4ra_hampi, wt_profile = "foot")
-#' traveltimes <- m4ra_times (net)
+#' traveltimes <- m4ra_times_single_mode (net)
 #' @export
-m4ra_times <- function (graph,
+m4ra_times_single_mode <- function (graph,
                         from = NULL,
                         to = NULL,
                         path = NULL) {
