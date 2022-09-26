@@ -2,7 +2,7 @@
 
 tbl_to_df <- utils::getFromNamespace ("tbl_to_df", "dodgr")
 
-graph_cols <- utils::getFromNamespace ("dodgr_graph_cols", "dodgr")
+dodgr_graph_cols <- utils::getFromNamespace ("dodgr_graph_cols", "dodgr")
 
 create_compound_junctions <-
     utils::getFromNamespace ("create_compound_junctions", "dodgr")

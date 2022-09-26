@@ -39,7 +39,7 @@ m4ra_times <- function (graph,
 
     graph <- tbl_to_df (graph)
 
-    gr_cols <- graph_cols (graph)
+    gr_cols <- dodgr_graph_cols (graph)
     if (is.na (gr_cols$time)) {
         stop ("graph has no time column")
     }
