@@ -106,8 +106,8 @@ match_stops_to_network <- function (graph, gtfs) {
         y = gtfs$stops$stop_lat
     )
 
-    v <- dodgr_vertices (graph)
-    stop_index <- match_pts_to_verts (v, stops [, c ("x", "y")])
+    v <- dodgr::dodgr_vertices (graph)
+    stop_index <- dodgr::match_pts_to_verts (v, stops [, c ("x", "y")])
     stops$osm_id <- v$id [stop_index]
 
     return (stops)
