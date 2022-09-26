@@ -64,3 +64,86 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 
     return (dur)
 }
+
+#' Construct a travel time matrix to or from all stops in a 'GTFS' feed from or
+#' to to all points in a street network.
+#'
+#' @param graph A `dodgr` network returned from the \link{weight_streetnet}
+#' function using a network obtained with the \pkg{osmdata} `osmdata_sc`
+#' function.
+#' @param gtfs A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
+#' 'extract_gtfs'.
+#' @param graph_to_gtfs If `TRUE`, generate matrix of times from all network
+#' junctions in 'graph' to each stop in the 'gtfs$stops' table; otherwise
+#' generate matrix of times from all stops to all network junctions.
+#' @return An integer matrix of fastest travel times either between all 'gtfs'
+#' stops and all network points (for 'graph_to_gtfs = FALSE'), or the other way
+#' around (for 'graph_to_gtfs = TRUE').
+#' @family main
+#' @export
+
+m4ra_times_to_gtfs_stops <- function (graph, gtfs, graph_to_gtfs = TRUE) {
+
+    checkmate::assert_class (graph, "dodgr_streetnet_sc")
+    checkmate::assert_class (gtfs, "gtfs")
+    checkmate::assert_logical (graph_to_gtfs)
+
+    if (graph_to_gtfs) {
+        tmat <- times_from_net_to_gtfs (graph, gtfs)
+    } else {
+        tmat <- times_from_gtfs_to_net (graph, gtfs)
+    }
+
+    return (tmat)
+}
+
+match_stops_to_network <- function (graph, gtfs) {
+
+    stops <- data.frame (
+        stop_id = gtfs$stops$stop_id,
+        name = gtfs$stops$stop_name,
+        x = gtfs$stops$stop_lon,
+        y = gtfs$stops$stop_lat
+    )
+
+    v <- dodgr_vertices (graph)
+    stop_index <- match_pts_to_verts (v, stops [, c ("x", "y")])
+    stops$osm_id <- v$id [stop_index]
+
+    return (stops)
+}
+
+times_from_net_to_gtfs <- function (graph, gtfs) {
+
+    stops <- match_stops_to_network (graph, gtfs)
+
+    stop_ids <- unique (stops$osm_id)
+
+    # Reverse the network, and calculate times from stop_ids to all network
+    # points.
+    grcols <- dodgr_graph_cols (graph)
+    fr_temp <- graph [[grcols$from]]
+    graph [[grcols$from]] <- graph [[grcols$to]]
+    graph [[grcols$to]] <- fr_temp
+
+    tmat <- t (m4ra_times (graph, from = stop_ids))
+
+    index <- match (stops$osm_id, stop_ids)
+    tmat <- tmat [, index]
+
+    return (tmat)
+}
+
+times_from_gtfs_to_net <- function (graph, gtfs) {
+
+    stops <- match_stops_to_network (graph, gtfs)
+
+    stop_ids <- unique (stops$osm_id)
+
+    tmat <- m4ra_times (graph, from = stop_ids)
+
+    index <- match (stops$osm_id, stop_ids)
+    tmat <- tmat [index, ]
+
+    return (tmat)
+}

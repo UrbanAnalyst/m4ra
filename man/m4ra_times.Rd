@@ -37,6 +37,7 @@ traveltimes <- m4ra_times (net)
 \seealso{
 Other main: 
 \code{\link{m4ra_gtfs_traveltimes}()},
+\code{\link{m4ra_times_to_gtfs_stops}()},
 \code{\link{m4ra}()}
 }
 \concept{main}
