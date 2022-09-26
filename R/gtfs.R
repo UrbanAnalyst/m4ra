@@ -62,6 +62,8 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 
     rownames (dur) <- colnames (dur) <- stops
 
+    diag (dur) <- 0L
+
     return (dur)
 }
 
