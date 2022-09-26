@@ -89,8 +89,8 @@ test_that ("gtfs to graph fns", {
     start_time_limits <- 12:13 * 3500
     tmat_gtfs_intern <- m4ra_gtfs_traveltimes (gtfs, start_time_limits = start_time_limits)
 
-    tmat_gtfs_net <- m4ra_times_to_gtfs_stops (graph, gtfs, graph_to_gtfs = FALSE)
-    tmat_net_gtfs <- m4ra_times_to_gtfs_stops (graph, gtfs, graph_to_gtfs = TRUE)
+    tmat_gtfs_net <- m4ra_times_to_gtfs_stops (graph, gtfs = gtfs, graph_to_gtfs = FALSE)
+    tmat_net_gtfs <- m4ra_times_to_gtfs_stops (graph, gtfs = gtfs, graph_to_gtfs = TRUE)
 
     nstops <- nrow (gtfs$stops)
     nverts <- nrow (dodgr::dodgr_vertices (graph))

@@ -5,7 +5,7 @@
 \title{Construct a travel time matrix to or from all stops in a 'GTFS' feed from or
 to to all points in a street network.}
 \usage{
-m4ra_times_to_gtfs_stops(graph, gtfs, graph_to_gtfs = TRUE)
+m4ra_times_to_gtfs_stops(graph, gtfs, from = NULL, graph_to_gtfs = TRUE)
 }
 \arguments{
 \item{graph}{A \code{dodgr} network returned from the \link{weight_streetnet}
@@ -15,9 +15,14 @@ function.}
 \item{gtfs}{A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
 'extract_gtfs'.}
 
+\item{from}{Vector or matrix of points \strong{from} which route distances are to
+be calculated. If not given, times are calculated from all points in the
+network. Only has any effect is \code{graph_to_gtfs} is \code{TRUE}.}
+
 \item{graph_to_gtfs}{If \code{TRUE}, generate matrix of times from all network
-junctions in 'graph' to each stop in the 'gtfs$stops' table; otherwise
-generate matrix of times from all stops to all network junctions.}
+junctions in 'graph' (or all \code{from} points if specified) to each stop in the
+'gtfs$stops' table; otherwise generate matrix of times from all stops to all
+network junctions.}
 }
 \value{
 An integer matrix of fastest travel times either between all 'gtfs'

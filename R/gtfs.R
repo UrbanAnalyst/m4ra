@@ -75,23 +75,27 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 #' function.
 #' @param gtfs A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
 #' 'extract_gtfs'.
+#' @param from Vector or matrix of points **from** which route distances are to
+#' be calculated. If not given, times are calculated from all points in the
+#' network. Only has any effect is `graph_to_gtfs` is `TRUE`.
 #' @param graph_to_gtfs If `TRUE`, generate matrix of times from all network
-#' junctions in 'graph' to each stop in the 'gtfs$stops' table; otherwise
-#' generate matrix of times from all stops to all network junctions.
+#' junctions in 'graph' (or all `from` points if specified) to each stop in the
+#' 'gtfs$stops' table; otherwise generate matrix of times from all stops to all
+#' network junctions.
 #' @return An integer matrix of fastest travel times either between all 'gtfs'
 #' stops and all network points (for 'graph_to_gtfs = FALSE'), or the other way
 #' around (for 'graph_to_gtfs = TRUE').
 #' @family main
 #' @export
 
-m4ra_times_to_gtfs_stops <- function (graph, gtfs, graph_to_gtfs = TRUE) {
+m4ra_times_to_gtfs_stops <- function (graph, gtfs, from = NULL, graph_to_gtfs = TRUE) {
 
     checkmate::assert_class (graph, "dodgr_streetnet_sc")
     checkmate::assert_class (gtfs, "gtfs")
     checkmate::assert_logical (graph_to_gtfs)
 
     if (graph_to_gtfs) {
-        tmat <- times_from_net_to_gtfs (graph, gtfs)
+        tmat <- times_from_net_to_gtfs (graph, gtfs, from = from)
     } else {
         tmat <- times_from_gtfs_to_net (graph, gtfs)
     }
@@ -115,7 +119,7 @@ match_stops_to_network <- function (graph, gtfs) {
     return (stops)
 }
 
-times_from_net_to_gtfs <- function (graph, gtfs) {
+times_from_net_to_gtfs <- function (graph, gtfs, from = NULL) {
 
     stops <- match_stops_to_network (graph, gtfs)
 
@@ -128,7 +132,12 @@ times_from_net_to_gtfs <- function (graph, gtfs) {
     graph [[grcols$from]] <- graph [[grcols$to]]
     graph [[grcols$to]] <- fr_temp
 
-    tmat <- t (m4ra_times_single_mode (graph, from = stop_ids))
+    to <- NULL
+    if (!is.null (from)) {
+        to = from
+    }
+
+    tmat <- t (m4ra_times_single_mode (graph, from = stop_ids, to = to))
 
     index <- match (stops$osm_id, stop_ids)
     tmat <- tmat [, index]
