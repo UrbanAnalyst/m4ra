@@ -14,7 +14,7 @@ to to all points in a street network."><!-- mathjax --><script src="https://cdnj
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.095</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.100</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ to to all points in a street network.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_times_to_gtfs_stops</span><span class="op">(</span><span class="va">graph</span>, <span class="va">gtfs</span>, graph_to_gtfs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_times_to_gtfs_stops</span><span class="op">(</span><span class="va">graph</span>, <span class="va">gtfs</span>, from <span class="op">=</span> <span class="cn">NULL</span>, graph_to_gtfs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,10 +73,17 @@ function.</p></dd>
 'extract_gtfs'.</p></dd>
 
 
+<dt>from</dt>
+<dd><p>Vector or matrix of points <strong>from</strong> which route distances are to
+be calculated. If not given, times are calculated from all points in the
+network. Only has any effect is <code>graph_to_gtfs</code> is <code>TRUE</code>.</p></dd>
+
+
 <dt>graph_to_gtfs</dt>
 <dd><p>If <code>TRUE</code>, generate matrix of times from all network
-junctions in 'graph' to each stop in the 'gtfs$stops' table; otherwise
-generate matrix of times from all stops to all network junctions.</p></dd>
+junctions in 'graph' (or all <code>from</code> points if specified) to each stop in the
+'gtfs$stops' table; otherwise generate matrix of times from all stops to all
+network junctions.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -91,6 +98,8 @@ around (for 'graph_to_gtfs = TRUE').</p>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other main: 
 <code><a href="m4ra_gtfs_traveltimes.html">m4ra_gtfs_traveltimes</a>()</code>,
+<code>m4ra_times_multi_modal()</code>,
+<code>m4ra_times_multi_mode()</code>,
 <code><a href="m4ra_times_single_mode.html">m4ra_times_single_mode</a>()</code>,
 <code><a href="m4ra.html">m4ra</a>()</code></p></div>
     </div>
