@@ -1,6 +1,5 @@
-#' m4ra_times_single_mode
-#'
-#' Calculate matrix of pair-wise single-mode travel times between points.
+#' Calculate matrix of pair-wise travel times between points using a single mode
+#' of transport.
 #'
 #' @param graph A `dodgr` network returned from the \link{weight_streetnet}
 #' function using a network obtained with the \pkg{osmdata} `osmdata_sc`
