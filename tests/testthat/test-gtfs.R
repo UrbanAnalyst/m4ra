@@ -12,7 +12,7 @@ test_that ("gtfs travel times", {
     start_time_limits <- 12:13 * 3500
     tt <- m4ra_gtfs_traveltimes (gtfs, start_time_limits = start_time_limits)
 
-    expect_type (tt, "double")
+    expect_type (tt, "integer")
     expect_equal (nrow (tt), ncol (tt))
     expect_true (length (which (is.na (tt))) > 0)
     expect_true (length (which (!is.na (tt))) > 0)
