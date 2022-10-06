@@ -65,7 +65,6 @@ m4ra_times_single_mode <- function (graph,
                 "produce unexpected behaviour."
             )
         }
-        graph <- create_compound_junctions (graph)$graph
         res <- create_compound_junctions (graph)
         compound_junctions <- res$edge_map
         graph <- res$graph
