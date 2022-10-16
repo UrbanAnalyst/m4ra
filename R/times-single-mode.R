@@ -42,16 +42,12 @@ m4ra_times_single_mode <- function (graph,
     if (is.na (gr_cols$time)) {
         stop ("graph has no time column")
     }
-
-    graph [[gr_cols$d]] <- graph [[gr_cols$time]]
-
     if (is.na (gr_cols$time_weighted)) {
         stop (
             "Graph does not contain a weighted time column from ",
             "which to calculate fastest paths."
         )
     }
-    graph [[gr_cols$d_weighted]] <- graph [[gr_cols$time_weighted]]
 
     vert_map <- make_vert_map (graph, gr_cols, xy = TRUE)
     from_index <- get_to_from_index (graph, vert_map, gr_cols, from)
@@ -76,6 +72,9 @@ m4ra_times_single_mode <- function (graph,
         from_index <- remap_tf_index_for_tp (from_index, vert_map, from = TRUE)
         to_index <- remap_tf_index_for_tp (to_index, vert_map, from = FALSE)
     }
+    graph [[gr_cols$d]] <- graph [[gr_cols$time]]
+    graph [[gr_cols$d_weighted]] <- graph [[gr_cols$time_weighted]]
+
 
     if (is.null (path)) {
 
