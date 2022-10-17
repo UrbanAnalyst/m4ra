@@ -57,7 +57,7 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot") {
 
     flist <- list.files (m4ra_cache_dir (), full.names = TRUE)
     flist <- grep (city, flist, value = TRUE)
-    f <- grep ("foot", flist, value = TRUE)
+    f <- grep (mode, flist, value = TRUE)
     if (length (f) != 1L) {
         stop ("No single file found for [city, mode] = [", city, ", ", mode, "]")
     }
