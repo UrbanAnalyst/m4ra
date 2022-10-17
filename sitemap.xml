@@ -22,10 +22,19 @@
     <loc>https://atfutures.github.io/m4ra/reference/m4ra_batch_weight_networks.html</loc>
   </url>
   <url>
+    <loc>https://atfutures.github.io/m4ra/reference/m4ra_bike_car_ratio_areas.html</loc>
+  </url>
+  <url>
+    <loc>https://atfutures.github.io/m4ra/reference/m4ra_bike_car_times.html</loc>
+  </url>
+  <url>
     <loc>https://atfutures.github.io/m4ra/reference/m4ra_gtfs_traveltimes.html</loc>
   </url>
   <url>
     <loc>https://atfutures.github.io/m4ra/reference/m4ra_hampi.html</loc>
+  </url>
+  <url>
+    <loc>https://atfutures.github.io/m4ra/reference/m4ra_load_cached_network.html</loc>
   </url>
   <url>
     <loc>https://atfutures.github.io/m4ra/reference/m4ra_network_hash.html</loc>
