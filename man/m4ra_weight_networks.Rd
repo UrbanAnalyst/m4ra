@@ -4,11 +4,13 @@
 \alias{m4ra_weight_networks}
 \title{Cache weighted networks for routing query}
 \usage{
-m4ra_weight_networks(net, quiet = TRUE)
+m4ra_weight_networks(net, city, quiet = TRUE)
 }
 \arguments{
 \item{net}{An urban network in \code{osmdata_sc} format from the \pkg{osmdata}
 package.}
+
+\item{city}{Name of city; only used to name cached network files.}
 
 \item{quiet}{If \code{FALSE}, display progress information on screen.}
 }
@@ -19,7 +21,8 @@ variously weighted network representations used in \link{m4ra}.
 \description{
 Uses a default cache location specified by \code{rappdirs::user_cache_dir()}. This
 location can be over-ridden by specifying a local environment variable,
-"M4RA_CACHE_DIR".
+"M4RA_CACHE_DIR". The "city" parameter is only used as a prefix for the
+cached networks.
 }
 \seealso{
 Other cache: 

@@ -2,27 +2,34 @@
 #'
 #' Uses a default cache location specified by `rappdirs::user_cache_dir()`. This
 #' location can be over-ridden by specifying a local environment variable,
-#' "M4RA_CACHE_DIR".
+#' "M4RA_CACHE_DIR". The "city" parameter is only used as a prefix for the
+#' cached networks.
 #'
 #' @inheritParams m4ra
+#' @param city Name of city; only used to name cached network files.
 #' @return A character vector of local locations of cached versions of the
 #' variously weighted network representations used in \link{m4ra}.
 #' @family cache
 #' @export
-m4ra_weight_networks <- function (net, quiet = TRUE) {
+m4ra_weight_networks <- function (net, city, quiet = TRUE) {
+
+    checkmate::assert_character (city)
 
     requireNamespace ("dplyr")
     requireNamespace ("geodist")
 
-    wt_profiles <- c ("foot", "bicycle")
+    wt_profiles <- c ("foot", "bicycle", "motorcar")
 
-    filenames <- cache_networks (net,
-        wt_profiles = wt_profiles, quiet = quiet)
+    filenames <- cache_networks (
+        net,
+        city = city,
+        wt_profiles = wt_profiles,
+        quiet = quiet)
 
     return (filenames)
 }
 
-cache_networks <- function (net, wt_profiles, quiet = TRUE) {
+cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
     hash <- m4ra_network_hash (net)
 
@@ -32,7 +39,7 @@ cache_networks <- function (net, wt_profiles, quiet = TRUE) {
 
         filename <- file.path (
             m4ra_cache_dir (),
-            paste0 ("m4ra-", hash, "-", w, ".Rds")
+            paste0 ("m4ra-", city, "-", hash, "-", w, ".Rds")
         )
 
         if (!file.exists (filename)) {
@@ -40,7 +47,12 @@ cache_networks <- function (net, wt_profiles, quiet = TRUE) {
             if (!quiet) {
                 cli::cli_alert_info ("Weighting network with '{w}' profile")
             }
-            net_w <- dodgr::weight_streetnet (net, wt_profile = w)
+            if (w == "motorcar") {
+                f <- write_wt_profile (traffic_lights = 16, turn = 1)
+                net_w <- dodgr::weight_streetnet (net, wt_profile = w, wt_profile_file = f)
+            } else {
+                net_w <- dodgr::weight_streetnet (net, wt_profile = w)
+            }
 
             fst::write_fst (net_w, filename)
         }
@@ -49,4 +61,37 @@ cache_networks <- function (net, wt_profiles, quiet = TRUE) {
     }
 
     return (filenames)
+}
+
+write_wt_profile <- function (traffic_lights = 1, turn = 2) {
+
+    f <- file.path (tempdir (), "wt_profile.json")
+    dodgr::write_dodgr_wt_profile (f)
+
+    w <- readLines (f)
+
+    p <- grep ("\"penalties\"\\:\\s", w)
+    m <- grep ("\"motorcar\"", w)
+    m <- m [which (m > p) [1]]
+    tl <- grep ("\"traffic_lights\"", w)
+    tl <- tl [which (tl > m) [1]]
+    tu <- grep ("\"turn\"", w)
+    tu <- tu [which (tu > m) [1]]
+
+    w [tl] <- gsub (
+        "[0-9]*\\,$",
+        paste0 (traffic_lights, ","),
+        w [tl],
+        fixed = FALSE
+    )
+    w [tu] <- gsub (
+        "[0-9]*(\\.[0-9])\\,$",
+        paste0 (turn, ","),
+        w [tu],
+        fixed = FALSE
+    )
+
+    writeLines (w, f)
+
+    return (f)
 }
