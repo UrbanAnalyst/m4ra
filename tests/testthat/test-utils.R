@@ -28,5 +28,5 @@ test_that ("cache dir", {
     expect_true (d0 == tempdir ())
     expect_true (d1 != tempdir ())
 
-    unlink (d1, recursive = TRUE)
+    #unlink (d1, recursive = TRUE)
 })
