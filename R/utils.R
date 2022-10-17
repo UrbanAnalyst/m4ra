@@ -53,6 +53,8 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot") {
     checkmate::assert_character (city, max.len = 1L)
     checkmate::assert_character (mode, max.len = 1L)
 
+    mode <- match.arg (tolower (mode), c ("foot", "bicycle", "motorcar"))
+
     flist <- list.files (m4ra_cache_dir (), full.names = TRUE)
     flist <- grep (city, flist, value = TRUE)
     f <- grep ("foot", flist, value = TRUE)
@@ -60,5 +62,12 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot") {
         stop ("No single file found for [city, mode] = [", city, ", ", mode, "]")
     }
 
-    return (fst::read_fst (f))
+    graph <- fst::read_fst (f)
+
+    class (graph) <- c ("dodgr_streetnet_sc", class (graph))
+    attr (graph, "wt_profile") <- mode
+    attr (graph, "left_side") <- FALSE
+    attr (graph, "turn_penalty") <- ifelse (mode == "motorcar", 1L, 0L)
+
+    return (graph)
 }
