@@ -10,8 +10,6 @@
 #' calculated. Typically obtained by loading one weighted network, and
 #' sampling or extracting vertices from the \pkg{dodgr} function
 #' `dodgr_vertices`.
-#' @param ratio_limits Limits of ratios of bicycle to automobile times for which
-#' areas are to be calculated.
 #' @return A `data.frame` of destination vertices, including Open Street Map ID
 #' values, and longitude and latitude values, and four variables:
 #' \itemize{
@@ -35,6 +33,9 @@
 m4ra_bike_car_times <- function (city = NULL, from = NULL) {
 
     requireNamespace ("dplyr")
+
+    # suppress no visible binding notes:
+    bike_t <- car_t <- walk_d <- ratio <- NULL
 
     graph_f <- m4ra_load_cached_network (city, mode = "foot")
     v_f <- dodgr::dodgr_vertices (graph_f)
@@ -74,4 +75,41 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL) {
         dplyr::select (-c ("component", "n"))
 
     return (dat)
+}
+
+#' Convert bicycle and automobile times into equivalent areas for a specified
+#' range of ratios of the two travel times.
+#'
+#' @param bike_car_dat Result of \link{m4ra_bike_car_times} function.
+#' @param ratio_lims Vector of ratio limits used to calculate areas within which
+#' ratio of bicycle to automobile times is less than specified limit.
+#' @family analyses
+#' @export
+m4ra_bike_car_ratio_areas <- function (bike_car_dat, ratio_lims = 1:20 / 5) {
+
+    requireNamespace ("sfheaders")
+    requireNamespace ("sf")
+
+    ratio_lims <- ratio_lims [which (ratio_lims < max (bike_car_dat$ratio))]
+
+    # Convex hull area (in square km) for one ratio:
+    ratio_area <- function (dat, ratio_lim = 1.0) {
+
+        xy <- as.matrix (dat [c ("x", "y")])
+        s <- cbind (ratio = dat$ratio, geometry = sfheaders::sf_point (xy))
+        sf::st_crs (s) <- 4326
+        s <- s [s$ratio < ratio_lim, ]
+        shull <- sf::st_convex_hull (sf::st_union (s))
+        return (sf::st_area (shull) /  1e6)
+    }
+
+    ratio_areas <- vapply (ratio_lims, function (r) ratio_area (bike_car_dat, ratio_lim = r),
+                           numeric (1L))
+
+    res <- data.frame (
+        ratio = ratio_lims,
+        area = ratio_areas
+    )
+
+    return (res)
 }

@@ -14,9 +14,6 @@ m4ra_bike_car_times(city = NULL, from = NULL)
 calculated. Typically obtained by loading one weighted network, and
 sampling or extracting vertices from the \pkg{dodgr} function
 \code{dodgr_vertices}.}
-
-\item{ratio_limits}{Limits of ratios of bicycle to automobile times for which
-areas are to be calculated.}
 }
 \value{
 A \code{data.frame} of destination vertices, including Open Street Map ID
@@ -41,5 +38,9 @@ v <- dodgr::dodgr_vertices (net)
 from <- sample (v$id, size = 10)
 dat <- m4ra_bike_car_ratios (city = city, from = from)
 }
+}
+\seealso{
+Other analyses: 
+\code{\link{m4ra_bike_car_ratio_areas}()}
 }
 \concept{analyses}
