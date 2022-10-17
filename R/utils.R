@@ -40,3 +40,25 @@ m4ra_network_hash <- function (net) {
 
     return (hash)
 }
+
+#' Load cached file for one city and mode
+#'
+#' @param city City for which file is to be loaded.
+#' @param mode One of "foot", "bicycle", or "motorcar"
+#' @return Previously cached, weighted streetnet for specified city and mode.
+#' @family cache
+#' @export
+m4ra_load_cached_network <- function (city = NULL, mode = "foot") {
+
+    checkmate::assert_character (city, max.len = 1L)
+    checkmate::assert_character (mode, max.len = 1L)
+
+    flist <- list.files (m4ra_cache_dir (), full.names = TRUE)
+    flist <- grep (city, flist, value = TRUE)
+    f <- grep ("foot", flist, value = TRUE)
+    if (length (f) != 1L) {
+        stop ("No single file found for [city, mode] = [", city, ", ", mode, "]")
+    }
+
+    return (fst::read_fst (f))
+}
