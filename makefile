@@ -1,15 +1,29 @@
-LFILE = README
+.PHONY: all build check document test
 
-all: knith open 
+RFILE = README
 
-knith: $(LFILE).Rmd
-	echo "rmarkdown::render('$(LFILE).Rmd',output_file='$(LFILE).html')" | R --no-save -q
+all: document build check
 
-knitr: $(LFILE).Rmd
-	echo "rmarkdown::render('$(LFILE).Rmd',rmarkdown::md_document(variant='gfm'))" | R --no-save -q
-
-open: $(LFILE).html
-	xdg-open $(LFILE).html &
+build: doc
+	R CMD build .
 
 clean:
-	rm -rf *.html *.png README_cache
+	-rm -f m4ra*tar.gz
+	-rm -fr m4ra.Rcheck
+	#-rm -fr src/*.{o,so}
+
+doc: clean
+	Rscript -e 'devtools::document()'
+	Rscript -e 'rmarkdown::render("$(RFILE).Rmd",rmarkdown::md_document(variant="gfm"))'
+
+knith:
+	Rscript -e 'rmarkdown::render("$(RFILE).Rmd",output_file="$(RFILE).html")'
+
+test:
+	Rscript -e 'devtools::test()'
+
+check:
+	Rscript -e 'library(pkgcheck); checks <- pkgcheck(); print(checks); summary (checks)'
+
+install: clean
+	R CMD INSTALL .
