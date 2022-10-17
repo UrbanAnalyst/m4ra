@@ -8,6 +8,9 @@ reference:
 - title: Main functions
   contents:
   - has_concept("main")
+- title: Analysis functions
+  contents:
+  - has_concept("analyses")
 - title: Save, Load, and Caching
   contents:
   - has_concept("cache")

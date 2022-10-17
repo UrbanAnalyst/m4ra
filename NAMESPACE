@@ -2,7 +2,9 @@
 
 export(m4ra)
 export(m4ra_batch_weight_networks)
+export(m4ra_bike_car_times)
 export(m4ra_gtfs_traveltimes)
+export(m4ra_load_cached_network)
 export(m4ra_network_hash)
 export(m4ra_times_multi_modal)
 export(m4ra_times_multi_mode)
