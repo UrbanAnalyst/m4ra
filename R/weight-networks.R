@@ -49,7 +49,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
             }
             if (w == "motorcar") {
                 f <- write_wt_profile (traffic_lights = 16, turn = 1)
-                net_w <- dodgr::weight_streetnet (net, wt_profile = w, wt_profile_file = f)
+                net_w <- dodgr::weight_streetnet (net, wt_profile = w, wt_profile_file = f, turn_penalty = TRUE)
             } else {
                 net_w <- dodgr::weight_streetnet (net, wt_profile = w)
             }
@@ -117,7 +117,7 @@ m4ra_batch_weight_networks <- function (net_dir, remove_these = NULL) {
     flist <- list.files (net_dir, pattern = "\\.Rds")
     cities <- gsub ("\\-sc.*$", "", flist )
     cities <- cities [which (!cities %in% remove_these)]
-    flist <- list.files (net_dir, pattern = "\\.Rds", full.names = TRUE)
+    flist <- normalizePath (list.files (net_dir, pattern = "\\.Rds", full.names = TRUE))
 
     count <- 1
     for (ci in cities) {
@@ -132,7 +132,7 @@ m4ra_batch_weight_networks <- function (net_dir, remove_these = NULL) {
 
         net <- readRDS (f)
         filenames <- m4ra_weight_networks (
-            readRDS (f),
+            net,
             city = gsub ("(\\-|\\s).*$", "", ci),
             quiet = FALSE
         )
