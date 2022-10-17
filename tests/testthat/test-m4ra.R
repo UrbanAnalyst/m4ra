@@ -13,8 +13,6 @@ test_that ("m4ra errors", {
     net <- structure (1L, class = "osmdata_sc")
     expect_error (m4ra (net = net),
         "Assertion on \'from\' failed: Must be of type \'character\', not \'NULL\'")
-    expect_error (m4ra (net = net, from = "a"),
-        "Unknown class")
 
     net <- m4ra_hampi
     expect_error (m4ra (net = net, from = "a", gtfs = 1L),

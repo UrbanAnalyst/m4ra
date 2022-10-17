@@ -28,5 +28,5 @@ m4ra <- function (net, gtfs = NULL, from = NULL, to = NULL, quiet = FALSE) {
 
     m4ra_dir <- m4ra_cache_dir ()
 
-    net_files <- m4ra_weight_networks (net)
+    #net_files <- m4ra_weight_networks (net)
 }

@@ -22,11 +22,11 @@ test_that ("weight networks", {
     skip_if (is.null (chks)) # shouldn't happen
 
     expect_message (
-        f <- m4ra_weight_networks (m4ra_hampi, quiet = FALSE),
+        f <- m4ra_weight_networks (m4ra_hampi, city = "hampi", quiet = FALSE),
         "Weighting network with"
     )
 
     expect_type (f, "character")
-    expect_length (f, 2L)
+    expect_length (f, 3L)
     expect_true (all (file.exists (f)))
 })
