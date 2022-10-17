@@ -26,6 +26,7 @@ cached networks.
 }
 \seealso{
 Other cache: 
+\code{\link{m4ra_batch_weight_networks}()},
 \code{\link{m4ra_network_hash}()}
 }
 \concept{cache}

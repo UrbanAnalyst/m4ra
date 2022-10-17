@@ -20,6 +20,7 @@ have been previously cached.
 }
 \seealso{
 Other cache: 
+\code{\link{m4ra_batch_weight_networks}()},
 \code{\link{m4ra_weight_networks}()}
 }
 \concept{cache}

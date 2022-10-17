@@ -95,3 +95,46 @@ write_wt_profile <- function (traffic_lights = 1, turn = 2) {
 
     return (f)
 }
+
+#' Cache a directory full of street networks for routing queries
+#'
+#' This function runs of a directory which contain a number of \pkg{silicate} or
+#' `sc`-formatted street networks, generated with the `dodgr_streetnet_sc`
+#' function of the \pkg{dodgr} package. The function uses a default cache
+#' location specified by `rappdirs::user_cache_dir()`. This location can be
+#' over-ridden by specifying a local environment variable, "M4RA_CACHE_DIR".
+#'
+#' @param net_dir Path of local directory containing 'sc'-format street
+#' networks.
+#' @param remove_these Names of any 'sc'-format files which should not be
+#' converted into weighted network form.
+#' @return A character vector of local locations of cached versions of the
+#' variously weighted network representations used in \link{m4ra}.
+#' @family cache
+#' @export
+m4ra_batch_weight_networks <- function (net_dir, remove_these = NULL) {
+
+    flist <- list.files (net_dir, pattern = "\\.Rds")
+    cities <- gsub ("\\-sc.*$", "", flist )
+    cities <- cities [which (!cities %in% remove_these)]
+    flist <- list.files (net_dir, pattern = "\\.Rds", full.names = TRUE)
+
+    count <- 1
+    for (ci in cities) {
+
+        cli::cli_h2 (paste0 (cli::col_green (ci), " [", count, " / ", length (cities), "]"))
+        count <- count + 1
+
+        f <- grep (ci, flist, value = TRUE)
+        if (length (f) != 1L) {
+            stop ("Error determining network file for [", ci, "]")
+        }
+
+        net <- readRDS (f)
+        filenames <- m4ra_weight_networks (
+            readRDS (f),
+            city = gsub ("(\\-|\\s).*$", "", ci),
+            quiet = FALSE
+        )
+    }
+}
