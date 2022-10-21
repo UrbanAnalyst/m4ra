@@ -38,10 +38,13 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL) {
     bike_t <- car_t <- walk_d <- ratio <- NULL
 
     graph_f <- m4ra_load_cached_network (city, mode = "foot")
+    graph_f <- graph_f [graph_f$component == 1, ]
     v_f <- dodgr::dodgr_vertices (graph_f)
     graph_b <- m4ra_load_cached_network (city, mode = "bicycle")
+    graph_b <- graph_b [graph_b$component == 1, ]
     v_b <- dodgr::dodgr_vertices (graph_b)
     graph_c <- m4ra_load_cached_network (city, mode = "motorcar")
+    graph_c <- graph_c [graph_c$component == 1, ]
     v_c <- dodgr::dodgr_vertices (graph_c)
 
     v <- rbind (v_f, v_b, v_c)
