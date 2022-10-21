@@ -4,9 +4,6 @@ status](https://github.com/atfutures/m4ra/workflows/R-CMD-check/badge.svg)](http
 [![Project Status:
 Concept](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
 
-# m4r
+# m4ra: Many-to-Many Multi-Modal Routing Aggregator
 
-Many-to-Many Multi-Modal Routing
-
-Status September 2022: Aiming for usable first version by end of this
-month.
+Status October 2022: Almost usable
