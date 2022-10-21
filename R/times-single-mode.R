@@ -50,8 +50,10 @@ m4ra_times_single_mode <- function (graph,
     }
 
     vert_map <- make_vert_map (graph, gr_cols, xy = TRUE)
-    from_index <- get_to_from_index (graph, vert_map, gr_cols, from)
-    to_index <- get_to_from_index (graph, vert_map, gr_cols, to)
+    from_index <-
+        get_to_from_index (graph, vert_map, gr_cols, from, from = TRUE)
+    to_index <-
+        get_to_from_index (graph, vert_map, gr_cols, to, from = FALSE)
 
     if (get_turn_penalty (graph) > 0.0) {
         if (methods::is (graph, "dodgr_contracted")) {
