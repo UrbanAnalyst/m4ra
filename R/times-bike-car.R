@@ -96,9 +96,16 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL) {
 #' Convert bicycle and automobile times into equivalent areas for a specified
 #' range of ratios of the two travel times.
 #'
-#' @param bike_car_dat Result of \link{m4ra_bike_car_times} function.
+#' @param bike_car_dat Result of \link{m4ra_bike_car_times} function for a
+#' specified vector of `from` points.
 #' @param ratio_lims Vector of ratio limits used to calculate areas within which
-#' ratio of bicycle to automobile times is less than specified limit.
+#' ratio of bicycle to automobile times is less than specified limits.
+#' @return A `data.frame` with one row for each `from` point used to calculate
+#' \link{m4ra_bike_car_times}, and columns including the OSM "id" value and
+#' corresponding coordinates ("x" and "y"), followed by a series of columns, one
+#' for each specified value of `ratio_lims`, containing the areas in square
+#' kilometres over which bicycle travel times are within the specified ratio of
+#' car travel times.
 #' @family analyses
 #' @export
 m4ra_bike_car_ratio_areas <- function (bike_car_dat, ratio_lims = 1 + 0:10 / 10) {
