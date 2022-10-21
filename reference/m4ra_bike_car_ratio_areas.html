@@ -14,7 +14,7 @@ range of ratios of the two travel times."><!-- mathjax --><script src="https://c
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.123</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.126</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,20 +57,32 @@ range of ratios of the two travel times.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_bike_car_ratio_areas</span><span class="op">(</span><span class="va">bike_car_dat</span>, ratio_lims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">/</span><span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_bike_car_ratio_areas</span><span class="op">(</span><span class="va">bike_car_dat</span>, ratio_lims <span class="op">=</span> <span class="fl">1</span> <span class="op">+</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">/</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>bike_car_dat</dt>
-<dd><p>Result of <a href="m4ra_bike_car_times.html">m4ra_bike_car_times</a> function.</p></dd>
+<dd><p>Result of <a href="m4ra_bike_car_times.html">m4ra_bike_car_times</a> function for a
+specified vector of <code>from</code> points.</p></dd>
 
 
 <dt>ratio_lims</dt>
 <dd><p>Vector of ratio limits used to calculate areas within which
-ratio of bicycle to automobile times is less than specified limit.</p></dd>
+ratio of bicycle to automobile times is less than specified limits.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>A <code>data.frame</code> with one row for each <code>from</code> point used to calculate
+<a href="m4ra_bike_car_times.html">m4ra_bike_car_times</a>, and columns including the OSM "id" value and
+corresponding coordinates ("x" and "y"), followed by a series of columns, one
+for each specified value of <code>ratio_lims</code>, containing the areas in square
+kilometres over which bicycle travel times are within the specified ratio of
+car travel times.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other analyses: 
