@@ -87,20 +87,16 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL) {
 #' @export
 m4ra_bike_car_ratio_areas <- function (bike_car_dat, ratio_lims = 1:20 / 5) {
 
-    requireNamespace ("sfheaders")
-    requireNamespace ("sf")
+    requireNamespace ("geosphere")
 
     ratio_lims <- ratio_lims [which (ratio_lims < max (bike_car_dat$ratio))]
 
     # Convex hull area (in square km) for one ratio:
     ratio_area <- function (dat, ratio_lim = 1.0) {
 
-        xy <- as.matrix (dat [c ("x", "y")])
-        s <- cbind (ratio = dat$ratio, geometry = sfheaders::sf_point (xy))
-        sf::st_crs (s) <- 4326
-        s <- s [s$ratio < ratio_lim, ]
-        shull <- sf::st_convex_hull (sf::st_union (s))
-        return (sf::st_area (shull) /  1e6)
+        xy <- as.matrix (dat [which (dat$ratio <= ratio_lim), c ("x", "y")])
+        xy <- xy [chull (xy), ]
+        geosphere::areaPolygon (xy) / 1e6
     }
 
     ratio_areas <- vapply (ratio_lims, function (r) ratio_area (bike_car_dat, ratio_lim = r),
