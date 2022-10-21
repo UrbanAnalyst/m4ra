@@ -122,18 +122,20 @@ m4ra_batch_weight_networks <- function (net_dir, remove_these = NULL) {
     count <- 1
     for (ci in cities) {
 
+        city <- ifelse (grepl ("^san\\-", ci), ci, gsub ("(\\-|\\s).*$", "", ci))
+
         cli::cli_h2 (paste0 (cli::col_green (ci), " [", count, " / ", length (cities), "]"))
         count <- count + 1
 
-        f <- grep (ci, flist, value = TRUE)
+        f <- grep (city, flist, value = TRUE, fixed = TRUE)
         if (length (f) != 1L) {
-            stop ("Error determining network file for [", ci, "]")
+            stop ("Error determining network file for [", city, "]")
         }
 
         net <- readRDS (f)
         filenames <- m4ra_weight_networks (
             net,
-            city = gsub ("(\\-|\\s).*$", "", ci),
+            city = city,
             quiet = FALSE
         )
     }
