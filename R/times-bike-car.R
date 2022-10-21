@@ -1,7 +1,7 @@
 #' Calculate times from a specified point by bicycle and automobile, along with
 #' corresponding walking distances.
 #'
-#' This city expects weighted networks to have been generated with the 
+#' This city expects weighted networks to have been generated with the
 #' \link{m4ra_batch_weight_networks} function, and for corresponding networks to
 #' exist in the `m4ra` cache directory for the specified city.
 #'
@@ -108,11 +108,13 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL) {
 #' car travel times.
 #' @family analyses
 #' @export
-m4ra_bike_car_ratio_areas <- function (bike_car_dat, ratio_lims = 1 + 0:10 / 10) {
+m4ra_bike_car_ratio_areas <- function (bike_car_dat,
+                                       ratio_lims = 1 + 0:10 / 10) {
 
     requireNamespace ("geosphere")
 
-    ratio_lims <- ratio_lims [which (ratio_lims < max (bike_car_dat$ratio, na.rm = TRUE))]
+    rmax <- max (bike_car_dat$ratio, na.rm = TRUE)
+    ratio_lims <- ratio_lims [which (ratio_lims < rmax)]
 
     # Convex hull area (in square km) for one ratio:
     ratio_area <- function (ratios, verts, ratio_lim = 1.0) {
@@ -128,8 +130,8 @@ m4ra_bike_car_ratio_areas <- function (bike_car_dat, ratio_lims = 1 + 0:10 / 10)
 
     nverts <- ncol (bike_car_dat$ratio)
     areas <- lapply (seq_len (nverts), function (i) {
-        vapply (ratio_lims, function (r)
-            ratio_area (bike_car_dat$ratio [, i], bike_car_dat$verts, r),
+        vapply (ratio_lims, function (r) {
+            ratio_area (bike_car_dat$ratio [, i], bike_car_dat$verts, r) },
             numeric (1L))
     })
     areas <- do.call (rbind, areas)
