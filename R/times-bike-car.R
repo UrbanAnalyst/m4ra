@@ -95,11 +95,16 @@ m4ra_bike_car_ratio_areas <- function (bike_car_dat, ratio_lims = 1:20 / 5) {
     ratio_area <- function (dat, ratio_lim = 1.0) {
 
         xy <- as.matrix (dat [which (dat$ratio <= ratio_lim), c ("x", "y")])
-        xy <- xy [chull (xy), ]
-        geosphere::areaPolygon (xy) / 1e6
+        xy <- xy [chull (xy), , drop = FALSE]
+        area <- 0
+        if (nrow (xy) > 3L) {
+            area <- geosphere::areaPolygon (xy) / 1e6
+        }
+        return (area)
     }
 
-    ratio_areas <- vapply (ratio_lims, function (r) ratio_area (bike_car_dat, ratio_lim = r),
+    ratio_areas <- vapply (ratio_lims, function (r)
+                           ratio_area (bike_car_dat, ratio_lim = r),
                            numeric (1L))
 
     res <- data.frame (
