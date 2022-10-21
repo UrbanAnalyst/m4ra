@@ -120,12 +120,12 @@ m4ra_bike_car_ratio_areas <- function (bike_car_dat, ratio_lims = 1 + 0:10 / 10)
     }
 
     nverts <- ncol (bike_car_dat$ratio)
-    ratio_areas <- lapply (seq_len (nverts), function (i) {
+    areas <- lapply (seq_len (nverts), function (i) {
         vapply (ratio_lims, function (r)
             ratio_area (bike_car_dat$ratio [, i], bike_car_dat$verts, r),
             numeric (1L))
     })
-    ratio_areas <- do.call (rbind, ratio_areas)
+    areas <- do.call (rbind, areas)
 
     # coordinates:
     from_names <- colnames (bike_car_dat$ratio)
@@ -133,7 +133,7 @@ m4ra_bike_car_ratio_areas <- function (bike_car_dat, ratio_lims = 1 + 0:10 / 10)
     xy <- bike_car_dat$verts [index, ]
     # then append ratios as columns onto that:
     n0 <- ncol (xy)
-    dat <- cbind (xy, ratio_areas)
+    dat <- cbind (xy, areas)
     cnames <- paste0 ("r", sprintf ("%1.1f", ratio_lims))
     index <- seq_len (ncol (dat)) [-seq_len (n0)]
     names (dat) [index] <- cnames
