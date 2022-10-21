@@ -67,7 +67,7 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot") {
     class (graph) <- c ("dodgr_streetnet_sc", class (graph))
     attr (graph, "wt_profile") <- mode
     attr (graph, "left_side") <- FALSE
-    attr (graph, "turn_penalty") <- ifelse (mode == "motorcar", 1L, 0L)
+    attr (graph, "turn_penalty") <- ifelse (mode == "motorcar", 1., 0.)
 
     return (graph)
 }
