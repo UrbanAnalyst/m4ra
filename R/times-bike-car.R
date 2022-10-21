@@ -138,6 +138,7 @@ m4ra_bike_car_ratio_areas <- function (bike_car_dat, ratio_lims = 1 + 0:10 / 10)
     from_names <- colnames (bike_car_dat$ratio)
     index <- match (gsub ("^X", "", from_names), bike_car_dat$verts$id)
     xy <- bike_car_dat$verts [index, ]
+    xy <- xy [, which (!names (xy) %in% c ("component", "n"))]
     # then append ratios as columns onto that:
     n0 <- ncol (xy)
     dat <- cbind (xy, areas)
