@@ -3,9 +3,9 @@
 \name{m4ra_bike_car_times}
 \alias{m4ra_bike_car_times}
 \title{Calculate times from a specified point by bicycle and automobile, along with
-corresponding walking distances.}
+(optionally) corresponding walking distances.}
 \usage{
-m4ra_bike_car_times(city = NULL, from = NULL)
+m4ra_bike_car_times(city = NULL, from = NULL, walk_dists = TRUE)
 }
 \arguments{
 \item{city}{City for which values are to be calculated}
@@ -14,6 +14,8 @@ m4ra_bike_car_times(city = NULL, from = NULL)
 calculated. Typically obtained by loading one weighted network, and
 sampling or extracting vertices from the \pkg{dodgr} function
 \code{dodgr_vertices}.}
+
+\item{walk_dists}{If \code{TRUE}, also calculate equivalent walking distances.}
 }
 \value{
 A \code{data.frame} of destination vertices, including Open Street Map ID

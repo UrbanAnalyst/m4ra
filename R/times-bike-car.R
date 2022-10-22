@@ -1,5 +1,5 @@
 #' Calculate times from a specified point by bicycle and automobile, along with
-#' corresponding walking distances.
+#' (optionally) corresponding walking distances.
 #'
 #' This city expects weighted networks to have been generated with the
 #' \link{m4ra_batch_weight_networks} function, and for corresponding networks to
@@ -10,6 +10,7 @@
 #' calculated. Typically obtained by loading one weighted network, and
 #' sampling or extracting vertices from the \pkg{dodgr} function
 #' `dodgr_vertices`.
+#' @param walk_dists If `TRUE`, also calculate equivalent walking distances.
 #' @return A `data.frame` of destination vertices, including Open Street Map ID
 #' values, and longitude and latitude values, and four variables:
 #' \itemize{
@@ -30,16 +31,19 @@
 #' @family analyses
 #' @export
 
-m4ra_bike_car_times <- function (city = NULL, from = NULL) {
+m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
 
     requireNamespace ("dplyr")
 
     # suppress no visible binding notes:
     bike_t <- car_t <- walk_d <- ratio <- NULL
+    graph_f <- v_f <- NULL
 
-    graph_f <- m4ra_load_cached_network (city, mode = "foot")
-    graph_f <- graph_f [graph_f$component == 1, ]
-    v_f <- dodgr::dodgr_vertices (graph_f)
+    if (walk_dists) {
+        graph_f <- m4ra_load_cached_network (city, mode = "foot")
+        graph_f <- graph_f [graph_f$component == 1, ]
+        v_f <- dodgr::dodgr_vertices (graph_f)
+    }
     graph_b <- m4ra_load_cached_network (city, mode = "bicycle")
     graph_b <- graph_b [graph_b$component == 1, ]
     v_b <- dodgr::dodgr_vertices (graph_b)
@@ -49,13 +53,13 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL) {
 
     if (is.null (from)) {
         # Get vertices common to all networks:
-        vert_count <- table (c (
-            unique (graph_f$.vx0),
-            unique (graph_b$.vx0),
-            unique (graph_c$.vx0)
-        ))
+        all_from <- c (graph_b$.vx0, graph_c$.vx0)
+        if (walk_dists) {
+            all_from <- c (all_from, graph_f$.vx0)
+        }
+        vert_count <- table (c (unique (all_from)))
         verts_all <- names (vert_count) [which (vert_count == 3)]
-        v <- v_f [which (v_f$id %in% verts_all), ]
+        v <- v_b [which (v_b$id %in% verts_all), ]
 
         from <- v$id
         message ("Calculating times from [", length (from), "] vertices")
@@ -73,21 +77,28 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL) {
     bike_times <- data.frame (t (bike_times))
     bike_times <- cbind (id = rownames (bike_times), bike_times)
 
-    walk_dists <- dodgr::dodgr_distances (graph_f, from = from)
-    walk_dists <- data.frame (t (walk_dists))
-    walk_dists <- cbind (id = rownames (walk_dists), walk_dists)
+    all_ids <- c (bike_times$id, car_times$id)
+    if (walk_dists) {
+        walk_d <- dodgr::dodgr_distances (graph_f, from = from)
+        walk_d <- data.frame (t (walk_d))
+        walk_d <- cbind (id = rownames (walk_d), walk_d)
+        all_ids <- c (all_ids, walk_d$id)
+    }
 
-    ids <- table (c (car_times$id, bike_times$id, walk_dists$id))
-    ids <- names (ids) [which (ids == 3)]
+    ids <- table (all_ids)
+    num_ids <- ifelse (walk_dists, 3L, 2L)
+    ids <- names (ids) [which (ids == num_ids)]
     car_times <- car_times [match (ids, car_times$id), -1]
     bike_times <- bike_times [match (ids, bike_times$id), -1]
-    walk_dists <- walk_dists [match (ids, walk_dists$id), -1] / 1000
+    if (walk_dists) {
+        walk_d <- walk_d [match (ids, walk_d$id), -1] / 1000
+    }
 
     ratio <- bike_times / car_times
     v <- v [match (ids, v$id), ]
 
     return (list (
-        dist = walk_dists,
+        dist = walk_d,
         ratio = ratio,
         verts = v
     ))
