@@ -96,57 +96,56 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     // Construct times to all terminal GTFS stops as 
     for (size_t i = 0; i < n_from; i++)
     {
-        // Minimal travel times to all GTFS stops:
-        Rcpp::IntegerMatrix times_to_gtfs_stops (n_from, n_gtfs);
+        Rcpp::IntegerVector closest_gtfs = closest_gtfs_stns (i);
+        const size_t n_closest = closest_gtfs.size ();
+        if (closest_gtfs [0] == INFINITE_INT)
+        {
+            continue;
+        }
+
+        // Minimal travel times through the n_closest GTFS stops to all other
+        // GTFS stops:
+        std::vector <int> times_to_gtfs_stops (n_gtfs);
         std::fill (times_to_gtfs_stops.begin (), times_to_gtfs_stops.end (), INFINITE_INT);
 
-        for (size_t j = 0; j < n_gtfs; j++)
+        for (size_t j = 0; j < n_closest; j++)
         {
-            if (t_net_to_gtfs (i, j) == NA_INTEGER)
+            if (t_net_to_gtfs (i, closest_gtfs [j]) == NA_INTEGER)
             {
                 continue;
             }
 
             for (size_t k = 0; k < n_gtfs; k++)
             {
-                if (t_gtfs_to_gtfs (j, k) == NA_INTEGER)
+                if (t_gtfs_to_gtfs (closest_gtfs [j], k) == NA_INTEGER)
                 {
                     continue;
                 }
 
-                const int t_to_gtfs_k = t_net_to_gtfs (i, j) + t_gtfs_to_gtfs (j, k);
-                if (t_to_gtfs_k < times_to_gtfs_stops (i, k))
+                const int t_to_gtfs_k = t_net_to_gtfs (i, closest_gtfs [j]) + t_gtfs_to_gtfs (closest_gtfs [j], k);
+                if (t_to_gtfs_k < times_to_gtfs_stops [k])
                 {
-                    times_to_gtfs_stops (i, k) = t_to_gtfs_k;
+                    times_to_gtfs_stops [k] = t_to_gtfs_k;
                 }
             }
         }
 
-        Rcpp::IntegerVector closest_gtfs = closest_gtfs_stns (i);
-        const size_t n_closest = closest_gtfs.size ();
-
-        if (closest_gtfs [0] == INFINITE_INT)
+        // Then minimal times from all terminal GTFS stops to all other network points:
+        for (size_t j = 0; j < n_gtfs; j++)
         {
-            continue;
-        }
-
-        // Then minimal times from those 'n_closest' stops to all other network points:
-        for (size_t j = 0; j < n_closest; j++)
-        {
-            if (times_to_gtfs_stops (i, closest_gtfs [j]) == INFINITE_INT)
+            if (times_to_gtfs_stops [j] == INFINITE_INT)
             {
                 continue;
             }
 
             for (size_t k = 0; k < n_verts; k++)
             {
-                if (t_gtfs_to_net (closest_gtfs [j], k) == NA_INTEGER)
+                if (t_gtfs_to_net (j, k) == NA_INTEGER)
                 {
                     continue;
                 }
 
-                const int t_to_net = times_to_gtfs_stops (i, closest_gtfs [j]) +
-                    t_gtfs_to_net (closest_gtfs [j], k);
+                const int t_to_net = times_to_gtfs_stops [j] + t_gtfs_to_net (j, k);
                 if (t_to_net < result (i, k))
                 {
                     result (i, k) = t_to_net;
