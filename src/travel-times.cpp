@@ -60,6 +60,11 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
 
         std::vector <int> closest_gtfs = get_closest_gtfs_stns (times_to_gtfs_stops, i, n_closest);
 
+        if (closest_gtfs [0] == INFINITE_INT)
+        {
+            continue;
+        }
+
         // Then minimal times from those 'n_closest' stops to all other network points:
         for (size_t j = 0; j < n_closest; j++)
         {
@@ -107,25 +112,56 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
 
     const int n_gtfs = times_to_gtfs_stops.ncol ();
 
-    std::map <int, int> gtfs_stn_time_map;
+    std::vector <int> gtfs_stn_times (n_gtfs, INFINITE_INT);
+    int min_time = INFINITE_INT;
     for (size_t j = 0; j < n_gtfs; j++)
     {
-        if (times_to_gtfs_stops (i, j) == INFINITE_INT)
+        gtfs_stn_times [j] = times_to_gtfs_stops (i, j);
+        if (gtfs_stn_times [j] < min_time)
         {
-            continue;
+            min_time = gtfs_stn_times [j];
         }
-
-        gtfs_stn_time_map.emplace (times_to_gtfs_stops (i, j), j);
     }
 
-    std::vector <int> closest_gtfs (n_closest);
-    auto g_ptr = gtfs_stn_time_map.begin ();
+    if (min_time == INFINITE_INT)
+    {
+        return gtfs_stn_times;
+    }
+
+    std::sort (gtfs_stn_times.begin (), gtfs_stn_times.end ());
+    // defaults to ascending sort
+
+    int max_time = 0L;
     for (size_t j = 0; j < n_closest; j++)
     {
-        closest_gtfs [j] = g_ptr->second;
-        std::advance (g_ptr, 1L);
+        if (gtfs_stn_times [j] > max_time)
+        {
+            max_time = gtfs_stn_times [j];
+        }
     }
-    gtfs_stn_time_map.clear ();
+
+    size_t len = 0;
+    for (size_t j = 0; j < n_gtfs; j++)
+    {
+        if (times_to_gtfs_stops (i, j) <= max_time)
+        {
+            len++;
+        }
+    }
+
+    std::vector <int> closest_gtfs (len);
+    len = 0;
+    for (size_t j = 0; j < n_gtfs; j++)
+    {
+        if (times_to_gtfs_stops (i, j) <= max_time)
+        {
+            closest_gtfs [len++] = j;
+        }
+        if (len == times_to_gtfs_stops.size ())
+        {
+            break;
+        }
+    }
 
     return closest_gtfs;
 }
