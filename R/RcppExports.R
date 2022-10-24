@@ -28,7 +28,15 @@ rcpp_scan_time_files <- function(tt, times, path) {
     invisible(.Call(`_m4ra_rcpp_scan_time_files`, tt, times, path))
 }
 
-#' rcpp_scan_times
+#' rcpp_closest_gtfs
+#'
+#' Get the closest GTFS stops to a given point
+#' @noRd
+rcpp_closest_gtfs <- function(vxy, stops, n_closest) {
+    .Call(`_m4ra_rcpp_closest_gtfs`, vxy, stops, n_closest)
+}
+
+#' rcpp_net_gtfs_travel_times
 #'
 #' This takes three matrices as inputs:
 #' `net_to_gtfs` quantifying travel times from a selection of points to every

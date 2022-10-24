@@ -1,7 +1,67 @@
 
 #include "travel-times.h"
 
-//' rcpp_scan_times
+//' rcpp_closest_gtfs
+//'
+//' Get the closest GTFS stops to a given point
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
+        Rcpp::DataFrame stops, const int n_closest)
+{
+    const size_t nxy = vxy.nrow ();
+    const size_t nstns = stops.nrow ();
+
+    Rcpp::NumericVector vxy_x = vxy ["x"], vxy_y = vxy ["y"];
+    Rcpp::NumericVector stop_x = stops ["stop_lon"], stop_y = stops ["stop_lat"];
+
+    Rcpp::List res (nxy);
+
+    for (size_t i = 0; i < nxy; i++)
+    {
+        // Find distances to all GTFS stations:
+        std::vector <double> dist_vec (nstns), dist_vec_s (nstns);
+        for (size_t j = 0; j < nstns; j++)
+        {
+            double dx = vxy_x (i) - stop_x (j),
+                   dy = vxy_y (i) - stop_y (j);
+            double dij = dx * dx + dy * dy;
+            dist_vec [j] = round (dij * XY_PRECISION) / XY_PRECISION;
+            dist_vec_s [j] = dist_vec [j];
+        }
+
+        // Then find the threshold distance of the "n_closest" stations:
+        std::sort (dist_vec_s.begin (), dist_vec_s.end ());
+        double dist_max = dist_vec_s [n_closest - 1];
+
+        int len = 0;
+        for (auto d: dist_vec_s)
+        {
+            if (d <= dist_max)
+            {
+                len++;
+            }
+        }
+
+        // And then return all stations <= that threshold distance:
+        Rcpp::NumericVector dout (len);
+        len = 0;
+        for (size_t j = 0; j < nstns; j++)
+        {
+            if (dist_vec [j] <= dist_max)
+            {
+                dout (len++) = j;
+            }
+        }
+
+        res (i) = dout;
+    } // end for i
+
+    return res;
+}
+
+
+//' rcpp_net_gtfs_travel_times
 //'
 //' This takes three matrices as inputs:
 //' `net_to_gtfs` quantifying travel times from a selection of points to every
