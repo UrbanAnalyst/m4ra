@@ -28,3 +28,17 @@ rcpp_scan_time_files <- function(tt, times, path) {
     invisible(.Call(`_m4ra_rcpp_scan_time_files`, tt, times, path))
 }
 
+#' rcpp_scan_times
+#'
+#' This takes three matrices as inputs:
+#' `net_to_gtfs` quantifying travel times from a selection of points to every
+#' GTFS stop;
+#' `gtfs_to_gtfs' holding the full GTFS travel time matrix; and
+#' `gtfs_to_net` holding times back out from all GTFS stops to every network
+#' point.
+#'
+#' @noRd
+rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net) {
+    .Call(`_m4ra_rcpp_net_gtfs_travel_times`, t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net)
+}
+

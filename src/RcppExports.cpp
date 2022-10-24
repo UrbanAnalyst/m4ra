@@ -53,11 +53,25 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// rcpp_net_gtfs_travel_times
+Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times(Rcpp::IntegerMatrix t_net_to_gtfs, Rcpp::IntegerMatrix t_gtfs_to_gtfs, Rcpp::IntegerMatrix t_gtfs_to_net);
+RcppExport SEXP _m4ra_rcpp_net_gtfs_travel_times(SEXP t_net_to_gtfsSEXP, SEXP t_gtfs_to_gtfsSEXP, SEXP t_gtfs_to_netSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type t_net_to_gtfs(t_net_to_gtfsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type t_gtfs_to_gtfs(t_gtfs_to_gtfsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type t_gtfs_to_net(t_gtfs_to_netSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_net_gtfs_travel_times(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_m4ra_rcpp_get_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_get_sp_dists_par, 4},
     {"_m4ra_rcpp_save_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_save_sp_dists_par, 6},
     {"_m4ra_rcpp_scan_time_files", (DL_FUNC) &_m4ra_rcpp_scan_time_files, 3},
+    {"_m4ra_rcpp_net_gtfs_travel_times", (DL_FUNC) &_m4ra_rcpp_net_gtfs_travel_times, 3},
     {NULL, NULL, 0}
 };
 
