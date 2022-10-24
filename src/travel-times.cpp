@@ -44,7 +44,7 @@ Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
         }
 
         // And then return all stations <= that threshold distance:
-        Rcpp::NumericVector dout (len);
+        Rcpp::IntegerVector dout (len);
         len = 0;
         for (size_t j = 0; j < nstns; j++)
         {
@@ -75,7 +75,7 @@ Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
 Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_net,
-        const int n_closest = 10L)
+        Rcpp::List  closest_gtfs_stns)
 {
 
     const int n_from = t_net_to_gtfs.nrow ();
@@ -83,6 +83,10 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     if ((n_gtfs != t_gtfs_to_gtfs.nrow () || n_gtfs != t_gtfs_to_net.nrow ()))
     {
         Rcpp::stop ("network and gtfs matrices have incompatible dimensions.");
+    }
+    if (n_from != closest_gtfs_stns.size ())
+    {
+        Rcpp::stop ("network and gtfs closest stations have incompatible dimensions.");
     }
     const int n_verts = t_gtfs_to_net.ncol ();
 
@@ -118,7 +122,8 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
             }
         }
 
-        std::vector <int> closest_gtfs = get_closest_gtfs_stns (times_to_gtfs_stops, i, n_closest);
+        Rcpp::IntegerVector closest_gtfs = closest_gtfs_stns (i);
+        const size_t n_closest = closest_gtfs.size ();
 
         if (closest_gtfs [0] == INFINITE_INT)
         {

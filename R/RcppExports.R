@@ -46,7 +46,7 @@ rcpp_closest_gtfs <- function(vxy, stops, n_closest) {
 #' point.
 #'
 #' @noRd
-rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, n_closest = 10L) {
-    .Call(`_m4ra_rcpp_net_gtfs_travel_times`, t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, n_closest)
+rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, closest_gtfs_stns) {
+    .Call(`_m4ra_rcpp_net_gtfs_travel_times`, t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, closest_gtfs_stns)
 }
 

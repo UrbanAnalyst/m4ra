@@ -67,16 +67,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_net_gtfs_travel_times
-Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times(Rcpp::IntegerMatrix t_net_to_gtfs, Rcpp::IntegerMatrix t_gtfs_to_gtfs, Rcpp::IntegerMatrix t_gtfs_to_net, const int n_closest);
-RcppExport SEXP _m4ra_rcpp_net_gtfs_travel_times(SEXP t_net_to_gtfsSEXP, SEXP t_gtfs_to_gtfsSEXP, SEXP t_gtfs_to_netSEXP, SEXP n_closestSEXP) {
+Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times(Rcpp::IntegerMatrix t_net_to_gtfs, Rcpp::IntegerMatrix t_gtfs_to_gtfs, Rcpp::IntegerMatrix t_gtfs_to_net, Rcpp::List closest_gtfs_stns);
+RcppExport SEXP _m4ra_rcpp_net_gtfs_travel_times(SEXP t_net_to_gtfsSEXP, SEXP t_gtfs_to_gtfsSEXP, SEXP t_gtfs_to_netSEXP, SEXP closest_gtfs_stnsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type t_net_to_gtfs(t_net_to_gtfsSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type t_gtfs_to_gtfs(t_gtfs_to_gtfsSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type t_gtfs_to_net(t_gtfs_to_netSEXP);
-    Rcpp::traits::input_parameter< const int >::type n_closest(n_closestSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_net_gtfs_travel_times(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, n_closest));
+    Rcpp::traits::input_parameter< Rcpp::List >::type closest_gtfs_stns(closest_gtfs_stnsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_net_gtfs_travel_times(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, closest_gtfs_stns));
     return rcpp_result_gen;
 END_RCPP
 }
