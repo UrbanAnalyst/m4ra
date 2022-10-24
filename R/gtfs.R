@@ -100,6 +100,9 @@ m4ra_times_to_gtfs_stops <- function (graph, gtfs, from = NULL, graph_to_gtfs = 
         tmat <- times_from_gtfs_to_net (graph, gtfs)
     }
 
+    # This rounds off decimal seconds:
+    storage.mode (tmat) <- "integer"
+
     return (tmat)
 }
 
