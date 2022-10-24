@@ -38,7 +38,7 @@ rcpp_scan_time_files <- function(tt, times, path) {
 #' point.
 #'
 #' @noRd
-rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net) {
-    .Call(`_m4ra_rcpp_net_gtfs_travel_times`, t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net)
+rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, n_closest = 10L) {
+    .Call(`_m4ra_rcpp_net_gtfs_travel_times`, t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, n_closest)
 }
 

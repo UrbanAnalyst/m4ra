@@ -14,7 +14,8 @@
 // [[Rcpp::export]]
 Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_gtfs,
-        Rcpp::IntegerMatrix t_gtfs_to_net)
+        Rcpp::IntegerMatrix t_gtfs_to_net,
+        const int n_closest = 10)
 {
 
     const int n_from = t_net_to_gtfs.nrow ();
@@ -59,9 +60,9 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
             }
         }
 
-        Rcpp::checkUserInterrupt ();
-
-        // Then minimal times from those stops to all other network points:
+        // Extract the "n" closest stations, and only examine times from those
+        // out to all network points.
+        std::map <int, int> gtfs_stn_time_map;
         for (size_t j = 0; j < n_gtfs; j++)
         {
             if (times_to_gtfs_stops (i, j) == INFINITE_INT)
@@ -69,15 +70,35 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
                 continue;
             }
 
+            gtfs_stn_time_map.emplace (times_to_gtfs_stops (i, j), j);
+        }
+
+        std::vector <int> closest_gtfs (n_closest);
+        auto g_ptr = gtfs_stn_time_map.begin ();
+        for (size_t j = 0; j < n_closest; j++)
+        {
+            closest_gtfs [j] = g_ptr->second;
+            std::advance (g_ptr, 1L);
+        }
+        gtfs_stn_time_map.clear ();
+
+        // Then minimal times from those 'n_closest' stops to all other network points:
+        for (size_t j = 0; j < n_closest; j++)
+        {
+            if (times_to_gtfs_stops (i, closest_gtfs [j]) == INFINITE_INT)
+            {
+                continue;
+            }
+
             for (size_t k = 0; k < n_verts; k++)
             {
-                if (t_gtfs_to_net (j, k) == NA_INTEGER)
+                if (t_gtfs_to_net (closest_gtfs [j], k) == NA_INTEGER)
                 {
                     continue;
                 }
 
-                const int t_to_net = times_to_gtfs_stops (i, j) +
-                    t_gtfs_to_net (j, k);
+                const int t_to_net = times_to_gtfs_stops (i, closest_gtfs [j]) +
+                    t_gtfs_to_net (closest_gtfs [j], k);
                 if (t_to_net < result (i, k))
                 {
                     result (i, k) = t_to_net;
@@ -88,11 +109,11 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
 
     for (int i = 0; i < n_from; i++)
     {
-        for (size_t k = 0; k < n_verts; k++)
+        for (size_t j = 0; j < n_verts; j++)
         {
-            if (result (i, k) == INFINITE_INT)
+            if (result (i, j) == INFINITE_INT)
             {
-                result (i, k) = NA_INTEGER;
+                result (i, j) = NA_INTEGER;
             }
         }
     }
