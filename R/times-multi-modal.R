@@ -21,6 +21,12 @@ m4ra_times_multi_mode <- function (graph,
                                    from = NULL,
                                    start_time_limits = NULL) {
 
+    # Final times from GTFS stops out to network points are only calcualted from
+    # this many potential stops for each start point. See the C++ code in
+    # "travel_times" for details. Varying this value should not make any great
+    # difference, except for slowing down algorithm for larger values.
+    n_closest <- 10L
+
     message (cli::symbol$play,
         cli::col_green (" Calculating times to all GTFS stops "),
         appendLF = FALSE)
@@ -60,7 +66,8 @@ m4ra_times_multi_mode <- function (graph,
     final_times <- rcpp_net_gtfs_travel_times (
         tmat_net_gtfs,
         tmat_gtfs_gtfs,
-        tmat_gtfs_net
+        tmat_gtfs_net,
+        n_closest = n_closest
     )
     message ("\r", cli::col_green (cli::symbol$tick,
         " Combined matrices to generate final travel times   "))
