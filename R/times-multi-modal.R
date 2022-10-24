@@ -58,6 +58,11 @@ m4ra_times_multi_mode <- function (graph,
     # to all gtfs stations, then selects the `n_closest` of them, and traces
     # times from those terminal stops out to all remaining network points,
     # updating any shortest times found.
+    v <- dodgr::dodgr_vertices (graph)
+    if (!is.null (from)) {
+        v <- v [match (from, v$id), ]
+    }
+    closest_stns <- rcpp_closest_gtfs (v, gtfs$stops, n_closest = n_closest)
 
     message (cli::symbol$play,
         cli::col_green (" Combining matrices to generate final travel times "),
@@ -67,7 +72,7 @@ m4ra_times_multi_mode <- function (graph,
         tmat_net_gtfs,
         tmat_gtfs_gtfs,
         tmat_gtfs_net,
-        n_closest = n_closest
+        closest_stns
     )
     message ("\r", cli::col_green (cli::symbol$tick,
         " Combined matrices to generate final travel times   "))
