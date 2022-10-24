@@ -101,8 +101,8 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     return result;
 }
 
-std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix times_to_gtfs_stops,
-        const int i, const int n_closest)
+std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stops,
+        const int &i, const int &n_closest)
 {
 
     const int n_gtfs = times_to_gtfs_stops.ncol ();
