@@ -32,8 +32,6 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     // Construct times to all terminal GTFS stops as 
     for (size_t i = 0; i < n_from; i++)
     {
-        Rcpp::checkUserInterrupt ();
-
         // Minimal travel times to all GTFS stops:
         Rcpp::IntegerMatrix times_to_gtfs_stops (n_from, n_gtfs);
         std::fill (times_to_gtfs_stops.begin (), times_to_gtfs_stops.end (), INFINITE_INT);
@@ -60,29 +58,10 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
             }
         }
 
-        // Extract the "n" closest stations, and only examine times from those
-        // out to all network points.
-        std::map <int, int> gtfs_stn_time_map;
-        for (size_t j = 0; j < n_gtfs; j++)
-        {
-            if (times_to_gtfs_stops (i, j) == INFINITE_INT)
-            {
-                continue;
-            }
-
-            gtfs_stn_time_map.emplace (times_to_gtfs_stops (i, j), j);
-        }
-
-        std::vector <int> closest_gtfs (n_closest);
-        auto g_ptr = gtfs_stn_time_map.begin ();
-        for (size_t j = 0; j < n_closest; j++)
-        {
-            closest_gtfs [j] = g_ptr->second;
-            std::advance (g_ptr, 1L);
-        }
-        gtfs_stn_time_map.clear ();
+        std::vector <int> closest_gtfs = get_closest_gtfs_stns (times_to_gtfs_stops, i, n_closest);
 
         // Then minimal times from those 'n_closest' stops to all other network points:
+        /*
         for (size_t j = 0; j < n_closest; j++)
         {
             if (times_to_gtfs_stops (i, closest_gtfs [j]) == INFINITE_INT)
@@ -105,8 +84,11 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
                 }
             }
         }
+        */
+        Rcpp::checkUserInterrupt ();
     }
 
+    Rcpp::checkUserInterrupt ();
     for (int i = 0; i < n_from; i++)
     {
         for (size_t j = 0; j < n_verts; j++)
@@ -119,4 +101,33 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     }
 
     return result;
+}
+
+std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix times_to_gtfs_stops,
+        const int i, const int n_closest)
+{
+
+    const int n_gtfs = times_to_gtfs_stops.ncol ();
+
+    std::map <int, int> gtfs_stn_time_map;
+    for (size_t j = 0; j < n_gtfs; j++)
+    {
+        if (times_to_gtfs_stops (i, j) == INFINITE_INT)
+        {
+            continue;
+        }
+
+        gtfs_stn_time_map.emplace (times_to_gtfs_stops (i, j), j);
+    }
+
+    std::vector <int> closest_gtfs (n_closest);
+    auto g_ptr = gtfs_stn_time_map.begin ();
+    for (size_t j = 0; j < n_closest; j++)
+    {
+        closest_gtfs [j] = g_ptr->second;
+        std::advance (g_ptr, 1L);
+    }
+    gtfs_stn_time_map.clear ();
+
+    return closest_gtfs;
 }
