@@ -15,7 +15,7 @@
 Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_net,
-        const int n_closest = 10)
+        const int n_closest = 10L)
 {
 
     const int n_from = t_net_to_gtfs.nrow ();
@@ -61,7 +61,6 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
         std::vector <int> closest_gtfs = get_closest_gtfs_stns (times_to_gtfs_stops, i, n_closest);
 
         // Then minimal times from those 'n_closest' stops to all other network points:
-        /*
         for (size_t j = 0; j < n_closest; j++)
         {
             if (times_to_gtfs_stops (i, closest_gtfs [j]) == INFINITE_INT)
@@ -84,7 +83,6 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
                 }
             }
         }
-        */
         Rcpp::checkUserInterrupt ();
     }
 
