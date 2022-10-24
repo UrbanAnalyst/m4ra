@@ -155,7 +155,6 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
         Rcpp::checkUserInterrupt ();
     }
 
-    Rcpp::checkUserInterrupt ();
     for (int i = 0; i < n_from; i++)
     {
         for (size_t j = 0; j < n_verts; j++)
