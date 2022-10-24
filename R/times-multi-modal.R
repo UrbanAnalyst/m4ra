@@ -48,52 +48,20 @@ m4ra_times_multi_mode <- function (graph,
     message ("\r", cli::col_green (cli::symbol$tick,
         " Calculated times back out to all network points   "))
 
-    # The following 'apply' call then implements the following 4 steps:
-    # 1. net -> gtfs: select `n` fastest times, effectively reducing 
-    #    ["nverts", "nstops"] -> ["nverts", "n"]
-    # 2. Find fastest times from `n` stops to all other stops, effectively
-    #    reducing ["nstops", "nstops"] -> ["n", "nstops"]
-    # 3. Combine 1 and 2 to generate fastest times between ["nverts", "stops"]
-    # 4. Combine that with "gtfs" -> "net" times to generate final 
-    #    ["nverts", "nverts"] fastest times.
+    # The C++ function then traces for each "from" point the shortest times
+    # to all gtfs stations, then selects the `n_closest` of them, and traces
+    # times from those terminal stops out to all remaining network points,
+    # updating any shortest times found.
 
     message (cli::symbol$play,
         cli::col_green (" Combining matrices to generate final travel times "),
         appendLF = FALSE)
     utils::flush.console ()
-    final_times <- apply (tmat_net_gtfs, 1, function (i) {
-
-        # Initial travel times to each gtfs stop: [from vert, to stop]:
-        imat <- matrix (i, nrow = length (i), ncol = length (i), byrow = FALSE)
-        # Plus travel times from those stops to all others:
-        tmat_net_plus_gtfs <- imat + tmat_gtfs_gtfs
-
-        # Minimal times to each stop:
-        tmat_net_plus_gtfs <- apply (tmat_net_plus_gtfs, 2, function (j) {
-            if (all (is.na (j))) {
-                return (c (NA, NA))
-            }
-            k <- which.min (j)
-            c (j [k], k)
-        })
-        tmat_net_plus_gtfs <- t (tmat_net_plus_gtfs)
-        # [, 1] = time
-        # [, 2] = index into gtfs stops
-
-        # minimal times from those stops to all other points:
-        tmat_out <- tmat_gtfs_net [tmat_net_plus_gtfs [, 2], ]
-        # That is then [nstops, nverts]; reduce to nverts:
-        tvec_out <- apply (tmat_out, 2, function (j) {
-            if (all (is.na (j))) {
-                return (NA)
-            }
-            min (j, na.rm = TRUE)
-        })
-
-        return (tvec_out)
-    }, simplify = TRUE)
-
-    final_times <- t (final_times)
+    final_times <- rcpp_net_gtfs_travel_times (
+        tmat_net_gtfs,
+        tmat_gtfs_gtfs,
+        tmat_gtfs_net
+    )
     message ("\r", cli::col_green (cli::symbol$tick,
         " Combined matrices to generate final travel times   "))
 
