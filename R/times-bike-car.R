@@ -88,14 +88,14 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
     ids <- table (all_ids)
     num_ids <- ifelse (walk_dists, 3L, 2L)
     ids <- names (ids) [which (ids == num_ids)]
-    car_times <- car_times [match (ids, car_times$id), -1]
-    bike_times <- bike_times [match (ids, bike_times$id), -1]
+    car_times <- car_times [match (ids, car_times$id), -1, drop = FALSE]
+    bike_times <- bike_times [match (ids, bike_times$id), -1, drop = FALSE]
     if (walk_dists) {
-        walk_d <- walk_d [match (ids, walk_d$id), -1] / 1000
+        walk_d <- walk_d [match (ids, walk_d$id), -1, drop = FALSE] / 1000
     }
 
     ratio <- bike_times / car_times
-    v <- v [match (ids, v$id), ]
+    v <- v [match (ids, v$id), , drop = FALSE]
 
     return (list (
         dist = walk_d,
