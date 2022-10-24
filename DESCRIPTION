@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.0.1.142
+Version: 0.0.1.143
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",

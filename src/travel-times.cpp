@@ -96,7 +96,7 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     // Construct times to all terminal GTFS stops as 
     for (size_t i = 0; i < n_from; i++)
     {
-        Rcpp::IntegerVector closest_gtfs = closest_gtfs_stns (i);
+        const Rcpp::IntegerVector closest_gtfs = closest_gtfs_stns (i);
         const size_t n_closest = closest_gtfs.size ();
         if (closest_gtfs [0] == INFINITE_INT)
         {
