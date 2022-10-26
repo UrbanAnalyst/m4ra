@@ -1,6 +1,11 @@
 
 #include "travel-times.h"
 
+const bool is_na (const int &x)
+{
+    return (x >= INFINITE_INT) || (x <= -INFINITE_INT);
+}
+
 //' rcpp_closest_gtfs
 //'
 //' Get the closest GTFS stops to a given point
@@ -98,7 +103,7 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     {
         const Rcpp::IntegerVector closest_gtfs = closest_gtfs_stns (i);
         const size_t n_closest = closest_gtfs.size ();
-        if (closest_gtfs [0] == INFINITE_INT)
+        if (is_na (closest_gtfs [0]))
         {
             continue;
         }
@@ -110,14 +115,14 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
 
         for (size_t j = 0; j < n_closest; j++)
         {
-            if (t_net_to_gtfs (i, closest_gtfs [j]) == NA_INTEGER)
+            if (is_na (t_net_to_gtfs (i, closest_gtfs [j])))
             {
                 continue;
             }
 
             for (size_t k = 0; k < n_gtfs; k++)
             {
-                if (t_gtfs_to_gtfs (closest_gtfs [j], k) == NA_INTEGER)
+                if (is_na (t_gtfs_to_gtfs (closest_gtfs [j], k)))
                 {
                     continue;
                 }
@@ -133,14 +138,14 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
         // Then minimal times from all terminal GTFS stops to all other network points:
         for (size_t j = 0; j < n_gtfs; j++)
         {
-            if (times_to_gtfs_stops [j] == INFINITE_INT)
+            if (is_na (times_to_gtfs_stops [j]))
             {
                 continue;
             }
 
             for (size_t k = 0; k < n_verts; k++)
             {
-                if (t_gtfs_to_net (j, k) == NA_INTEGER)
+                if (is_na (t_gtfs_to_net (j, k)))
                 {
                     continue;
                 }
@@ -186,7 +191,7 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
         }
     }
 
-    if (min_time == INFINITE_INT)
+    if (is_na (min_time))
     {
         return gtfs_stn_times;
     }
