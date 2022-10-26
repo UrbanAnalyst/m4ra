@@ -143,7 +143,7 @@ times_from_net_to_gtfs <- function (graph, gtfs, from = NULL) {
     tmat <- t (m4ra_times_single_mode (graph, from = stop_ids, to = to))
 
     index <- match (stops$osm_id, stop_ids)
-    tmat <- tmat [, index]
+    tmat <- tmat [, index, drop = FALSE]
 
     return (tmat)
 }
@@ -157,7 +157,7 @@ times_from_gtfs_to_net <- function (graph, gtfs) {
     tmat <- m4ra_times_single_mode (graph, from = stop_ids)
 
     index <- match (stops$osm_id, stop_ids)
-    tmat <- tmat [index, ]
+    tmat <- tmat [index, , drop = FALSE]
 
     return (tmat)
 }
