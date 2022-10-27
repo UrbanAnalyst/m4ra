@@ -37,6 +37,19 @@ rcpp_closest_gtfs <- function(vxy, stops, n_closest) {
     .Call(`_m4ra_rcpp_closest_gtfs`, vxy, stops, n_closest)
 }
 
+#' rcpp_closest_pts
+#'
+#' From a matrix of distances from a defined set of point to all points in a
+#' network, identify the 'n_closest' 'from' points for each network point.
+#' This can't be done efficiently within an actual Dijkstra query, because the
+#' number of 'from' points is generally << number of network points. This
+#' routine post-processes the distance matrix through reducing the
+#' dimensionality of it.
+#' @noRd
+rcpp_closest_pts <- function(dmat, n_closest) {
+    .Call(`_m4ra_rcpp_closest_pts`, dmat, n_closest)
+}
+
 #' rcpp_net_gtfs_travel_times
 #'
 #' This takes three matrices as inputs:

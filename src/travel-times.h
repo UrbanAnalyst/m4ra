@@ -11,6 +11,7 @@
 #include <RcppParallel.h>
 
 constexpr int INFINITE_INT =  std::numeric_limits <int>::max ();
+constexpr double INFINITE_DBL =  std::numeric_limits <double>::max ();
 constexpr int XY_PRECISION = 100000;
 
 const bool is_na (const int &x);
@@ -20,6 +21,9 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
 
 Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
         Rcpp::DataFrame stopxy, const int n_closest);
+
+Rcpp::NumericMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
+        const int n_closest);
 
 Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix &t_net_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_gtfs,

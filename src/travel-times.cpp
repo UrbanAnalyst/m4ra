@@ -66,6 +66,49 @@ Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
     return res;
 }
 
+//' rcpp_closest_pts
+//'
+//' From a matrix of distances from a defined set of point to all points in a
+//' network, identify the 'n_closest' 'from' points for each network point.
+//' This can't be done efficiently within an actual Dijkstra query, because the
+//' number of 'from' points is generally << number of network points. This
+//' routine post-processes the distance matrix through reducing the
+//' dimensionality of it.
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::NumericMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
+        const int n_closest)
+{
+
+    const int nfrom = dmat.nrow (), nverts = dmat.ncol ();
+
+    Rcpp::NumericMatrix res (n_closest, nverts);
+    std::fill (res.begin (), res.end (), INFINITE_INT);
+
+    for (int i = 0; i < nverts; i++)
+    {
+        Rcpp::NumericVector d_i = dmat (Rcpp::_, i);
+        std::vector <double> d_i_vec = Rcpp::as <std::vector <double> > (d_i);
+
+        std::vector <double>::iterator it = std::min_element (d_i_vec.begin (), d_i_vec.end ());
+        const double minval = *it;
+        const bool allna = (minval > (INFINITE_DBL / 10.0));
+
+        for (int j = 0; j < n_closest; j++)
+        {
+            if (allna)
+            {
+                res (j, i) = INFINITE_DBL;
+            } else
+            {
+                res (j, i) = std::distance (d_i_vec.begin (), it);
+                std::advance (it, 1);
+            }
+        }
+    }
+
+    return res;
+}
 
 //' rcpp_net_gtfs_travel_times
 //'
