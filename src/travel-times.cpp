@@ -8,7 +8,8 @@ const bool is_na (const int &x)
 
 //' rcpp_closest_gtfs
 //'
-//' Get the closest GTFS stops to a given point
+//' Get the closest GTFS stops to a given point, based on simple metric
+//' distance, not network distances.
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,

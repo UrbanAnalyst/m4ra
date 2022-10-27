@@ -30,7 +30,8 @@ rcpp_scan_time_files <- function(tt, times, path) {
 
 #' rcpp_closest_gtfs
 #'
-#' Get the closest GTFS stops to a given point
+#' Get the closest GTFS stops to a given point, based on simple metric
+#' distance, not network distances.
 #' @noRd
 rcpp_closest_gtfs <- function(vxy, stops, n_closest) {
     .Call(`_m4ra_rcpp_closest_gtfs`, vxy, stops, n_closest)
