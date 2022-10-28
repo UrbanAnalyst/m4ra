@@ -24,7 +24,7 @@ struct OneMaxValue : public RcppParallel::Worker
     {
         for (std::size_t i = begin; i < end; i++)
         {
-            RcppParallel::RMatrix <double>::Column col_i = m.column (i);
+            const RcppParallel::RMatrix <double>::Column col_i = m.column (i);
             std::vector <double> col_i_vec (col_i.size ());
             std::copy (col_i.begin (), col_i.end (), col_i_vec.begin ());
 
