@@ -28,10 +28,6 @@ rcpp_scan_time_files <- function(tt, times, path) {
     invisible(.Call(`_m4ra_rcpp_scan_time_files`, tt, times, path))
 }
 
-rcpp_closest_pts_par <- function(dmat, n_closest, maxd) {
-    .Call(`_m4ra_rcpp_closest_pts_par`, dmat, n_closest, maxd)
-}
-
 #' rcpp_closest_gtfs
 #'
 #' Get the closest GTFS stops to a given point, based on simple metric
@@ -66,5 +62,13 @@ rcpp_closest_pts <- function(dmat, n_closest, maxd) {
 #' @noRd
 rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, closest_gtfs_stns) {
     .Call(`_m4ra_rcpp_net_gtfs_travel_times`, t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, closest_gtfs_stns)
+}
+
+#' rcpp_matrix_max
+#'
+#' Parallel version of `max(mat)`.
+#' @noRd
+rcpp_matrix_max <- function(mat) {
+    .Call(`_m4ra_rcpp_matrix_max`, mat)
 }
 

@@ -53,19 +53,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// rcpp_closest_pts_par
-Rcpp::IntegerMatrix rcpp_closest_pts_par(Rcpp::NumericMatrix dmat, const int n_closest, const double maxd);
-RcppExport SEXP _m4ra_rcpp_closest_pts_par(SEXP dmatSEXP, SEXP n_closestSEXP, SEXP maxdSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type dmat(dmatSEXP);
-    Rcpp::traits::input_parameter< const int >::type n_closest(n_closestSEXP);
-    Rcpp::traits::input_parameter< const double >::type maxd(maxdSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_closest_pts_par(dmat, n_closest, maxd));
-    return rcpp_result_gen;
-END_RCPP
-}
 // rcpp_closest_gtfs
 Rcpp::List rcpp_closest_gtfs(Rcpp::DataFrame vxy, Rcpp::DataFrame stops, const int n_closest);
 RcppExport SEXP _m4ra_rcpp_closest_gtfs(SEXP vxySEXP, SEXP stopsSEXP, SEXP n_closestSEXP) {
@@ -106,15 +93,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_matrix_max
+const double rcpp_matrix_max(Rcpp::NumericMatrix mat);
+RcppExport SEXP _m4ra_rcpp_matrix_max(SEXP matSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat(matSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_matrix_max(mat));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_m4ra_rcpp_get_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_get_sp_dists_par, 4},
     {"_m4ra_rcpp_save_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_save_sp_dists_par, 6},
     {"_m4ra_rcpp_scan_time_files", (DL_FUNC) &_m4ra_rcpp_scan_time_files, 3},
-    {"_m4ra_rcpp_closest_pts_par", (DL_FUNC) &_m4ra_rcpp_closest_pts_par, 3},
     {"_m4ra_rcpp_closest_gtfs", (DL_FUNC) &_m4ra_rcpp_closest_gtfs, 3},
     {"_m4ra_rcpp_closest_pts", (DL_FUNC) &_m4ra_rcpp_closest_pts, 3},
     {"_m4ra_rcpp_net_gtfs_travel_times", (DL_FUNC) &_m4ra_rcpp_net_gtfs_travel_times, 4},
+    {"_m4ra_rcpp_matrix_max", (DL_FUNC) &_m4ra_rcpp_matrix_max, 1},
     {NULL, NULL, 0}
 };
 
