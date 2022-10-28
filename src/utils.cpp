@@ -28,7 +28,9 @@ struct OneMaxValue : public RcppParallel::Worker
             std::vector <double> col_i_vec (col_i.size ());
             std::copy (col_i.begin (), col_i.end (), col_i_vec.begin ());
 
-            std::vector <double>::iterator it = std::min_element (col_i_vec.begin (), col_i_vec.end ());
+            std::vector <double>::iterator it =
+                std::max_element (col_i_vec.begin (), col_i_vec.end (),
+                        NaNAwareLess <double> ());
 
             res [i] = *it;
         }
@@ -44,7 +46,6 @@ struct OneMaxValue : public RcppParallel::Worker
 // [[Rcpp::export]]
 const double rcpp_matrix_max (Rcpp::NumericMatrix mat)
 {
-
     const int dummy = 0;
 
     const int nverts = mat.ncol ();
@@ -58,7 +59,9 @@ const double rcpp_matrix_max (Rcpp::NumericMatrix mat)
 
     std::vector <double> res_vec (nverts);
     std::copy (res.begin (), res.end (), res_vec.begin ());
-    std::vector <double>::iterator it = std::max_element (res_vec.begin (), res_vec.end ());
+    std::vector <double>::iterator it =
+        std::max_element (res_vec.begin (), res_vec.end (),
+                NaNAwareLess <double> ());
 
     return *it;
 }
