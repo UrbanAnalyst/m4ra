@@ -23,7 +23,7 @@ Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
         Rcpp::DataFrame stopxy, const int n_closest);
 
 Rcpp::NumericMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
-        const int n_closest);
+        const int n_closest, const double maxd);
 
 Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix &t_net_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_gtfs,

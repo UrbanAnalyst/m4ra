@@ -77,7 +77,7 @@ Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
-        const int n_closest)
+        const int n_closest, const double maxd)
 {
 
     const int nfrom = dmat.nrow (), nverts = dmat.ncol ();
@@ -92,18 +92,15 @@ Rcpp::NumericMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
 
         std::vector <double>::iterator it = std::min_element (d_i_vec.begin (), d_i_vec.end ());
         const double minval = *it;
-        const bool allna = (minval > (INFINITE_DBL / 10.0));
+        const bool allna = (minval >= (maxd - 1.0));
+
+        if (allna)
+            continue;
 
         for (int j = 0; j < n_closest; j++)
         {
-            if (allna)
-            {
-                res (j, i) = INFINITE_DBL;
-            } else
-            {
-                res (j, i) = std::distance (d_i_vec.begin (), it);
-                std::advance (it, 1);
-            }
+            res (j, i) = std::distance (d_i_vec.begin (), it);
+            std::advance (it, 1);
         }
     }
 
