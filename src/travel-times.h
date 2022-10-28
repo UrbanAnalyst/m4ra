@@ -28,4 +28,4 @@ Rcpp::IntegerMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
 Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix &t_net_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_net,
-        Rcpp::List  closest_gtfs_stns);
+        Rcpp::List closest_gtfs_stns);
