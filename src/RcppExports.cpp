@@ -53,6 +53,19 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// rcpp_closest_gtfs
+Rcpp::List rcpp_closest_gtfs(Rcpp::DataFrame vxy, Rcpp::DataFrame stops, const int n_closest);
+RcppExport SEXP _m4ra_rcpp_closest_gtfs(SEXP vxySEXP, SEXP stopsSEXP, SEXP n_closestSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type vxy(vxySEXP);
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type stops(stopsSEXP);
+    Rcpp::traits::input_parameter< const int >::type n_closest(n_closestSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_closest_gtfs(vxy, stops, n_closest));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_closest_pts
 Rcpp::IntegerMatrix rcpp_closest_pts(Rcpp::NumericMatrix dmat, const int n_closest, const double maxd);
 RcppExport SEXP _m4ra_rcpp_closest_pts(SEXP dmatSEXP, SEXP n_closestSEXP, SEXP maxdSEXP) {
@@ -96,6 +109,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_m4ra_rcpp_get_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_get_sp_dists_par, 4},
     {"_m4ra_rcpp_save_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_save_sp_dists_par, 6},
     {"_m4ra_rcpp_scan_time_files", (DL_FUNC) &_m4ra_rcpp_scan_time_files, 3},
+    {"_m4ra_rcpp_closest_gtfs", (DL_FUNC) &_m4ra_rcpp_closest_gtfs, 3},
     {"_m4ra_rcpp_closest_pts", (DL_FUNC) &_m4ra_rcpp_closest_pts, 3},
     {"_m4ra_rcpp_net_gtfs_travel_times", (DL_FUNC) &_m4ra_rcpp_net_gtfs_travel_times, 4},
     {"_m4ra_rcpp_matrix_max", (DL_FUNC) &_m4ra_rcpp_matrix_max, 1},

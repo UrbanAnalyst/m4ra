@@ -19,10 +19,13 @@ const bool is_na (const int &x);
 std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stops,
         const int &i, const int &n_closest);
 
+Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
+        Rcpp::DataFrame stopxy, const int n_closest);
+
 Rcpp::IntegerMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
         const int n_closest, const double maxd);
 
 Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix &t_net_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_net,
-        Rcpp::IntegerMatrix  closest_gtfs_stns);
+        Rcpp::List  closest_gtfs_stns);
