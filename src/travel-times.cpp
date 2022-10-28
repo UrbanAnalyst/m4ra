@@ -153,7 +153,8 @@ Rcpp::IntegerMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
 Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_net,
-        Rcpp::List closest_gtfs_stns)
+        Rcpp::List closest_gtfs_to_from,
+        Rcpp::IntegerMatrix closest_gtfs_to_net)
 {
 
     const int n_from = t_net_to_gtfs.nrow ();
@@ -162,7 +163,7 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     {
         Rcpp::stop ("network and gtfs matrices have incompatible dimensions.");
     }
-    if (n_from != closest_gtfs_stns.size ())
+    if (n_from != closest_gtfs_to_from.size ())
     {
         Rcpp::stop ("network and gtfs closest stations have incompatible dimensions.");
     }
@@ -174,9 +175,9 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     // Construct times to all terminal GTFS stops as 
     for (size_t i = 0; i < n_from; i++)
     {
-        const Rcpp::IntegerVector closest_gtfs = closest_gtfs_stns (i);
-        const size_t n_closest = closest_gtfs.size ();
-        if (is_na (closest_gtfs [0]))
+        const Rcpp::IntegerVector closest_gtfs_to_from = closest_gtfs_to_from (i);
+        const size_t n_closest = closest_gtfs_to_from.size ();
+        if (is_na (closest_gtfs_to_from [0]))
         {
             continue;
         }
@@ -188,19 +189,19 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
 
         for (size_t j = 0; j < n_closest; j++)
         {
-            if (is_na (t_net_to_gtfs (i, closest_gtfs [j])))
+            if (is_na (t_net_to_gtfs (i, closest_gtfs_to_from [j])))
             {
                 continue;
             }
 
             for (size_t k = 0; k < n_gtfs; k++)
             {
-                if (is_na (t_gtfs_to_gtfs (closest_gtfs [j], k)))
+                if (is_na (t_gtfs_to_gtfs (closest_gtfs_to_from [j], k)))
                 {
                     continue;
                 }
 
-                const int t_to_gtfs_k = t_net_to_gtfs (i, closest_gtfs [j]) + t_gtfs_to_gtfs (closest_gtfs [j], k);
+                const int t_to_gtfs_k = t_net_to_gtfs (i, closest_gtfs_to_from [j]) + t_gtfs_to_gtfs (closest_gtfs_to_from [j], k);
                 if (t_to_gtfs_k < times_to_gtfs_stops [k])
                 {
                     times_to_gtfs_stops [k] = t_to_gtfs_k;
@@ -208,7 +209,10 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
             }
         }
 
-        // Then minimal times from all terminal GTFS stops to all other network points:
+        // Then minimal times from all terminal GTFS stops to all other network
+        // points, tracing only times from GTFS stops given in
+        // `closest_gtfs_to_net`.
+        const size_t n_closest_gtfs = closest_gtfs_to_net.nrow ();
         for (size_t j = 0; j < n_gtfs; j++)
         {
             if (is_na (times_to_gtfs_stops [j]))

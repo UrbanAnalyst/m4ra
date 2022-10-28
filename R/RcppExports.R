@@ -60,8 +60,8 @@ rcpp_closest_pts <- function(dmat, n_closest, maxd) {
 #' point.
 #'
 #' @noRd
-rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, closest_gtfs_stns) {
-    .Call(`_m4ra_rcpp_net_gtfs_travel_times`, t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, closest_gtfs_stns)
+rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, closest_gtfs_to_from, closest_gtfs_to_net) {
+    .Call(`_m4ra_rcpp_net_gtfs_travel_times`, t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_net, closest_gtfs_to_from, closest_gtfs_to_net)
 }
 
 #' rcpp_matrix_max
