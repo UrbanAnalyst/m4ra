@@ -25,6 +25,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_dists_to_n_targets
+Rcpp::NumericMatrix rcpp_dists_to_n_targets(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector fromi, Rcpp::IntegerVector toi_in, const int n_targets);
+RcppExport SEXP _m4ra_rcpp_dists_to_n_targets(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP fromiSEXP, SEXP toi_inSEXP, SEXP n_targetsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type graph(graphSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::DataFrame >::type vert_map_in(vert_map_inSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type fromi(fromiSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type toi_in(toi_inSEXP);
+    Rcpp::traits::input_parameter< const int >::type n_targets(n_targetsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_dists_to_n_targets(graph, vert_map_in, fromi, toi_in, n_targets));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_save_sp_dists_par
 bool rcpp_save_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector from_index, Rcpp::CharacterVector from_names_in, Rcpp::IntegerVector toi_in, const std::string path);
 RcppExport SEXP _m4ra_rcpp_save_sp_dists_par(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP from_indexSEXP, SEXP from_names_inSEXP, SEXP toi_inSEXP, SEXP pathSEXP) {
@@ -108,6 +123,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_m4ra_rcpp_get_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_get_sp_dists_par, 4},
+    {"_m4ra_rcpp_dists_to_n_targets", (DL_FUNC) &_m4ra_rcpp_dists_to_n_targets, 5},
     {"_m4ra_rcpp_save_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_save_sp_dists_par, 6},
     {"_m4ra_rcpp_scan_time_files", (DL_FUNC) &_m4ra_rcpp_scan_time_files, 3},
     {"_m4ra_rcpp_closest_gtfs", (DL_FUNC) &_m4ra_rcpp_closest_gtfs, 3},

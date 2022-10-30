@@ -125,3 +125,42 @@ void PF::PathFinder::AStar (std::vector<double>& d,
     } // end while m_heap->nItems
     delete [] is_target;
 }
+
+void PF::PathFinder::AStarNTargets (std::vector<double>& d,
+        std::vector<double>& w,
+        std::vector<long int>& prev,
+        const std::vector<double>& heur,
+        const size_t v0,
+        const std::vector <size_t> &to_index,
+        const size_t n_targets)
+{
+    const DGraphEdge *edge;
+
+    const size_t n = m_graph->nVertices();
+    const std::vector<DGraphVertex>& vertices = m_graph->vertices();
+
+    PF::PathFinder::init_arrays (d, w, prev, m_open, m_closed, v0, n);
+    m_heap->insert (v0, heur [v0]);
+
+    size_t n_reached = 0;
+    bool *is_target = new bool [n];
+    std::fill (is_target, is_target + n, false);
+    for (auto t: to_index)
+        is_target [t] = true;
+
+    while (m_heap->nItems() > 0) {
+        size_t v = m_heap->deleteMin();
+
+        m_closed [v] = true;
+        m_open [v] = false;
+
+        edge = vertices [v].outHead;
+        scan_edges_heur (edge, d, w, prev, m_open, m_closed, v, heur);
+
+        if (is_target [v])
+            n_reached++;
+        if (n_reached == n_targets)
+            break;
+    } // end while m_heap->nItems
+    delete [] is_target;
+}

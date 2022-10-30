@@ -86,6 +86,14 @@ class PathFinder {
                 const size_t v0,
                 const std::vector <size_t> &to_index);
 
+        void AStarNTargets (std::vector<double>& d,
+                std::vector<double>& w,
+                std::vector<long int>& prev,
+                const std::vector<double>& heur,
+                const size_t v0,
+                const std::vector <size_t> &to_index,
+                const size_t n_targets);
+
     private:
         Heap *m_heap;        // pointer: heap
         // Convert to vector<bool>? (save memory, might be a performance hit though)
