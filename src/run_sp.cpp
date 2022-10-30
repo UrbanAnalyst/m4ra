@@ -162,7 +162,8 @@ struct OneDistNTargets : public RcppParallel::Worker
                 dy = vy [j] - vy [from_i];
                 heuristic [j] = sqrt (dx * dx + dy * dy);
             }
-            pathfinder->AStar (d, w, prev, heuristic, from_i, toi);
+            pathfinder->AStarNTargets (d, w, prev, heuristic, from_i, toi,
+                    n_targets);
 
             size_t count = 0;
             for (size_t j = 0; j < toi.size (); j++)
