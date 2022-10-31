@@ -34,6 +34,7 @@
 #' @param n_closest Final travel times to each destination point are calculated
 #' by tracing back times to this number of closest GTFS stops. Lower values will
 #' result in faster calculation times, yet with potentially inaccurate results.
+#' @family main
 #' @export
 m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                                day = NULL, start_time_limits = NULL,

@@ -39,6 +39,7 @@ traveltimes <- m4ra_times_single_mode (net)
 \seealso{
 Other main: 
 \code{\link{m4ra_gtfs_traveltimes}()},
+\code{\link{m4ra_prepare_data}()},
 \code{\link{m4ra_times_multi_modal}()},
 \code{\link{m4ra_times_multi_mode}()},
 \code{\link{m4ra_times_to_gtfs_stops}()},

@@ -26,6 +26,7 @@ Construct a travel time matrix between all pairs of stops in a 'GTFS' feed.
 }
 \seealso{
 Other main: 
+\code{\link{m4ra_prepare_data}()},
 \code{\link{m4ra_times_multi_modal}()},
 \code{\link{m4ra_times_multi_mode}()},
 \code{\link{m4ra_times_single_mode}()},
