@@ -76,7 +76,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 
     files <- c (net_files, gtfs)
 
-    f_closest_gtfs <- times_gtfs_to_net (files, mode = mode, fast = fast, n_closest = n_closest)
+    f_closest_gtfs <- times_gtfs_to_net (files, mode = final_mode, fast = fast, n_closest = n_closest)
 
     return (c (files, fname_gtfs, f_closest_gtfs))
 }
@@ -145,9 +145,9 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
     return (rcpp_closest_pts (dmat, n_closest, maxd))
 }
 
-closest_gtfs_to_net_slow <- function (graph_c, stops) {
+closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
 
     v <- dodgr::dodgr_vertices (graph_c)
     
-    return (rcpp_closest_gtfs (v, gtfs$stops, n_closest))
+    return (rcpp_closest_gtfs (v, stops, n_closest))
 }
