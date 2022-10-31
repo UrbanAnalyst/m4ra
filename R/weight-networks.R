@@ -37,7 +37,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
     for (w in wt_profiles) {
 
-        filename <- file.path (
+        filename <- fs::path (
             m4ra_cache_dir (),
             paste0 ("m4ra-", city, "-", hash, "-", w, ".Rds")
         )
@@ -114,10 +114,9 @@ write_wt_profile <- function (traffic_lights = 1, turn = 2) {
 #' @export
 m4ra_batch_weight_networks <- function (net_dir, remove_these = NULL) {
 
-    flist <- list.files (net_dir, pattern = "\\.Rds")
+    flist <- fs::dir_ls (net_dir, regexp = "\\.Rds")
     cities <- gsub ("\\-sc.*$", "", flist )
     cities <- cities [which (!cities %in% remove_these)]
-    flist <- normalizePath (list.files (net_dir, pattern = "\\.Rds", full.names = TRUE))
 
     count <- 1
     for (ci in cities) {

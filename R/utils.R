@@ -55,11 +55,13 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot") {
 
     mode <- match.arg (tolower (mode), c ("foot", "bicycle", "motorcar"))
 
-    flist <- list.files (m4ra_cache_dir (), full.names = TRUE)
-    flist <- grep (city, flist, value = TRUE)
+    flist <- fs::dir_ls (m4ra_cache_dir (), regexp = city)
     f <- grep (mode, flist, value = TRUE)
     if (length (f) != 1L) {
         stop ("No single file found for [city, mode] = [", city, ", ", mode, "]")
+    }
+    if (!fs::file_exists (f)) {
+        stop ("File '", f, "' does not exist")
     }
 
     graph <- fst::read_fst (f)
