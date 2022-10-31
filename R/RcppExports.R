@@ -80,7 +80,7 @@ rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_
 #' These vectors are expanded here to all stops, so potentially returning
 #' longer vectors. The 'index' has a length equal to the length of the original
 #' stops table, with each entry indexing into the shortened, unique version.
-#' This function starts by reversing this index through constucting a map from
+#' This function starts by reversing this index through constructing a map from
 #' the latter to the former.
 #'
 #' @noRd
