@@ -333,7 +333,6 @@ Rcpp::NumericMatrix rcpp_dists_to_n_targets (const Rcpp::DataFrame graph,
         Rcpp::as <std::vector <size_t> > ( toi_in);
 
     size_t nfrom = static_cast <size_t> (fromi.size ());
-    size_t nto = static_cast <size_t> (toi.size ());
 
     const std::vector <std::string> from = graph [".vx0"];
     const std::vector <std::string> to = graph [".vx1"];
