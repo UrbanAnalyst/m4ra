@@ -134,7 +134,8 @@ times_gtfs_to_net <- function (files, mode = "foot", fast = FALSE, n_closest = 1
     if (!file.exists (fname)) {
         if (fast) {
             closest_gtfs <- closest_gtfs_to_net_fast (graph_c, stops, n_closest = n_closest)
-            closest_gtfs <- apply (closest_gtfs, 2, function (i) i, simplify = FALSE)
+            closest_gtfs <- apply (closest_gtfs, 2, function (i)
+                                   i [which (!is.na (i))], simplify = FALSE)
         } else {
             closest_gtfs <- closest_gtfs_to_net_slow (graph_c, stops, n_closest = n_closest)
         }
