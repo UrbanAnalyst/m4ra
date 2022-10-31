@@ -31,8 +31,12 @@ m4ra_times_multi_mode <- function (graph,
         cli::col_green (" Calculating times to all GTFS stops "),
         appendLF = FALSE)
     utils::flush.console ()
-    tmat_net_gtfs <-
-        m4ra_times_to_gtfs_stops (graph, gtfs, from = from, graph_to_gtfs = TRUE)
+    tmat_net_gtfs <- m4ra_times_to_gtfs_stops (
+        graph,
+        gtfs,
+        from = from,
+        graph_to_gtfs = TRUE
+    )
     message ("\r", cli::col_green (cli::symbol$tick,
         " Calculated times to all GTFS stops   "))
 
