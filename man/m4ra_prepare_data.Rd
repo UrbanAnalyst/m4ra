@@ -7,9 +7,12 @@
 m4ra_prepare_data(
   net_sc = NULL,
   gtfs = NULL,
-  start_time_limits = NULL,
+  city_name = NULL,
   day = NULL,
-  city_name = NULL
+  start_time_limits = NULL,
+  final_mode = "foot",
+  fast = FALSE,
+  n_closest = 10L
 )
 }
 \arguments{
@@ -22,14 +25,25 @@ represented in \code{net_sc}. This \code{.Rds} object may include additional tim
 or transfer information in addition to data represented in original
 \code{zip}-format data of provided GTFS feed.}
 
-\item{start_time_limits}{As for the 'gtfs_traveltimes' function of
-\pkg{gtfsrouter}, a vector of two values specifying the earliest and latest
-departure times from each station.}
+\item{city_name}{Name of city used to name cached files.}
 
 \item{day}{As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 day for which the matrix is to be calculated.}
 
-\item{city_name}{Name of city used to name cached files.}
+\item{start_time_limits}{As for the 'gtfs_traveltimes' function of
+\pkg{gtfsrouter}, a vector of two values specifying the earliest and latest
+departure times from each station.}
+
+\item{final_mode}{The mode of transport used for the final stage from GTFS
+stops to destination points.}
+
+\item{fast}{Values of \code{TRUE} generate potentially enormous matrices which may
+not fit in local memory. The default value of \code{FALSE} is generally safer, but
+calculation may take considerably longer.}
+
+\item{n_closest}{Final travel times to each destination point are calculated
+by tracing back times to this number of closest GTFS stops. Lower values will
+result in faster calculation times, yet with potentially inaccurate results.}
 }
 \description{
 This is a meta-function that calls the following functions:
@@ -38,8 +52,9 @@ This is a meta-function that calls the following functions:
 street network weighted for different kinds of transport.
 \item \link{m4ra_gtfs_traveltimes} to generate
 }
-This stores several differently-weighted version of the street networks in a
-local cache directory defined by the \code{user_cache_dir()} function of the
+It also identifies the closest GTFS stops to every network point. The
+function stores several differently-weighted version of the street networks
+in a local cache directory defined by the \code{user_cache_dir()} function of the
 \pkg{rappdirs} package, or by a local environment parameter,
 "M4RA_CACHE_DIR", if set.
 }
