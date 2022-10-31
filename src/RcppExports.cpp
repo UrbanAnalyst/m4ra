@@ -109,6 +109,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_expand_closest_index
+Rcpp::List rcpp_expand_closest_index(Rcpp::List closest, Rcpp::IntegerVector index);
+RcppExport SEXP _m4ra_rcpp_expand_closest_index(SEXP closestSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type closest(closestSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_expand_closest_index(closest, index));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_matrix_max
 const double rcpp_matrix_max(Rcpp::NumericMatrix mat);
 RcppExport SEXP _m4ra_rcpp_matrix_max(SEXP matSEXP) {
@@ -129,6 +141,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_m4ra_rcpp_closest_gtfs", (DL_FUNC) &_m4ra_rcpp_closest_gtfs, 3},
     {"_m4ra_rcpp_closest_pts", (DL_FUNC) &_m4ra_rcpp_closest_pts, 3},
     {"_m4ra_rcpp_net_gtfs_travel_times", (DL_FUNC) &_m4ra_rcpp_net_gtfs_travel_times, 5},
+    {"_m4ra_rcpp_expand_closest_index", (DL_FUNC) &_m4ra_rcpp_expand_closest_index, 2},
     {"_m4ra_rcpp_matrix_max", (DL_FUNC) &_m4ra_rcpp_matrix_max, 1},
     {NULL, NULL, 0}
 };

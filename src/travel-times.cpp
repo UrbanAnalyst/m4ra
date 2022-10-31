@@ -310,3 +310,61 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
 
     return closest_gtfs;
 }
+
+//' The 'closest' lists returned by 'rcpp_closest_pts' or 'rcpp_closest_gtfs'
+//' hold indices for each network point to the nearest GTFS stops. These are
+//' contracted indices to unique coordinate pairs only. This function re-expands
+//' those out to the full stop index.
+//'
+//' Each entry in one 'closest' list-item is a vector into the unique stops.
+//' These vectors are expanded here to all stops, so potentially returning
+//' longer vectors. The 'index' has a length equal to the length of the original
+//' stops table, with each entry indexing into the shortened, unique version.
+//' This function starts by reversing this index through constructing a map from
+//' the latter to the former.
+//'
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List rcpp_expand_closest_index (Rcpp::List closest,
+        Rcpp::IntegerVector index)
+{
+    std::unordered_map <int, std::vector <int> > index_map;
+    for (int i = 0; i < index.size (); i++)
+    {
+        std::vector <int> index_i;
+        if (index_map.find (index [i]) != index_map.end ())
+        {
+            index_i = index_map.at (index [i]);
+            index_map.erase (index [i]);
+        }
+        index_i.push_back (i);
+
+        index_map.emplace (index [i], index_i);
+    }
+
+    Rcpp::List res (closest.size ());
+    for (int i = 0; i < closest.size (); i++)
+    {
+        std::vector <int> closest_i_in = Rcpp::as <std::vector <int> > (closest (i));
+        int size = 0;
+        for (auto j: closest_i_in)
+        {
+            size += index_map.at (j).size ();
+        }
+
+        std::vector <int> closest_i_out (size);
+        size_t pos = 0;
+        for (auto j: closest_i_in)
+        {
+            std::vector <int> closest_j = index_map.at (j);
+            for (auto k: closest_j)
+            {
+                closest_i_out [pos++] = k;
+            }
+        }
+
+        res (i) = closest_i_out;
+    }
+
+    return res;
+}

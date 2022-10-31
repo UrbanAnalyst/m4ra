@@ -114,7 +114,19 @@ times_gtfs_to_net <- function (files, mode = "foot", fast = FALSE, n_closest = 1
     }
     gtfs <- readRDS (f_gtfs)
     gtfs_hash <- substring (digest::digest (gtfs), 1, 6)
-    stops <- gtfs$stops
+
+    # match GTFS stop coordinates to unique values
+    n_digits <- 6L
+    stops_xy <- gtfs$stops [, c ("stop_lon", "stop_lat")]
+    stops_xy$stop_lon <- format (stops_xy$stop_lon, digits = 6)
+    stops_xy$stop_lat <- format (stops_xy$stop_lat, digits = 6)
+    index_in <- which (!duplicated (stops_xy))
+    stops_xy_un <- stops_xy [index_in, ]
+    xy_char <- paste0 (stops_xy$stop_lon, "-", stops_xy$stop_lat)
+    xy_un_char <- paste0 (stops_xy_un$stop_lon, "-", stops_xy_un$stop_lat)
+    index_out <- match (xy_char, xy_un_char)
+
+    stops <- gtfs$stops [index_in, ]
 
     fname <- paste0 ("m4ra-", city, "-gtfs-to-net-", gtfs_hash, "-", graph_hash, ".Rds")
     fname <- file.path (m4ra_cache_dir (), fname)
@@ -122,9 +134,12 @@ times_gtfs_to_net <- function (files, mode = "foot", fast = FALSE, n_closest = 1
     if (!file.exists (fname)) {
         if (fast) {
             closest_gtfs <- closest_gtfs_to_net_fast (graph_c, stops, n_closest = n_closest)
+            closest_gtfs <- apply (closest_gtfs, 2, function (i) i, simplify = FALSE)
         } else {
             closest_gtfs <- closest_gtfs_to_net_slow (graph_c, stops, n_closest = n_closest)
         }
+
+        closest_gtfs <- rcpp_expand_closest_index (closest_gtfs, index_out - 1L)
 
         saveRDS (closest_gtfs, fname)
     }
