@@ -43,7 +43,7 @@ struct OneMinDists : public RcppParallel::Worker
             for (int j = 0; j < n_closest; j++)
             {
                 dout (j, i) = std::distance (col_i_vec.begin (), it);
-                std::advance (it, 1);
+                std::next (it, 1);
             }
         }
     }
