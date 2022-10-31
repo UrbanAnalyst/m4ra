@@ -49,4 +49,29 @@ test_that ("prepare data", {
     # plus one GTFS travel time matrix, and one GTFS-to-final network time
     # matrix:
     expect_length (grep ("gtfs", flist), 3L)
+
+    f <- grep ("\\-slow\\.Rds$", flist, value = TRUE)
+    times_slow <- readRDS (f)
+
+    flist <- m4ra_prepare_data (
+        net_sc = net_sc_path,
+        gtfs = gtfs_path,
+        city_name = "berlin",
+        day = "mo",
+        start_time_limits = 8:9 * 3600,
+        final_mode = "foot",
+        fast = TRUE,
+        n_closest = 10L)
+
+    f <- grep ("\\-fast\\.Rds$", flist, value = TRUE)
+    times_fast <- readRDS (f)
+
+    expect_type (times_slow, "list")
+    expect_type (times_fast, "list")
+    expect_true (!identical (times_slow, times_fast))
+    expect_identical (length (times_slow), length (times_fast))
+
+    len_slow <- sum (vapply (times_slow, length, integer (1L)))
+    len_fast <- sum (vapply (times_fast, length, integer (1L)))
+    expect_true (len_slow > len_fast)
 })
