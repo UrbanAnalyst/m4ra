@@ -99,11 +99,4 @@ test_that ("gtfs to graph fns", {
     expect_identical (dim (tmat_gtfs_intern), c (nstops, nstops))
     expect_identical (dim (tmat_gtfs_net), c (nstops, nverts))
     expect_identical (dim (tmat_net_gtfs), c (nverts, nstops))
-
-    # multi-modal routing:
-
-    nfrom <- 10L
-    from <- sample (graph$.vx0, size = nfrom)
-    tmat <- m4ra_times_multi_mode (graph, gtfs, start_time_limits = start_time_limits, from = from)
-    expect_identical (dim (tmat), c (nfrom, npts))
 })
