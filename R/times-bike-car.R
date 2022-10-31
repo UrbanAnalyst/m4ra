@@ -131,7 +131,7 @@ m4ra_bike_car_ratio_areas <- function (bike_car_dat,
     ratio_area <- function (ratios, verts, ratio_lim = 1.0) {
 
         xy <- as.matrix (verts [which (ratios <= ratio_lim), c ("x", "y")])
-        xy <- xy [chull (xy), , drop = FALSE]
+        xy <- xy [grDevices::chull (xy), , drop = FALSE]
         area <- 0
         if (nrow (xy) > 3L) {
             area <- geosphere::areaPolygon (xy) / 1e6
