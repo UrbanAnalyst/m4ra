@@ -1,8 +1,6 @@
 #pragma once
 
-#include <fstream>
 #include <cstdlib> // atof
-#include <map>
 
 #include <Rcpp.h>
 // [[Rcpp::plugins(cpp11)]]

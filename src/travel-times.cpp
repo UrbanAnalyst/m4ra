@@ -125,7 +125,7 @@ Rcpp::IntegerMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
         const int n_closest, const double maxd)
 {
 
-    const int nfrom = dmat.nrow (), nverts = dmat.ncol ();
+    const int nverts = dmat.ncol ();
 
     Rcpp::NumericVector na_vec = Rcpp::NumericVector (n_closest * nverts,
             Rcpp::NumericVector::get_na ());
