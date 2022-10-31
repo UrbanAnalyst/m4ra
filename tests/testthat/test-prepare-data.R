@@ -84,7 +84,7 @@ test_that ("prepare data", {
     day <- "monday"
     start_time_limits <- 12:13 * 3500
 
-    flist_fast <- m4ra_prepare_data (
+    flist <- m4ra_prepare_data (
         net_sc = net_sc_path,
         gtfs = gtfs_path,
         city_name = "berlin",
