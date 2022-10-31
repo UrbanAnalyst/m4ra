@@ -14,3 +14,5 @@ get_to_from_index <- utils::getFromNamespace ("get_to_from_index", "dodgr")
 remap_tf_index_for_tp <- utils::getFromNamespace ("remap_tf_index_for_tp", "dodgr")
 
 get_turn_penalty <- utils::getFromNamespace ("get_turn_penalty", "dodgr")
+
+get_hash <- utils::getFromNamespace ("get_hash", "dodgr")
