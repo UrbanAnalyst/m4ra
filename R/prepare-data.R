@@ -5,7 +5,7 @@
 #' \itemize{
 #' \item \link{m4ra_weight_networks} to generate several versions of the input
 #' street network weighted for different kinds of transport.
-#' \item \link{m4ra_gtfs_traveltimes} to generate 
+#' \item \link{m4ra_gtfs_traveltimes} to generate
 #' }
 #' It also identifies the closest GTFS stops to every network point. The
 #' function stores several differently-weighted version of the street networks
@@ -68,7 +68,10 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     if (!file.exists (fname_gtfs)) {
         gtfs_data <- gtfsrouter::gtfs_timetable (gtfs_data, day = day)
 
-        tmat_gtfs_gtfs <- m4ra_gtfs_traveltimes (gtfs_data, start_time_limits = start_time_limits)
+        tmat_gtfs_gtfs <- m4ra_gtfs_traveltimes (
+            gtfs_data,
+            start_time_limits = start_time_limits
+        )
         attr (tmat_gtfs_gtfs, "day") <- day
         attr (tmat_gtfs_gtfs, "start_time_limits") <- start_time_limits
         saveRDS (tmat_gtfs_gtfs, fname_gtfs)
@@ -76,14 +79,20 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 
     files <- c (net_files, gtfs)
 
-    f_closest_gtfs <- times_gtfs_to_net (files, mode = final_mode, fast = fast, n_closest = n_closest)
+    f_closest_gtfs <- times_gtfs_to_net (
+        files,
+        mode = final_mode,
+        fast = fast,
+        n_closest = n_closest
+    )
 
     return (c (files, fname_gtfs, f_closest_gtfs))
 }
 
 #' Identify closest GTFS stops to every network point.
 #' @noRd
-times_gtfs_to_net <- function (files, mode = "foot", fast = FALSE, n_closest = 10L) {
+times_gtfs_to_net <- function (files, mode = "foot",
+                               fast = FALSE, n_closest = 10L) {
 
     checkmate::assert_character (mode, len = 1L)
     mode <- match.arg (mode, c ("foot", "bicycle"))
@@ -105,7 +114,12 @@ times_gtfs_to_net <- function (files, mode = "foot", fast = FALSE, n_closest = 1
 
     city <- regmatches (f_net, regexpr ("m4ra\\-.*[^\\-]\\-", f_net))
     city <- gsub ("^m4ra\\-|\\-.*$", "", city)
-    f_gtfs_tmat <- grep (paste0 ("m4ra-", city, "-gtfs"), files, value = TRUE, fixed = TRUE)
+    f_gtfs_tmat <- grep (
+        paste0 ("m4ra-", city, "-gtfs"),
+        files,
+        value = TRUE,
+        fixed = TRUE
+    )
     # That is the pre-processed GTFS travel times matrix, so the actual feed is
     # the other 'files' entry with "gtfs":
     f_gtfs <- grep ("gtfs", files, value = TRUE)
@@ -118,8 +132,8 @@ times_gtfs_to_net <- function (files, mode = "foot", fast = FALSE, n_closest = 1
     # match GTFS stop coordinates to unique values
     n_digits <- 6L
     stops_xy <- gtfs$stops [, c ("stop_lon", "stop_lat")]
-    stops_xy$stop_lon <- format (stops_xy$stop_lon, digits = 6)
-    stops_xy$stop_lat <- format (stops_xy$stop_lat, digits = 6)
+    stops_xy$stop_lon <- format (stops_xy$stop_lon, digits = n_digits)
+    stops_xy$stop_lat <- format (stops_xy$stop_lat, digits = n_digits)
     index_in <- which (!duplicated (stops_xy))
     stops_xy_un <- stops_xy [index_in, ]
     xy_char <- paste0 (stops_xy$stop_lon, "-", stops_xy$stop_lat)
@@ -128,16 +142,27 @@ times_gtfs_to_net <- function (files, mode = "foot", fast = FALSE, n_closest = 1
 
     stops <- gtfs$stops [index_in, ]
 
-    fname <- paste0 ("m4ra-", city, "-gtfs-to-net-", gtfs_hash, "-", graph_hash, ".Rds")
+    fname <- paste0 (
+        "m4ra-",
+        city,
+        "-gtfs-to-net-",
+        gtfs_hash,
+        "-",
+        graph_hash,
+        ".Rds"
+    )
     fname <- file.path (m4ra_cache_dir (), fname)
 
     if (!file.exists (fname)) {
         if (fast) {
-            closest_gtfs <- closest_gtfs_to_net_fast (graph_c, stops, n_closest = n_closest)
-            closest_gtfs <- apply (closest_gtfs, 2, function (i)
-                                   i [which (!is.na (i))], simplify = FALSE)
+            closest_gtfs <-
+                closest_gtfs_to_net_fast (graph_c, stops, n_closest = n_closest)
+            closest_gtfs <- apply (closest_gtfs, 2, function (i) {
+                i [which (!is.na (i))]
+            }, simplify = FALSE)
         } else {
-            closest_gtfs <- closest_gtfs_to_net_slow (graph_c, stops, n_closest = n_closest)
+            closest_gtfs <-
+                closest_gtfs_to_net_slow (graph_c, stops, n_closest = n_closest)
         }
 
         closest_gtfs <- rcpp_expand_closest_index (closest_gtfs, index_out - 1L)
@@ -151,7 +176,8 @@ times_gtfs_to_net <- function (files, mode = "foot", fast = FALSE, n_closest = 1
 closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
 
     v <- dodgr::dodgr_vertices (graph_c)
-    ids <- v$id [dodgr::match_points_to_verts (v, stops [, c ("stop_lon", "stop_lat")])]
+    cols <- c ("stop_lon", "stop_lat")
+    ids <- v$id [dodgr::match_points_to_verts (v, stops [, cols])]
 
     dmat <- dodgr::dodgr_distances (graph_c, from = ids)
 
@@ -164,6 +190,6 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
 closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
 
     v <- dodgr::dodgr_vertices (graph_c)
-    
+
     return (rcpp_closest_gtfs (v, stops, n_closest))
 }
