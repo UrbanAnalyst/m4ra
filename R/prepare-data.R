@@ -149,9 +149,11 @@ times_gtfs_to_net <- function (files, mode = "foot",
         gtfs_hash,
         "-",
         graph_hash,
+        "-",
+        ifelse (fast, "fast", "slow"),
         ".Rds"
     )
-    fname <- file.path (m4ra_cache_dir (), fname)
+    fname <- fs::path (m4ra_cache_dir (), fname)
 
     if (!file.exists (fname)) {
         if (fast) {
@@ -167,6 +169,8 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
         closest_gtfs <- rcpp_expand_closest_index (closest_gtfs, index_out - 1L)
 
+        # NOTE: closest_gtfs indices are 0-based for direct submission to C++
+        # routines
         saveRDS (closest_gtfs, fname)
     }
 
