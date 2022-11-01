@@ -200,7 +200,7 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
     vert_map <- make_vert_map (graph_c, gr_cols, xy = TRUE)
     from_index <- get_to_from_index (graph_c, vert_map, gr_cols, from, from = TRUE)
     to_index <- get_to_from_index (graph_c, vert_map, gr_cols, to, from = FALSE)
-    
+
     dmat <- rcpp_dists_to_n_targets (graph_c, vert_map, from_index$index, to_index$index, n_closest)
 
     maxd <- rcpp_matrix_max (dmat)
