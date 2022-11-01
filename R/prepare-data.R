@@ -160,14 +160,14 @@ times_gtfs_to_net <- function (files, mode = "foot",
         if (fast) {
             closest_gtfs <-
                 closest_gtfs_to_net_fast (graph_c, stops, n_closest = n_closest)
-            closest_gtfs <- apply (closest_gtfs, 2, function (i) {
-                i [which (!is.na (i))]
-            }, simplify = FALSE)
         } else {
             closest_gtfs <-
                 closest_gtfs_to_net_slow (graph_c, stops, n_closest = n_closest)
         }
 
+        closest_gtfs <- apply (closest_gtfs, 2, function (i) {
+            i [which (!is.na (i))]
+        }, simplify = FALSE)
         closest_gtfs <- rcpp_expand_closest_index (closest_gtfs, index_out - 1L)
 
         # NOTE: closest_gtfs indices are 0-based for direct submission to C++
@@ -181,20 +181,30 @@ times_gtfs_to_net <- function (files, mode = "foot",
 closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
 
     v <- dodgr::dodgr_vertices (graph_c)
-    cols <- c ("stop_lon", "stop_lat")
-    ids <- v$id [dodgr::match_points_to_verts (v, stops [, cols])]
+    ids <- v$id [dodgr::match_points_to_verts (v, stops [, c ("stop_lon", "stop_lat")])]
 
     dmat <- dodgr::dodgr_distances (graph_c, from = ids)
 
     maxd <- rcpp_matrix_max (dmat)
     dmat [is.na (dmat)] <- maxd
 
-    return (rcpp_closest_pts (dmat, n_closest, maxd))
+    (rcpp_closest_pts (dmat, n_closest, maxd))
 }
 
 closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
 
     v <- dodgr::dodgr_vertices (graph_c)
+    from <- v$id
+    to <- v$id [dodgr::match_points_to_verts (v, stops [, c ("stop_lon", "stop_lat")])]
+    gr_cols <- dodgr_graph_cols (graph_c)
+    vert_map <- make_vert_map (graph_c, gr_cols, xy = TRUE)
+    from_index <- get_to_from_index (graph_c, vert_map, gr_cols, from, from = TRUE)
+    to_index <- get_to_from_index (graph_c, vert_map, gr_cols, to, from = FALSE)
+    
+    dmat <- rcpp_dists_to_n_targets (graph_c, vert_map, from_index$index, to_index$index, n_closest)
 
-    return (rcpp_closest_gtfs (v, stops, n_closest))
+    maxd <- rcpp_matrix_max (dmat)
+    dmat [is.na (dmat)] <- maxd
+
+    return (t (dmat))
 }
