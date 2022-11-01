@@ -170,7 +170,8 @@ struct OneDistNTargets : public RcppParallel::Worker
             {
                 if (w [toi [j]] < INFINITE_DOUBLE)
                 {
-                    dout (i, count++) = d [toi [j]];
+                    //dout (i, count++) = d [toi [j]];
+                    dout (i, count++) = toi [j];
                 }
                 if (count >= n_targets)
                 {
