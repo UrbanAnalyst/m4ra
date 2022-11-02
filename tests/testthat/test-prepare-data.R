@@ -66,8 +66,8 @@ test_that ("prepare data", {
     f <- grep ("\\-fast\\.Rds$", flist, value = TRUE)
     times_fast <- readRDS (f)
 
-    expect_type (times_slow, "list")
-    expect_type (times_fast, "list")
+    expect_type (times_slow, "double")
+    expect_type (times_fast, "double")
     expect_true (!identical (times_slow, times_fast))
     expect_identical (length (times_slow), length (times_fast))
 
