@@ -165,13 +165,18 @@ struct OneDistNTargets : public RcppParallel::Worker
             pathfinder->AStarNTargets (d, w, prev, heuristic, from_i, toi,
                     n_targets);
 
+            // The "NTargets" scanner only accumulates distances up to the
+            // closest "n_targets" values, but still includes the full "toi"
+            // values, most of which are NA. The loop to find the closest ones
+            // therefore has to examine the whole "toi" vector and use an index.
             size_t count = 0;
             for (size_t j = 0; j < toi.size (); j++)
             {
                 if (w [toi [j]] < INFINITE_DOUBLE)
                 {
-                    //dout (i, count++) = d [toi [j]];
-                    dout (i, count++) = toi [j];
+                    dout (i, count) = d [toi [j]];
+                    dout (i, n_targets + count) = toi [j];
+                    count++;
                 }
                 if (count >= n_targets)
                 {
@@ -354,10 +359,10 @@ Rcpp::NumericMatrix rcpp_dists_to_n_targets (const Rcpp::DataFrame graph,
     std::shared_ptr <DGraph> g = std::make_shared <DGraph> (nverts);
     inst_graph (g, nedges, vert_map, from, to, dist, wt);
 
-    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * n_targets,
+    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * 2 * n_targets,
             Rcpp::NumericVector::get_na ());
     Rcpp::NumericMatrix dout (static_cast <int> (nfrom),
-            static_cast <int> (n_targets), na_vec.begin ());
+            static_cast <int> (2 * n_targets), na_vec.begin ());
 
     // Create parallel worker
     OneDistNTargets one_dist (RcppParallel::RVector <int> (fromi), toi,
