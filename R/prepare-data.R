@@ -183,12 +183,20 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
     v <- dodgr::dodgr_vertices (graph_c)
     ids <- v$id [dodgr::match_points_to_verts (v, stops [, c ("stop_lon", "stop_lat")])]
 
-    dmat <- dodgr::dodgr_distances (graph_c, from = ids)
+    # ids can have duplicates through distinct stops mapping onto single points
+    index_in <- which (!duplicated (ids))
+    index_out <- match (ids, ids [index_in])
+    ids <- ids [index_in]
 
-    maxd <- rcpp_matrix_max (dmat)
-    dmat [is.na (dmat)] <- maxd
+    tmat <- m4ra_times_single_mode (graph_c, from = ids)
 
-    (rcpp_closest_pts (dmat, n_closest, maxd))
+    maxt <- rcpp_matrix_max (tmat)
+    tmat [is.na (tmat)] <- maxt
+
+    # re-expand out to full stops:
+    tmat <- tmat [index_out, ]
+
+    rcpp_closest_pts (tmat, n_closest, maxt)
 }
 
 closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
@@ -196,6 +204,12 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
     v <- dodgr::dodgr_vertices (graph_c)
     from <- v$id
     to <- v$id [dodgr::match_points_to_verts (v, stops [, c ("stop_lon", "stop_lat")])]
+
+    # to can have duplicates through distinct stops mapping onto single points
+    index_in <- which (!duplicated (to))
+    index_out <- match (to, to [index_in])
+    to <- to [index_in]
+
     gr_cols <- dodgr_graph_cols (graph_c)
     vert_map <- make_vert_map (graph_c, gr_cols, xy = TRUE)
     from_index <- get_to_from_index (graph_c, vert_map, gr_cols, from, from = TRUE)

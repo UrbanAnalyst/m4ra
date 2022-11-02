@@ -21,7 +21,7 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
 Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
         Rcpp::DataFrame stopxy, const int n_closest);
 
-Rcpp::IntegerMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
+Rcpp::NumericMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
         const int n_closest, const double maxd);
 
 Rcpp::List rcpp_expand_closest_index (Rcpp::List closest,

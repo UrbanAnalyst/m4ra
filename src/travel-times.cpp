@@ -12,14 +12,14 @@ struct OneMinDists : public RcppParallel::Worker
     const int n_closest;
     const double maxd;
 
-    RcppParallel::RMatrix <int> dout;
+    RcppParallel::RMatrix <double> dout;
 
     // constructor
     OneMinDists (
             const RcppParallel::RMatrix <double> dists_in,
             const int n_closest_in,
             const double maxd_in,
-            RcppParallel::RMatrix <int> dout_in) :
+            RcppParallel::RMatrix <double> dout_in) :
         p_dists (dists_in), n_closest (n_closest_in), maxd (maxd_in), dout (dout_in)
     {
     }
@@ -41,7 +41,8 @@ struct OneMinDists : public RcppParallel::Worker
 
             for (int j = 0; j < n_closest; j++)
             {
-                dout (j, i) = std::distance (col_i_vec.begin (), it);
+                dout (j, i) = *it;
+                dout (n_closest + j, i) = std::distance (col_i_vec.begin (), it);
                 *it = maxd;
                 it = std::min_element (col_i_vec.begin (), col_i_vec.end ());
             }
@@ -121,18 +122,18 @@ Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
 //' dimensionality of it.
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::IntegerMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
+Rcpp::NumericMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
         const int n_closest, const double maxd)
 {
 
     const int nverts = dmat.ncol ();
 
-    Rcpp::NumericVector na_vec = Rcpp::NumericVector (n_closest * nverts,
+    Rcpp::NumericVector na_vec = Rcpp::NumericVector (n_closest * 2 * nverts,
             Rcpp::NumericVector::get_na ());
-    Rcpp::IntegerMatrix res (n_closest, nverts, na_vec.begin ());
+    Rcpp::NumericMatrix res (n_closest * 2, nverts, na_vec.begin ());
 
     OneMinDists one_closest (RcppParallel::RMatrix <double> (dmat), n_closest,
-            maxd, RcppParallel::RMatrix <int> (res));
+            maxd, RcppParallel::RMatrix <double> (res));
 
     RcppParallel::parallelFor (0, nverts, one_closest);
 

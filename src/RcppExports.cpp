@@ -82,7 +82,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_closest_pts
-Rcpp::IntegerMatrix rcpp_closest_pts(Rcpp::NumericMatrix dmat, const int n_closest, const double maxd);
+Rcpp::NumericMatrix rcpp_closest_pts(Rcpp::NumericMatrix dmat, const int n_closest, const double maxd);
 RcppExport SEXP _m4ra_rcpp_closest_pts(SEXP dmatSEXP, SEXP n_closestSEXP, SEXP maxdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
