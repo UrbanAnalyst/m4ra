@@ -34,8 +34,7 @@ struct OneMinDists : public RcppParallel::Worker
             std::copy (col_i.begin (), col_i.end (), col_i_vec.begin ());
 
             std::vector <double>::iterator it = std::min_element (col_i_vec.begin (), col_i_vec.end ());
-            const double minval = *it;
-            const bool allna = (minval >= (maxd - 1.0));
+            const bool allna = (*it >= (maxd - 1.0));
 
             if (allna)
                 continue;
@@ -43,7 +42,8 @@ struct OneMinDists : public RcppParallel::Worker
             for (int j = 0; j < n_closest; j++)
             {
                 dout (j, i) = std::distance (col_i_vec.begin (), it);
-                it = std::next (it, 1);
+                *it = maxd;
+                it = std::min_element (col_i_vec.begin (), col_i_vec.end ());
             }
         }
     }
