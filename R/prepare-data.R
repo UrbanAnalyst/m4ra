@@ -165,10 +165,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
                 closest_gtfs_to_net_slow (graph_c, stops, n_closest = n_closest)
         }
 
-        closest_gtfs <- apply (closest_gtfs, 2, function (i) {
-            i [which (!is.na (i))]
-        }, simplify = FALSE)
-        closest_gtfs <- rcpp_expand_closest_index (closest_gtfs, index_out - 1L)
+        # closest_gtfs <- rcpp_expand_closest_index (closest_gtfs, index_out - 1L)
 
         # NOTE: closest_gtfs indices are 0-based for direct submission to C++
         # routines
