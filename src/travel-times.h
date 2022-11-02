@@ -24,8 +24,7 @@ Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
 Rcpp::NumericMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
         const int n_closest, const double maxd);
 
-Rcpp::List rcpp_expand_closest_index (Rcpp::List closest,
-        Rcpp::IntegerVector index);
+Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest);
 
 Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix &t_net_to_gtfs,
         Rcpp::IntegerMatrix t_gtfs_to_gtfs,

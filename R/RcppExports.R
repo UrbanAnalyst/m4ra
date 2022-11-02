@@ -72,20 +72,14 @@ rcpp_net_gtfs_travel_times <- function(t_net_to_gtfs, t_gtfs_to_gtfs, t_gtfs_to_
 }
 
 #' The 'closest' lists returned by 'rcpp_closest_pts' or 'rcpp_closest_gtfs'
-#' hold indices for each network point to the nearest GTFS stops. These are
-#' contracted indices to unique coordinate pairs only. This function re-expands
-#' those out to the full stop index.
-#'
-#' Each entry in one 'closest' list-item is a vector into the unique stops.
-#' These vectors are expanded here to all stops, so potentially returning
-#' longer vectors. The 'index' has a length equal to the length of the original
-#' stops table, with each entry indexing into the shortened, unique version.
-#' This function starts by reversing this index through constructing a map from
-#' the latter to the former.
+#' hold indices for each network point to the nearest GTFS stops, and
+#' corresponding distances/times. This function converts those to a list of
+#' elements, one for each GTFS stop, holding indices and distances out to the
+#' corresponding network points for which that stop is one of the closest.
 #'
 #' @noRd
-rcpp_expand_closest_index <- function(closest, index) {
-    .Call(`_m4ra_rcpp_expand_closest_index`, closest, index)
+rcpp_expand_closest_index <- function(closest) {
+    .Call(`_m4ra_rcpp_expand_closest_index`, closest)
 }
 
 #' rcpp_matrix_max

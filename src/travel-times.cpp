@@ -1,5 +1,6 @@
 
 #include "travel-times.h"
+#include <unordered_map>
 
 const bool is_na (const int &x)
 {
@@ -313,58 +314,57 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
 }
 
 //' The 'closest' lists returned by 'rcpp_closest_pts' or 'rcpp_closest_gtfs'
-//' hold indices for each network point to the nearest GTFS stops. These are
-//' contracted indices to unique coordinate pairs only. This function re-expands
-//' those out to the full stop index.
-//'
-//' Each entry in one 'closest' list-item is a vector into the unique stops.
-//' These vectors are expanded here to all stops, so potentially returning
-//' longer vectors. The 'index' has a length equal to the length of the original
-//' stops table, with each entry indexing into the shortened, unique version.
-//' This function starts by reversing this index through constructing a map from
-//' the latter to the former.
+//' hold indices for each network point to the nearest GTFS stops, and
+//' corresponding distances/times. This function converts those to a list of
+//' elements, one for each GTFS stop, holding indices and distances out to the
+//' corresponding network points for which that stop is one of the closest.
 //'
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::List rcpp_expand_closest_index (Rcpp::List closest,
-        Rcpp::IntegerVector index)
+Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
 {
-    std::unordered_map <int, std::vector <int> > index_map;
-    for (int i = 0; i < index.size (); i++)
+    const int n_closest = closest.nrow () / 2;
+    const int n_verts = closest.ncol ();
+    int n_gtfs = 0;
+    for (int i = 0; i < n_closest; i++)
     {
-        std::vector <int> index_i;
-        if (index_map.find (index [i]) != index_map.end ())
+        for (int j = 0; j < n_verts; j++)
         {
-            index_i = index_map.at (index [i]);
-            index_map.erase (index [i]);
-        }
-        index_i.push_back (i);
-
-        index_map.emplace (index [i], index_i);
-    }
-
-    Rcpp::List res (closest.size ());
-    for (int i = 0; i < closest.size (); i++)
-    {
-        std::vector <int> closest_i_in = Rcpp::as <std::vector <int> > (closest (i));
-        int size = 0;
-        for (auto j: closest_i_in)
-        {
-            size += index_map.at (j).size ();
-        }
-
-        std::vector <int> closest_i_out (size);
-        size_t pos = 0;
-        for (auto j: closest_i_in)
-        {
-            std::vector <int> closest_j = index_map.at (j);
-            for (auto k: closest_j)
+            int cl_ij = static_cast <int> (closest (n_closest + i, j));
+            if (cl_ij > n_gtfs)
             {
-                closest_i_out [pos++] = k;
+                n_gtfs = cl_ij;
             }
         }
+    }
+    n_gtfs++;
 
-        res (i) = closest_i_out;
+    Rcpp::List res (2 * n_gtfs);
+    for (int i = 0; i < n_gtfs; i++)
+    {
+        res (i) = std::vector <int> (0);
+        res (n_gtfs + i) = std::vector <double> (0);
+    }
+
+    for (int i = 0; i < n_verts; i++)
+    {
+        for (int j = 0; j < n_closest; j++)
+        {
+            int gtfs_index = static_cast <int> (closest (n_closest + j, i));
+            double d = closest (j, i);
+            if (gtfs_index < 0 || d < 0.0)
+            {
+                continue;
+            }
+
+            std::vector <int> index_ij = res (gtfs_index);
+            index_ij.push_back (i);
+            res (gtfs_index) = index_ij;
+
+            std::vector <double> d_ij = res (n_gtfs + gtfs_index);
+            d_ij.push_back (d);
+            res (gtfs_index + n_gtfs) = d_ij;
+        }
     }
 
     return res;

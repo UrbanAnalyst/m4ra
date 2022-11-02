@@ -165,11 +165,26 @@ times_gtfs_to_net <- function (files, mode = "foot",
                 closest_gtfs_to_net_slow (graph_c, stops, n_closest = n_closest)
         }
 
-        # closest_gtfs <- rcpp_expand_closest_index (closest_gtfs, index_out - 1L)
+        # All NA values are set to max dist, so reset to -1:
+        clmax <- max (closest_gtfs, na.rm = TRUE)
+        closest_gtfs [is.na (closest_gtfs)] <- clmax
+        closest_gtfs [closest_gtfs == clmax] <- -1
 
-        # NOTE: closest_gtfs indices are 0-based for direct submission to C++
+        # This rcpp routine converts the [n_closest, nverts] array into a list
+        # of indexes and distances, once for each GTFS station. Indices are then
+        # back into verts.
+        closest_gtfs <- rcpp_expand_closest_index (closest_gtfs)
+        n <- length (closest_gtfs) / 2
+
+        # Closest_gtfs indices are 0-based for direct submission to C++
         # routines
-        saveRDS (closest_gtfs, fname)
+
+        closest <- list (
+            index = closest_gtfs [seq_len (n)],
+            d = closest_gtfs [n + seq_len (n)]
+        )
+
+        saveRDS (closest, fname)
     }
 
     return (fname)
