@@ -167,9 +167,9 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
             closest_gtfs [is.na (closest_gtfs)] <- -1
 
-            # This rcpp routine converts the [n_closest, nverts] array into a list
-            # of indexes and distances, once for each GTFS station. Indices are then
-            # back into verts.
+            # This rcpp routine converts the [n_closest, nverts] array into a
+            # list of indexes and distances, once for each GTFS station. Indices
+            # are then back into verts.
             closest_gtfs <- rcpp_expand_closest_index (closest_gtfs)
 
         } else {
