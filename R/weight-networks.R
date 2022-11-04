@@ -45,7 +45,8 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
         if (!file.exists (filename)) {
 
             if (!quiet) {
-                cli::cli_alert_info ("Weighting network with '{w}' profile")
+                cli::cli_alert_info (cli::col_blue (
+                    "Weighting network with '{w}' profile"))
             }
             if (w == "motorcar") {
                 f <- write_wt_profile (traffic_lights = 16, turn = 1)
@@ -60,6 +61,10 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
             }
 
             fst::write_fst (net_w, filename)
+            if (!quiet) {
+                cli::cli_alert_success (cli::col_green (
+                    "Weighted network with '{w}' profile"))
+            }
         }
 
         filenames <- c (filenames, filename)

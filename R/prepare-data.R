@@ -67,6 +67,8 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     fname_gtfs <- file.path (cache_dir, fname_gtfs)
 
     if (!file.exists (fname_gtfs)) {
+
+        cli::cli_alert_info (cli::col_blue ("Calculating GTFS travel time matrix"))
         gtfs_data <- gtfsrouter::gtfs_timetable (gtfs_data, day = day)
 
         tmat_gtfs_gtfs <- m4ra_gtfs_traveltimes (
@@ -76,6 +78,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         attr (tmat_gtfs_gtfs, "day") <- day
         attr (tmat_gtfs_gtfs, "start_time_limits") <- start_time_limits
         saveRDS (tmat_gtfs_gtfs, fname_gtfs)
+        cli::cli_alert_success (cli::col_green ("Calculated GTFS travel time matrix"))
     }
 
     files <- c (net_files, gtfs)
@@ -105,13 +108,9 @@ times_gtfs_to_net <- function (files, mode = "foot",
     graph <- m4ra_load_cached_network (f_net)
     graph_hash <- get_hash (graph, contracted = FALSE, force = TRUE)
     graph_hash <- substring (graph_hash, 1L, 6L)
-    message (cli::symbol$play,
-        cli::col_green (" Contracting network graph"),
-        appendLF = FALSE)
-    utils::flush.console ()
+    cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
     graph_c <- dodgr::dodgr_contract_graph (graph)
-    message ("\r", cli::col_green (cli::symbol$tick,
-        " Contracted network graph    "))
+    cli::cli_alert_success (cli::col_green ("Contracted network graph"))
 
     city <- regmatches (f_net, regexpr ("m4ra\\-.*[^\\-]\\-", f_net))
     city <- gsub ("^m4ra\\-|\\-.*$", "", city)
@@ -157,6 +156,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
     fname <- fs::path (m4ra_cache_dir (), fname)
 
     if (!file.exists (fname)) {
+        cli::cli_alert_info (cli::col_blue ("Calculating times from terminal GTFS stops"))
         if (fast) {
             closest_gtfs <-
                 closest_gtfs_to_net_fast (graph_c, stops, n_closest = n_closest)
@@ -185,6 +185,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
         )
 
         saveRDS (closest, fname)
+        cli::cli_alert_success (cli::col_green ("Calculated times from terminal GTFS stops"))
     }
 
     return (fname)
