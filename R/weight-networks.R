@@ -123,6 +123,8 @@ m4ra_batch_weight_networks <- function (net_dir, remove_these = NULL) {
     cities <- gsub ("\\-sc.*$", "", flist ) # nolint
     cities <- cities [which (!cities %in% remove_these)]
 
+    out <- NULL
+
     count <- 1
     for (ci in cities) {
 
@@ -147,5 +149,9 @@ m4ra_batch_weight_networks <- function (net_dir, remove_these = NULL) {
             city = city,
             quiet = FALSE
         )
+
+        out <- c (out, filenames)
     }
+
+    return (out)
 }
