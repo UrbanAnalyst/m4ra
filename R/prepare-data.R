@@ -117,7 +117,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
     city <- regmatches (f_net, regexpr ("m4ra\\-.*[^\\-]\\-", f_net))
     city <- gsub ("^m4ra\\-|\\-.*$", "", city)
     f_gtfs_tmat <- grep (
-        paste0 ("m4ra-", city, "-gtfs"),
+        paste0 ("m4ra-", city, "-gtfs.*[0-9]+\\-[0-9]+\\.Rds$"),
         files,
         value = TRUE,
         fixed = TRUE
