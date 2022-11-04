@@ -222,12 +222,15 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
     index_out <- match (to, to [index_in])
     to <- to [index_in]
 
-    gr_cols <- dodgr_graph_cols (graph_c)
-    vert_map <- make_vert_map (graph_c, gr_cols, xy = TRUE)
-    from_index <- get_to_from_index (graph_c, vert_map, gr_cols, from, from = TRUE)
-    to_index <- get_to_from_index (graph_c, vert_map, gr_cols, to, from = FALSE)
+    to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
-    dmat <- rcpp_dists_to_n_targets (graph_c, vert_map, from_index$index, to_index$index, n_closest)
+    dmat <- rcpp_dists_to_n_targets (
+        graph_c,
+        to_from_indices$vert_map,
+        to_from_indices$from$index,
+        to_from_indices$to$index,
+        n_closest
+    )
 
     maxd <- rcpp_matrix_max (dmat)
     dmat [is.na (dmat)] <- maxd

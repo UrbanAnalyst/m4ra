@@ -9,9 +9,11 @@ create_compound_junctions <-
 
 make_vert_map <- utils::getFromNamespace ("make_vert_map", "dodgr")
 
-get_to_from_index <- utils::getFromNamespace ("get_to_from_index", "dodgr")
+preprocess_spatial_cols <- utils::getFromNamespace ("preprocess_spatial_cols", "dodgr")
 
-remap_tf_index_for_tp <- utils::getFromNamespace ("remap_tf_index_for_tp", "dodgr")
+is_graph_spatial <- utils::getFromNamespace ("is_graph_spatial", "dodgr")
+
+to_from_index_with_tp <- utils::getFromNamespace ("to_from_index_with_tp", "dodgr")
 
 get_turn_penalty <- utils::getFromNamespace ("get_turn_penalty", "dodgr")
 

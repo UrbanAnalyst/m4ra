@@ -49,31 +49,14 @@ m4ra_times_single_mode <- function (graph,
         )
     }
 
-    vert_map <- make_vert_map (graph, gr_cols, xy = TRUE)
-    from_index <-
-        get_to_from_index (graph, vert_map, gr_cols, from, from = TRUE)
-    to_index <-
-        get_to_from_index (graph, vert_map, gr_cols, to, from = FALSE)
-
-    if (get_turn_penalty (graph) > 0.0) {
-        if (methods::is (graph, "dodgr_contracted")) {
-            warning (
-                "graphs with turn penalties should be submitted in full, ",
-                "not contracted form;\nsubmitting contracted graphs may ",
-                "produce unexpected behaviour."
-            )
-        }
-        res <- create_compound_junctions (graph)
-        compound_junctions <- res$edge_map
-        graph <- res$graph
-
-        # remap any 'from' and 'to' vertices to compound junction versions:
-        is_spatial <- TRUE
-        vert_map <- make_vert_map (graph, gr_cols, is_spatial)
-
-        from_index <- remap_tf_index_for_tp (from_index, vert_map, from = TRUE)
-        to_index <- remap_tf_index_for_tp (to_index, vert_map, from = FALSE)
+    graph <- preprocess_spatial_cols (graph)
+    gr_cols <- dodgr_graph_cols (graph)
+    is_spatial <- is_graph_spatial (graph)
+    to_from_indices <- to_from_index_with_tp (graph, from, to)
+    if (to_from_indices$compound) {
+        graph <- to_from_indices$graph_compound
     }
+
     graph [[gr_cols$d]] <- graph [[gr_cols$time]]
     graph [[gr_cols$d_weighted]] <- graph [[gr_cols$time_weighted]]
 
@@ -82,18 +65,18 @@ m4ra_times_single_mode <- function (graph,
 
         d <- calculate_timemat (
             graph,
-            vert_map,
-            from_index,
-            to_index
+            to_from_indices$vert_map,
+            to_from_indices$from,
+            to_from_indices$to
         )
 
     } else {
 
         d <- save_time_vecs (
             graph,
-            vert_map,
-            from_index,
-            to_index,
+            to_from_indices$vert_map,
+            to_from_indices$from,
+            to_from_indices$to,
             path
         )
     }
