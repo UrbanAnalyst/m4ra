@@ -193,7 +193,8 @@ times_gtfs_to_net <- function (files, mode = "foot",
 closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
 
     v <- dodgr::dodgr_vertices (graph_c)
-    ids <- v$id [dodgr::match_points_to_verts (v, stops [, c ("stop_lon", "stop_lat")])]
+    ids <- v$id [dodgr::match_points_to_verts (
+        v, stops [, c ("stop_lon", "stop_lat")])]
 
     # ids can have duplicates through distinct stops mapping onto single points
     index_in <- which (!duplicated (ids))
@@ -215,7 +216,8 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
 
     v <- dodgr::dodgr_vertices (graph_c)
     from <- v$id
-    to <- v$id [dodgr::match_points_to_verts (v, stops [, c ("stop_lon", "stop_lat")])]
+    to <- v$id [dodgr::match_points_to_verts (
+        v, stops [, c ("stop_lon", "stop_lat")])]
 
     # to can have duplicates through distinct stops mapping onto single points
     index_in <- which (!duplicated (to))
