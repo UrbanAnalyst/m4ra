@@ -28,8 +28,12 @@ struct OneMinDists : public RcppParallel::Worker
     // Parallel function operator
     void operator() (std::size_t begin, std::size_t end)
     {
+        // i over all vertices in the input distance matrix
         for (std::size_t i = begin; i < end; i++)
         {
+            // col_i is one column of the distance matrix, containing distances
+            // from one network vertex to all GTFS stops. This function returns
+            // the index values to the 'n_closest' stops.
             const RcppParallel::RMatrix <double>::Column col_i = p_dists.column (i);
             std::vector <double> col_i_vec (col_i.size ());
             std::copy (col_i.begin (), col_i.end (), col_i_vec.begin ());
@@ -42,7 +46,7 @@ struct OneMinDists : public RcppParallel::Worker
 
             for (int j = 0; j < n_closest; j++)
             {
-                dout (j, i) = *it;
+                dout (j, i) = static_cast <double> (*it);
                 dout (n_closest + j, i) = std::distance (col_i_vec.begin (), it);
                 *it = maxd;
                 it = std::min_element (col_i_vec.begin (), col_i_vec.end ());
