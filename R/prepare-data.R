@@ -129,7 +129,6 @@ times_gtfs_to_net <- function (files, mode = "foot",
         f_gtfs <- f_gtfs [which (!f_gtfs == f_gtfs_tmat)]
     }
     gtfs <- readRDS (f_gtfs)
-    gtfs_hash <- substring (digest::digest (gtfs), 1, 6)
 
     # match GTFS stop coordinates to unique values
     n_digits <- 6L
@@ -143,6 +142,10 @@ times_gtfs_to_net <- function (files, mode = "foot",
     index_out <- match (xy_char, xy_un_char)
 
     stops <- gtfs$stops [index_in, ]
+    # Generate hash only from the stops table, so timetable can be updated, but
+    # the final stage will only need to be re-calculated if the stops themselves
+    # actually change.
+    gtfs_hash <- substring (digest::digest (stops), 1, 6)
 
     fname <- paste0 (
         "m4ra-",
@@ -242,5 +245,11 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
     maxd <- rcpp_matrix_max (dmat)
     dmat [is.na (dmat)] <- maxd
 
-    return (t (dmat))
+    dmat <- t (dmat) # -> [2 * n_closest, nverts]
+
+    # The 2nd half of dmat (dmat [, 11:20] for n_closest = 10, say) then holds
+    # indices into the vertices of the network. These need to be matched back
+    # onto GTFS stops, and expanded back out to all stops which map onto the
+    # same network vertex.
+    return (dmat)
 }
