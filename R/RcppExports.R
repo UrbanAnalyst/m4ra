@@ -82,6 +82,17 @@ rcpp_expand_closest_index <- function(closest) {
     .Call(`_m4ra_rcpp_expand_closest_index`, closest)
 }
 
+#' The output of `rcpp_dists_to_n_targets` is an index into the network
+#' vertices closest to each GTFS stop. This remaps those network vertex index
+#' values back on to GTFS index values. Multiple stops can map on to the same
+#' network point, and so this converts the fixed numbers of closest vertices
+#' (defined by `n_closest` in the R function) into an arbitrarily greater
+#' number of equally closest stops to each point.
+#' @noRd
+rcpp_remap_verts_to_stops <- function(dmat, index_out) {
+    .Call(`_m4ra_rcpp_remap_verts_to_stops`, dmat, index_out)
+}
+
 #' rcpp_matrix_max
 #'
 #' Parallel version of `max(mat)`.

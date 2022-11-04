@@ -325,6 +325,7 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
 {
     const int n_closest = closest.nrow () / 2;
     const int n_verts = closest.ncol ();
+    // Count total number of GTFS stations:
     int n_gtfs = 0;
     for (int i = 0; i < n_closest; i++)
     {
@@ -366,6 +367,81 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
             res (gtfs_index + n_gtfs) = d_ij;
         }
     }
+
+    return res;
+}
+
+//' The output of `rcpp_dists_to_n_targets` is an index into the network
+//' vertices closest to each GTFS stop. This remaps those network vertex index
+//' values back on to GTFS index values. Multiple stops can map on to the same
+//' network point, and so this converts the fixed numbers of closest vertices
+//' (defined by `n_closest` in the R function) into an arbitrarily greater
+//' number of equally closest stops to each point.
+//' @noRd
+// [[Rcpp::export]]
+Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
+        Rcpp::IntegerVector &index_out)
+{
+    const int n_verts = dmat.nrow ();
+    const int n_closest = dmat.ncol () / 2;
+    const int n_gtfs = index_out.size ();
+
+    // Make a map from each index_in = unique stop coordinates to all index_out
+    // = full stops which map on to those values.
+    std::unordered_map <int, std::vector <int> > index_map;
+    for (int i = 0; i < index_out.size (); i++)
+    {
+        std::vector <int> index_vec;
+        if (index_map.find (index_out (i)) != index_map.end ())
+        {
+            index_vec = index_map.at (index_out (i));
+        }
+        index_vec.push_back (i);
+
+        index_map.erase (index_out (i));
+        index_map.emplace (index_out (i), index_vec);
+    }
+
+    Rcpp::List res (2 * n_gtfs);
+    for (int i = 0; i < n_gtfs; i++)
+    {
+        res (i) = std::vector <int> (0);
+        res (n_gtfs + i) = std::vector <double> (0);
+    }
+
+    for (int i = 0; i < n_verts; i++)
+    {
+        for (int j = 0; j < n_closest; j++)
+        {
+            const int gtfs_index = static_cast <int> (dmat (i, n_closest + j));
+            const double d = dmat (i, j);
+            if (gtfs_index < 0 || d < 0.0)
+            {
+                continue;
+            }
+
+            if (index_map.find (gtfs_index) == index_map.end ())
+            {
+                Rcpp::Rcout << "Looking for gtfs_index [" << gtfs_index <<
+                    "] in map with " << index_map.size () << " entries" << std::endl;
+                Rcpp::stop ("Something went wrong matching expanded GTFS indices");
+            }
+            std::vector <int> index_ij = index_map.at (gtfs_index);
+
+            std::vector <int> res_index = res (gtfs_index);
+            std::vector <double> d_ij = res (n_gtfs + gtfs_index);
+
+            for (auto ij: index_ij)
+            {
+                res_index.push_back (ij);
+                d_ij.push_back (d);
+            }
+
+            res (gtfs_index) = res_index;
+            res (gtfs_index + n_gtfs) = d_ij;
+        }
+    }
+
 
     return res;
 }

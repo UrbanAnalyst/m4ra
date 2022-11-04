@@ -31,3 +31,6 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix &t_net_to_gt
         Rcpp::IntegerMatrix t_gtfs_to_net,
         Rcpp::List closest_gtfs_to_from,
         Rcpp::IntegerMatrix closest_gtfs_to_net);
+
+Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
+        Rcpp::IntegerVector &index_out);

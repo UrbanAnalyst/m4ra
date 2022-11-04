@@ -83,7 +83,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                 "Calculated GTFS travel time matrix"))
     }
 
-    files <- c (net_files, gtfs)
+    files <- c (net_files, fname_gtfs)
 
     f_closest_gtfs <- times_gtfs_to_net (
         files,
@@ -129,22 +129,12 @@ times_gtfs_to_net <- function (files, mode = "foot",
         f_gtfs <- f_gtfs [which (!f_gtfs == f_gtfs_tmat)]
     }
     gtfs <- readRDS (f_gtfs)
-
-    # match GTFS stop coordinates to unique values
-    n_digits <- 6L
-    stops_xy <- gtfs$stops [, c ("stop_lon", "stop_lat")]
-    stops_xy$stop_lon <- format (stops_xy$stop_lon, digits = n_digits)
-    stops_xy$stop_lat <- format (stops_xy$stop_lat, digits = n_digits)
-    index_in <- which (!duplicated (stops_xy))
-    stops_xy_un <- stops_xy [index_in, ]
-    xy_char <- paste0 (stops_xy$stop_lon, "-", stops_xy$stop_lat)
-    xy_un_char <- paste0 (stops_xy_un$stop_lon, "-", stops_xy_un$stop_lat)
-    index_out <- match (xy_char, xy_un_char)
-
-    stops <- gtfs$stops [index_in, ]
+    stops <- gtfs$stops
     # Generate hash only from the stops table, so timetable can be updated, but
     # the final stage will only need to be re-calculated if the stops themselves
-    # actually change.
+    # actually change. Note also that the stops table may have duplicated
+    # coordinates, and that several stops may also map onto the same network
+    # vertices.
     gtfs_hash <- substring (digest::digest (stops), 1, 6)
 
     fname <- paste0 (
@@ -161,30 +151,36 @@ times_gtfs_to_net <- function (files, mode = "foot",
     fname <- fs::path (m4ra_cache_dir (), fname)
 
     if (!file.exists (fname)) {
+
         cli::cli_alert_info (cli::col_blue (
             "Calculating times from terminal GTFS stops"))
+
+        # NOTE that all closest_gtfs indices are 0-based for direct submission
+        # to C++ routines
+
         if (fast) {
+
+            # This returns a matrix of combined distances and indices into the
+            # original GTFS stops table
             closest_gtfs <-
                 closest_gtfs_to_net_fast (graph_c, stops, n_closest = n_closest)
+
+            closest_gtfs [is.na (closest_gtfs)] <- -1
+
+            # This rcpp routine converts the [n_closest, nverts] array into a list
+            # of indexes and distances, once for each GTFS station. Indices are then
+            # back into verts.
+            closest_gtfs <- rcpp_expand_closest_index (closest_gtfs)
+
         } else {
+
+            # This routine directly returns the expanded list into all original
+            # GTFS stops:
             closest_gtfs <-
                 closest_gtfs_to_net_slow (graph_c, stops, n_closest = n_closest)
         }
 
-        # All NA values are set to max dist, so reset to -1:
-        clmax <- max (closest_gtfs, na.rm = TRUE)
-        closest_gtfs [is.na (closest_gtfs)] <- clmax
-        closest_gtfs [closest_gtfs == clmax] <- -1
-
-        # This rcpp routine converts the [n_closest, nverts] array into a list
-        # of indexes and distances, once for each GTFS station. Indices are then
-        # back into verts.
-        closest_gtfs <- rcpp_expand_closest_index (closest_gtfs)
         n <- length (closest_gtfs) / 2
-
-        # Closest_gtfs indices are 0-based for direct submission to C++
-        # routines
-
         closest <- list (
             index = closest_gtfs [seq_len (n)],
             d = closest_gtfs [n + seq_len (n)]
@@ -242,14 +238,23 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
         n_closest
     )
 
-    maxd <- rcpp_matrix_max (dmat)
-    dmat [is.na (dmat)] <- maxd
-
-    dmat <- t (dmat) # -> [2 * n_closest, nverts]
-
     # The 2nd half of dmat (dmat [, 11:20] for n_closest = 10, say) then holds
-    # indices into the vertices of the network. These need to be matched back
-    # onto GTFS stops, and expanded back out to all stops which map onto the
-    # same network vertex.
-    return (dmat)
+    # indices into the vertices of the network. These are the same as the values
+    # passed from `to_from_indices`, which are indices into the network
+    # vertices. These need to be re-mapped on to indices into the reduced GTFS
+    # stops:
+    to_index <- to_from_indices$to$index
+    index <- seq_len (n_closest) + n_closest
+    imat <- dmat [, index]
+    # match - 1 to convert to 0-based C++ indices:
+    dmat [, index] <- array (match (imat, to_index) - 1, dim = dim (imat))
+
+    dmat [is.na (dmat)] <- -1
+
+    # Then convert those index values into lists of all original stops which
+    # map onto to the indicated stops. This routine also re-maps the vectors of
+    # distances out to full expanded distances
+    res <- rcpp_remap_verts_to_stops (dmat, index_out - 1L)
+
+    return (res)
 }
