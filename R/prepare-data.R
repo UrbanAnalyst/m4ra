@@ -83,7 +83,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                 "Calculated GTFS travel time matrix"))
     }
 
-    files <- c (net_files, fname_gtfs)
+    files <- c (net_files, gtfs)
 
     f_closest_gtfs <- times_gtfs_to_net (
         files,
