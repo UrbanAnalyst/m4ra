@@ -422,23 +422,30 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
 
             if (index_map.find (gtfs_index) == index_map.end ())
             {
-                Rcpp::Rcout << "Looking for gtfs_index [" << gtfs_index <<
-                    "] in map with " << index_map.size () << " entries" << std::endl;
                 Rcpp::stop ("Something went wrong matching expanded GTFS indices");
             }
             std::vector <int> index_ij = index_map.at (gtfs_index);
 
-            std::vector <int> res_index = res (gtfs_index);
-            std::vector <double> d_ij = res (n_gtfs + gtfs_index);
+            // index_ij is the map from all reduced (spatially unique) GTFS stops
+            // back out to the full set. index_ij[i] gives the set of all
+            // original GTFS stops which map on to the reduced stop, "i". Each
+            // value of `gtfs_index` then has to generate repeated values at all
+            // of these entries held in `index_ij`.
+            //
+            // The actual entries are then the indices into the network
+            // vertices, or simply 'i' in the loop.
 
             for (auto ij: index_ij)
             {
-                res_index.push_back (ij);
-                d_ij.push_back (d);
-            }
+                std::vector <int> res_index = res (ij);
+                std::vector <double> d_ij = res (n_gtfs + ij);
 
-            res (gtfs_index) = res_index;
-            res (gtfs_index + n_gtfs) = d_ij;
+                res_index.push_back (i);
+                d_ij.push_back (d);
+
+                res (ij) = res_index;
+                res (ij + n_gtfs) = d_ij;
+            }
         }
     }
 
