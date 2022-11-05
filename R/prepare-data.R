@@ -228,6 +228,8 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
     ids <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
 
+    n_closest <- update_n_closest (v, stops, 10)
+
     # ids can have duplicates through distinct stops mapping onto single points
     index_in <- which (!duplicated (ids))
     index_out <- match (ids, ids [index_in])
@@ -250,6 +252,8 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
     from <- v$id
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
+
+    n_closest <- update_n_closest (v, stops, 10)
 
     # to can have duplicates through distinct stops mapping onto single points
     index_in <- which (!duplicated (to))
