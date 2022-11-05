@@ -408,27 +408,24 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
 
     // Make a map from each index_in = unique stop coordinates to all index_out
     // = full stops which map on to those values.
-    std::unordered_map <int, std::vector <int> > index_map;
+    std::unordered_map <int, std::vector <int> > index_out_map;
     for (int i = 0; i < index_out.size (); i++)
     {
         std::vector <int> index_vec;
-        if (index_map.find (index_out (i)) != index_map.end ())
+        if (index_out_map.find (index_out (i)) != index_out_map.end ())
         {
-            index_vec = index_map.at (index_out (i));
+            index_vec = index_out_map.at (index_out (i));
         }
         index_vec.push_back (i);
 
-        index_map.erase (index_out (i));
-        index_map.emplace (index_out (i), index_vec);
+        index_out_map.erase (index_out (i));
+        index_out_map.emplace (index_out (i), index_vec);
     }
 
-    Rcpp::List res (2 * n_gtfs);
-    for (int i = 0; i < n_gtfs; i++)
-    {
-        res (i) = std::vector <int> (0);
-        res (n_gtfs + i) = std::vector <double> (0);
-    }
-
+    // Then make index and distance maps into the shorted index; expansion out
+    // to the full `index_out` is then only done in the final stage.
+    std::map <int, std::set <int> > index_map;
+    std::map <int, std::set <double> > dist_map;
     for (int i = 0; i < n_verts; i++)
     {
         for (int j = 0; j < n_closest; j++)
@@ -440,35 +437,47 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
                 continue;
             }
 
-            if (index_map.find (gtfs_index) == index_map.end ())
+            std::set <int> set_ij;
+            std::set <double> d_ij;
+            if (index_map.find (gtfs_index) != index_map.end ())
             {
-                Rcpp::stop ("Something went wrong matching expanded GTFS indices");
-            }
-            std::vector <int> index_ij = index_map.at (gtfs_index);
-
-            // index_ij is the map from all reduced (spatially unique) GTFS stops
-            // back out to the full set. index_ij[i] gives the set of all
-            // original GTFS stops which map on to the reduced stop, "i". Each
-            // value of `gtfs_index` then has to generate repeated values at all
-            // of these entries held in `index_ij`.
-            //
-            // The actual entries are then the indices into the network
-            // vertices, or simply 'i' in the loop.
-
-            for (auto ij: index_ij)
+                index_map.at (gtfs_index).emplace (i);
+                dist_map.at (gtfs_index).emplace (d);
+            } else
             {
-                std::vector <int> res_index = res (ij);
-                std::vector <double> d_ij = res (n_gtfs + ij);
+                std::set <int> set_ij;
+                set_ij.emplace (i);
+                index_map.emplace (gtfs_index, set_ij);
 
-                res_index.push_back (i);
-                d_ij.push_back (d);
-
-                res (ij) = res_index;
-                res (ij + n_gtfs) = d_ij;
+                std::set <double> d_ij;
+                d_ij.emplace (d);
+                dist_map.emplace (gtfs_index, d_ij);
             }
         }
     }
 
+
+    Rcpp::List res (2 * n_gtfs);
+    for (auto m: index_map)
+    {
+        std::set <int> set_ij = m.second;
+        std::vector <int> vec_ij { set_ij.begin (), set_ij.end () };
+        std::vector <int> index_set = index_out_map.at (m.first);
+        for (auto i: index_set)
+        {
+            res (i) = Rcpp::wrap (vec_ij);
+        }
+    }
+    for (auto m: dist_map)
+    {
+        std::set <double> d_ij = m.second;
+        std::vector <double> dvec_ij { d_ij.begin (), d_ij.end () };
+        std::vector <int> index_set = index_out_map.at (m.first);
+        for (auto i: index_set)
+        {
+            res (n_gtfs + i) = Rcpp::wrap (dvec_ij);
+        }
+    }
 
     return res;
 }

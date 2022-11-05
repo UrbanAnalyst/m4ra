@@ -195,6 +195,33 @@ times_gtfs_to_net <- function (files, mode = "foot",
     return (fname)
 }
 
+#' Multiple GTFS stops can have same coordinates, and/or map on to same network
+#' vertices. The mapping of vertices onto stations is based on closest stations,
+#' but if there are more stations with equivalent minimal distances than the
+#' value of `n_closest`, then the actual stations chosen are unpredictable, and
+#' will likely result in some network vertices not having any associated
+#' stations. The solution is to ensure that the value of `n_closest` is greater
+#' than the maximal number of stations which map onto the same network vertex.
+#'
+#' @param v Network vertices from `dodgr_vertices()`
+#' @noRd
+update_n_closest <- function (v, stops, n_closest, quiet = FALSE) {
+
+    v <- dodgr::dodgr_vertices (graph_c)
+    pts <- v$id [dodgr::match_points_to_verts (
+        v, stops [, c ("stop_lon", "stop_lat")])]
+
+    n_closest_min <- max (table (pts)) + 1L
+    if (n_closest_min > n_closest) {
+        if (!quiet) {
+            message ("Updating 'n_closest' to ", n_closest_min)
+        }
+        n_closest <- n_closest_min
+    }
+
+    return (n_closest)
+}
+
 closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
 
     v <- dodgr::dodgr_vertices (graph_c)
@@ -223,12 +250,6 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
     from <- v$id
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
-
-    n_closest_min <- max (table (to)) + 1L
-    if (n_closest_min > n_closest) {
-        message ("Updating 'n_closest' to ", n_closest_min)
-        n_closest <- n_closest_min
-    }
 
     # to can have duplicates through distinct stops mapping onto single points
     index_in <- which (!duplicated (to))
