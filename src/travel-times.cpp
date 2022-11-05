@@ -344,13 +344,8 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
     }
     n_gtfs++;
 
-    Rcpp::List res (2 * n_gtfs);
-    for (int i = 0; i < n_gtfs; i++)
-    {
-        res (i) = std::vector <int> (0);
-        res (n_gtfs + i) = std::vector <double> (0);
-    }
-
+    std::map <int, std::set <int> > index_map;
+    std::map <int, std::set <double> > dist_map;
     for (int i = 0; i < n_verts; i++)
     {
         for (int j = 0; j < n_closest; j++)
@@ -362,14 +357,35 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
                 continue;
             }
 
-            std::vector <int> index_ij = res (gtfs_index);
-            index_ij.push_back (i);
-            res (gtfs_index) = index_ij;
+            if (index_map.find (gtfs_index) != index_map.end ())
+            {
+                index_map.at (gtfs_index).emplace (i);
+                dist_map.at (gtfs_index).emplace (d);
+            } else
+            {
+                std::set <int> set_ij;
+                set_ij.emplace (i);
+                index_map.emplace (gtfs_index, set_ij);
 
-            std::vector <double> d_ij = res (n_gtfs + gtfs_index);
-            d_ij.push_back (d);
-            res (gtfs_index + n_gtfs) = d_ij;
+                std::set <double> d_ij;
+                d_ij.emplace (d);
+                dist_map.emplace (gtfs_index, d_ij);
+            }
         }
+    }
+
+    Rcpp::List res (2 * n_gtfs);
+    for (auto m: index_map)
+    {
+        std::set <int> set_ij = m.second;
+        std::vector <int> vec_ij { set_ij.begin (), set_ij.end () };
+        res (m.first) = vec_ij;
+    }
+    for (auto m: dist_map)
+    {
+        std::set <double> d_ij = m.second;
+        std::vector <double> dvec_ij { d_ij.begin (), d_ij.end () };
+        res (n_gtfs + m.first) = dvec_ij;
     }
 
     return res;
