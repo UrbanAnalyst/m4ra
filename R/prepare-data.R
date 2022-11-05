@@ -224,6 +224,12 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
 
+    n_closest_min <- max (table (to)) + 1L
+    if (n_closest_min > n_closest) {
+        message ("Updating 'n_closest' to ", n_closest_min)
+        n_closest <- n_closest_min
+    }
+
     # to can have duplicates through distinct stops mapping onto single points
     index_in <- which (!duplicated (to))
     index_out <- match (to, to [index_in])
