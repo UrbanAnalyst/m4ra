@@ -437,8 +437,6 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
                 continue;
             }
 
-            std::set <int> set_ij;
-            std::set <double> d_ij;
             if (index_map.find (gtfs_index) != index_map.end ())
             {
                 index_map.at (gtfs_index).emplace (i);
@@ -456,7 +454,6 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
         }
     }
 
-
     Rcpp::List res (2 * n_gtfs);
     for (auto m: index_map)
     {
@@ -465,7 +462,7 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
         std::vector <int> index_set = index_out_map.at (m.first);
         for (auto i: index_set)
         {
-            res (i) = Rcpp::wrap (vec_ij);
+            res (i) = vec_ij;
         }
     }
     for (auto m: dist_map)
@@ -475,7 +472,7 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
         std::vector <int> index_set = index_out_map.at (m.first);
         for (auto i: index_set)
         {
-            res (n_gtfs + i) = Rcpp::wrap (dvec_ij);
+            res (n_gtfs + i) = dvec_ij;
         }
     }
 
