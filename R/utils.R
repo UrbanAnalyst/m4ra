@@ -48,20 +48,23 @@ m4ra_network_hash <- function (net) {
 #' @return Previously cached, weighted streetnet for specified city and mode.
 #' @family cache
 #' @export
-m4ra_load_cached_network <- function (city = NULL, mode = "foot") {
+m4ra_load_cached_network <- function (city = NULL, mode = "foot", filename = NULL) {
 
-    checkmate::assert_character (city, max.len = 1L)
-    checkmate::assert_character (mode, max.len = 1L)
+    if (is.null (filename)) {
+        checkmate::assert_character (city, max.len = 1L)
+        checkmate::assert_character (mode, max.len = 1L)
 
-    mode <- match.arg (tolower (mode), c ("foot", "bicycle", "motorcar"))
+        mode <- match.arg (tolower (mode), c ("foot", "bicycle", "motorcar"))
 
-    flist <- fs::dir_ls (m4ra_cache_dir (), regexp = city)
-    f <- grep (mode, flist, value = TRUE)
-    if (length (f) != 1L) {
-        stop ("No single file found for [city, mode] = [", city, ", ", mode, "]")
-    }
-    if (!fs::file_exists (f)) {
-        stop ("File '", f, "' does not exist")
+        flist <- fs::dir_ls (m4ra_cache_dir (), regexp = city)
+        f <- grep (mode, flist, value = TRUE)
+        if (length (f) != 1L) {
+            stop ("No single file found for [city, mode] = [", city, ", ", mode, "]")
+        }
+        checkmate::assert_file_exists (f)
+    } else {
+        checkmate::assert_file_exists (filename)
+        f <- filename
     }
 
     graph <- fst::read_fst (f)
