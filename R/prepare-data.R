@@ -125,13 +125,6 @@ times_gtfs_to_net <- function (files, mode = "foot",
     graph <- graph [graph$component == 1, ]
     graph_hash <- get_hash (graph, contracted = FALSE, force = TRUE)
     graph_hash <- substring (graph_hash, 1L, 6L)
-    if (!quiet) {
-        cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
-    }
-    graph_c <- dodgr::dodgr_contract_graph (graph)
-    if (!quiet) {
-        cli::cli_alert_success (cli::col_green ("Contracted network graph"))
-    }
 
     city <- regmatches (f_net, regexpr ("m4ra\\-.*[^\\-]\\-", f_net))
     city <- gsub ("^m4ra\\-|\\-.*$", "", city)
@@ -170,6 +163,14 @@ times_gtfs_to_net <- function (files, mode = "foot",
     fname <- fs::path (m4ra_cache_dir (), fname)
 
     if (!file.exists (fname)) {
+
+        if (!quiet) {
+            cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
+        }
+        graph_c <- dodgr::dodgr_contract_graph (graph)
+        if (!quiet) {
+            cli::cli_alert_success (cli::col_green ("Contracted network graph"))
+        }
 
         v <- dodgr::dodgr_vertices (graph_c)
         n_closest <- update_n_closest (v, stops, n_closest, quiet = quiet)
