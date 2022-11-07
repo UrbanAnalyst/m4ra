@@ -11,6 +11,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// rcpp_add_net_to_gtfs
+Rcpp::NumericMatrix rcpp_add_net_to_gtfs(Rcpp::NumericMatrix net_times, Rcpp::NumericMatrix gtfs_times);
+RcppExport SEXP _m4ra_rcpp_add_net_to_gtfs(SEXP net_timesSEXP, SEXP gtfs_timesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type net_times(net_timesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type gtfs_times(gtfs_timesSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_add_net_to_gtfs(net_times, gtfs_times));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_get_sp_dists_par
 Rcpp::NumericMatrix rcpp_get_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector fromi, Rcpp::IntegerVector toi_in);
 RcppExport SEXP _m4ra_rcpp_get_sp_dists_par(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP fromiSEXP, SEXP toi_inSEXP) {
@@ -145,6 +157,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_m4ra_rcpp_add_net_to_gtfs", (DL_FUNC) &_m4ra_rcpp_add_net_to_gtfs, 2},
     {"_m4ra_rcpp_get_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_get_sp_dists_par, 4},
     {"_m4ra_rcpp_dists_to_n_targets", (DL_FUNC) &_m4ra_rcpp_dists_to_n_targets, 5},
     {"_m4ra_rcpp_save_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_save_sp_dists_par, 6},
