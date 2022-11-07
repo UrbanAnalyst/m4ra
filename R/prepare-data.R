@@ -34,12 +34,13 @@
 #' @param n_closest Final travel times to each destination point are calculated
 #' by tracing back times to this number of closest GTFS stops. Lower values will
 #' result in faster calculation times, yet with potentially inaccurate results.
+#' @param quiet If `FALSE`, display progress information on screen.
 #' @family main
 #' @export
 m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                                day = NULL, start_time_limits = NULL,
                                final_mode = "foot", fast = FALSE,
-                               n_closest = 10L) {
+                               n_closest = 10L, quiet = FALSE) {
 
     cache_dir <- m4ra_cache_dir ()
 
@@ -58,7 +59,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     city_name <- gsub ("\\s+", "-", tolower (city_name))
 
     net <- readRDS (net_sc)
-    net_files <- m4ra_weight_networks (net, city = city_name, quiet = FALSE)
+    net_files <- m4ra_weight_networks (net, city = city_name, quiet = quiet)
 
     gtfs_data <- readRDS (gtfs)
     gtfs_hash <- substring (digest::digest (gtfs_data), 1, 6)
@@ -68,8 +69,10 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 
     if (!file.exists (fname_gtfs)) {
 
-        cli::cli_alert_info (cli::col_blue (
-            "Calculating GTFS travel time matrix"))
+        if (!quiet) {
+            cli::cli_alert_info (cli::col_blue (
+                "Calculating GTFS travel time matrix"))
+        }
         gtfs_data <- gtfsrouter::gtfs_timetable (gtfs_data, day = day)
 
         tmat_gtfs_gtfs <- m4ra_gtfs_traveltimes (
@@ -79,8 +82,10 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         attr (tmat_gtfs_gtfs, "day") <- day
         attr (tmat_gtfs_gtfs, "start_time_limits") <- start_time_limits
         saveRDS (tmat_gtfs_gtfs, fname_gtfs)
-        cli::cli_alert_success (cli::col_green (
+        if (!quiet) {
+            cli::cli_alert_success (cli::col_green (
                 "Calculated GTFS travel time matrix"))
+        }
     }
 
     files <- c (net_files, gtfs)
@@ -89,7 +94,8 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         files,
         mode = final_mode,
         fast = fast,
-        n_closest = n_closest
+        n_closest = n_closest,
+        quiet = quiet
     )
 
     return (c (files, fname_gtfs, f_closest_gtfs))
@@ -98,7 +104,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 #' Identify closest GTFS stops to every network point.
 #' @noRd
 times_gtfs_to_net <- function (files, mode = "foot",
-                               fast = FALSE, n_closest = 10L) {
+                               fast = FALSE, n_closest = 10L, quiet = FALSE) {
 
     checkmate::assert_character (mode, len = 1L)
     mode <- match.arg (mode, c ("foot", "bicycle"))
@@ -111,9 +117,13 @@ times_gtfs_to_net <- function (files, mode = "foot",
     graph <- graph [graph$component == 1, ]
     graph_hash <- get_hash (graph, contracted = FALSE, force = TRUE)
     graph_hash <- substring (graph_hash, 1L, 6L)
-    cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
+    if (!quiet) {
+        cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
+    }
     graph_c <- dodgr::dodgr_contract_graph (graph)
-    cli::cli_alert_success (cli::col_green ("Contracted network graph"))
+    if (!quiet) {
+        cli::cli_alert_success (cli::col_green ("Contracted network graph"))
+    }
 
     city <- regmatches (f_net, regexpr ("m4ra\\-.*[^\\-]\\-", f_net))
     city <- gsub ("^m4ra\\-|\\-.*$", "", city)
@@ -153,8 +163,13 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
     if (!file.exists (fname)) {
 
-        cli::cli_alert_info (cli::col_blue (
-            "Calculating times from terminal GTFS stops"))
+        if (!quiet) {
+            cli::cli_alert_info (cli::col_blue (
+                "Calculating times from terminal GTFS stops"))
+        }
+
+        v <- dodgr::dodgr_vertices (graph_c)
+        n_closest <- update_n_closest (v, stops, n_closest, quiet = quiet)
 
         # NOTE that all closest_gtfs indices are 0-based for direct submission
         # to C++ routines
@@ -188,8 +203,10 @@ times_gtfs_to_net <- function (files, mode = "foot",
         )
 
         saveRDS (closest, fname)
-        cli::cli_alert_success (cli::col_green (
-            "Calculated times from terminal GTFS stops"))
+        if (!quiet) {
+            cli::cli_alert_success (cli::col_green (
+                "Calculated times from terminal GTFS stops"))
+        }
     }
 
     return (fname)
@@ -228,8 +245,6 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
     ids <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
 
-    n_closest <- update_n_closest (v, stops, 10)
-
     # ids can have duplicates through distinct stops mapping onto single points
     index_in <- which (!duplicated (ids))
     index_out <- match (ids, ids [index_in])
@@ -252,8 +267,6 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
     from <- v$id
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
-
-    n_closest <- update_n_closest (v, stops, 10)
 
     # to can have duplicates through distinct stops mapping onto single points
     index_in <- which (!duplicated (to))

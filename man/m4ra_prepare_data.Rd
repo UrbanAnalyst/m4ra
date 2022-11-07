@@ -12,7 +12,8 @@ m4ra_prepare_data(
   start_time_limits = NULL,
   final_mode = "foot",
   fast = FALSE,
-  n_closest = 10L
+  n_closest = 10L,
+  quiet = FALSE
 )
 }
 \arguments{
@@ -44,6 +45,8 @@ calculation may take considerably longer.}
 \item{n_closest}{Final travel times to each destination point are calculated
 by tracing back times to this number of closest GTFS stops. Lower values will
 result in faster calculation times, yet with potentially inaccurate results.}
+
+\item{quiet}{If \code{FALSE}, display progress information on screen.}
 }
 \description{
 This is a meta-function that calls the following functions:
