@@ -4,7 +4,7 @@
 \alias{m4ra_load_cached_network}
 \title{Load cached file for one city and mode}
 \usage{
-m4ra_load_cached_network(city = NULL, mode = "foot")
+m4ra_load_cached_network(city = NULL, mode = "foot", filename = NULL)
 }
 \arguments{
 \item{city}{City for which file is to be loaded.}
