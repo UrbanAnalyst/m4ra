@@ -26,7 +26,7 @@ rappdirs package, or by a local environment parameter,
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.213</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.220</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,8 @@ in a local cache directory defined by the <code>user_cache_dir()</code> function
 <span>  start_time_limits <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  final_mode <span class="op">=</span> <span class="st">"foot"</span>,</span>
 <span>  fast <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  n_closest <span class="op">=</span> <span class="fl">10L</span></span>
+<span>  n_closest <span class="op">=</span> <span class="fl">10L</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -131,6 +132,10 @@ calculation may take considerably longer.</p></dd>
 <dd><p>Final travel times to each destination point are calculated
 by tracing back times to this number of closest GTFS stops. Lower values will
 result in faster calculation times, yet with potentially inaccurate results.</p></dd>
+
+
+<dt>quiet</dt>
+<dd><p>If <code>FALSE</code>, display progress information on screen.</p></dd>
 
 </dl></div>
     <div class="section level2">
