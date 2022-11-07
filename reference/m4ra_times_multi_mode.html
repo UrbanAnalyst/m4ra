@@ -14,7 +14,7 @@ modes of transport."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/a
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.226</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.229</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,32 +57,81 @@ modes of transport.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_times_multi_mode</span><span class="op">(</span><span class="va">graph</span>, <span class="va">gtfs</span>, from <span class="op">=</span> <span class="cn">NULL</span>, start_time_limits <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_times_multi_mode</span><span class="op">(</span></span>
+<span>  net_sc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  gtfs <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  city_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  day <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  start_time_limits <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  initial_mode <span class="op">=</span> <span class="st">"foot"</span>,</span>
+<span>  final_mode <span class="op">=</span> <span class="st">"foot"</span>,</span>
+<span>  from <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fast <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  n_closest <span class="op">=</span> <span class="fl">10L</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>graph</dt>
-<dd><p>A <code>dodgr</code> network returned from the weight_streetnet
-function using a network obtained with the <span class="pkg">osmdata</span> <code>osmdata_sc</code>
-function.</p></dd>
+    <dl><dt>net_sc</dt>
+<dd><p>Local file path to a <span class="pkg">silicate</span>, "SC", format object
+containing network data used to generate weighted street networks.</p></dd>
 
 
 <dt>gtfs</dt>
-<dd><p>A 'GTFS' feed extracted with the <span class="pkg">gtfsrouter</span> function,
-'extract_gtfs'.</p></dd>
+<dd><p>Local file path to a <span class="pkg">gtfsrouter</span> object saved via <code>saveRDS</code>,
+containing GTFS (General Transit Feed Specification) data for network
+represented in <code>net_sc</code>. This <code>.Rds</code> object may include additional timetable
+or transfer information in addition to data represented in original
+<code>zip</code>-format data of provided GTFS feed.</p></dd>
 
 
-<dt>from</dt>
-<dd><p>Vector or matrix of points <strong>from</strong> which route distances are to
-be calculated. If not given, times are calculated from all points in the
-network.</p></dd>
+<dt>city_name</dt>
+<dd><p>Name of city used to name cached files.</p></dd>
+
+
+<dt>day</dt>
+<dd><p>As for the 'gtfs_traveltimes' function of <span class="pkg">gtfsrouter</span>, the
+day for which the matrix is to be calculated.</p></dd>
 
 
 <dt>start_time_limits</dt>
 <dd><p>As for the 'gtfs_traveltimes' function of
 <span class="pkg">gtfsrouter</span>, a vector of two values specifying the earliest and latest
 departure times from each station.</p></dd>
+
+
+<dt>initial_mode</dt>
+<dd><p>Initial mode of transport from origin points towards
+public transport stop.</p></dd>
+
+
+<dt>final_mode</dt>
+<dd><p>The mode of transport used for the final stage from GTFS
+stops to destination points.</p></dd>
+
+
+<dt>from</dt>
+<dd><p>List of OSM vertex IDs from which to calculate total multi-modal
+travel times. These must be vertices from the largest connected component of
+the contracted graph.</p></dd>
+
+
+<dt>fast</dt>
+<dd><p>Values of <code>TRUE</code> generate potentially enormous matrices which may
+not fit in local memory. The default value of <code>FALSE</code> is generally safer, but
+calculation may take considerably longer.</p></dd>
+
+
+<dt>n_closest</dt>
+<dd><p>Final travel times to each destination point are calculated
+by tracing back times to this number of closest GTFS stops. Lower values will
+result in faster calculation times, yet with potentially inaccurate results.</p></dd>
+
+
+<dt>quiet</dt>
+<dd><p>If <code>FALSE</code>, display progress information on screen.</p></dd>
 
 </dl></div>
     <div class="section level2">
