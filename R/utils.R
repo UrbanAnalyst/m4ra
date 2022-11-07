@@ -73,3 +73,20 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot") {
 
     return (graph)
 }
+
+process_time <- function (pt0) {
+
+    pt1 <- proc.time () [3] - pt0 [3]
+
+    hh_num <- floor (pt1 / 3600)
+    hh <- sprintf ("%02i", hh_num)
+    pt1 <- pt1 - hh_num * 3600
+
+    mm_num <- floor (pt1 / 60)
+    mm <- sprintf ("%02i", mm_num)
+
+    ss <- round (pt1 - mm_num * 60, digits = 2)
+    ss <- ifelse (ss < 10, paste0 ("0", ss), paste0 (ss))
+
+    paste0 (hh, ":", mm, ":", ss)
+}

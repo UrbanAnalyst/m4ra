@@ -42,6 +42,8 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                                final_mode = "foot", fast = FALSE,
                                n_closest = 10L, quiet = FALSE) {
 
+    pt0_whole <- proc.time ()
+
     cache_dir <- m4ra_cache_dir ()
 
     checkmate::assert_character (net_sc, max.len = 1L)
@@ -70,6 +72,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     if (!file.exists (fname_gtfs)) {
 
         if (!quiet) {
+            pt0 <- proc.time ()
             cli::cli_alert_info (cli::col_blue (
                 "Calculating GTFS travel time matrix"))
         }
@@ -84,7 +87,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         saveRDS (tmat_gtfs_gtfs, fname_gtfs)
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (
-                "Calculated GTFS travel time matrix"))
+                "Calculated GTFS travel time matrix in ", process_time (pt0)))
         }
     }
 
@@ -97,6 +100,11 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         n_closest = n_closest,
         quiet = quiet
     )
+
+    if (!quiet) {
+        cli::cli_alert_success (cli::col_green (
+            "Total time for data preparation: ", process_time (pt0_whole)))
+    }
 
     return (c (files, fname_gtfs, f_closest_gtfs))
 }
@@ -171,16 +179,25 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
         if (fast) {
 
+            if (!quiet) {
+                pt0 <- proc.time ()
+                cli::cli_alert_info (cli::col_blue (
+                    "Calculating times from terminal GTFS stops"))
+            }
+            pt0 <- proc.time ()
+
             # This returns a matrix of combined distances and indices into the
             # original GTFS stops table
             closest_gtfs <-
                 closest_gtfs_to_net_fast (graph_c, stops, n_closest = n_closest)
 
+
             closest_gtfs [is.na (closest_gtfs)] <- -1
 
             if (!quiet) {
                 cli::cli_alert_success (cli::col_green (
-                    "Calculated times from terminal GTFS stops  "))
+                    "Calculated times from terminal GTFS stops in ", process_time (pt0)))
+                pt0 <- proc.time ()
                 cli::cli_alert_info (cli::col_blue (
                     "Converting times to indices at each GTFS stop"))
             }
@@ -192,7 +209,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
             if (!quiet) {
                 cli::cli_alert_success (cli::col_green (
-                    "Converted times to indices at each GTFS stop  "))
+                    "Converted times to indices at each GTFS stop in ", process_time (pt0)))
             }
         } else {
 
@@ -282,6 +299,7 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest, quiet = FALSE) 
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
     if (!quiet) {
+        pt0 <- proc.time ()
         cli::cli_alert_info (cli::col_blue (
             "Calculating times to all terminal GTFS stops"))
     }
@@ -294,7 +312,7 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest, quiet = FALSE) 
     )
     if (!quiet) {
         cli::cli_alert_success (cli::col_green (
-            "Calculated times to all terminal GTFS stops  "))
+            "Calculated times to all terminal GTFS stops in ", process_time (pt0)))
     }
 
     # The 2nd half of dmat (dmat [, 11:20] for n_closest = 10, say) then holds
@@ -314,13 +332,14 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest, quiet = FALSE) 
     # map onto to the indicated stops. This routine also re-maps the vectors of
     # distances out to full expanded distances
     if (!quiet) {
+        pt0 <- proc.time ()
         cli::cli_alert_info (cli::col_blue (
             "Converting times to indices at each GTFS stop"))
     }
     res <- rcpp_remap_verts_to_stops (dmat, index_out - 1L)
     if (!quiet) {
         cli::cli_alert_success (cli::col_green (
-            "Converted times to indices at each GTFS stop "))
+            "Converted times to indices at each GTFS stop in ", process_time (pt0)))
     }
 
     return (res)
