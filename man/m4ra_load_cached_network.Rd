@@ -9,7 +9,9 @@ m4ra_load_cached_network(city = NULL, mode = "foot", filename = NULL)
 \arguments{
 \item{city}{City for which file is to be loaded.}
 
-\item{mode}{One of "foot", "bicycle", or "motorcar"}
+\item{mode}{One of "foot", "bicycle", or "motorcar".}
+
+\item{filename}{Can be used to specify particular filename to load.}
 }
 \value{
 Previously cached, weighted streetnet for specified city and mode.

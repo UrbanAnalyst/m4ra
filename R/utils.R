@@ -44,7 +44,8 @@ m4ra_network_hash <- function (net) {
 #' Load cached file for one city and mode
 #'
 #' @param city City for which file is to be loaded.
-#' @param mode One of "foot", "bicycle", or "motorcar"
+#' @param mode One of "foot", "bicycle", or "motorcar".
+#' @param filename Can be used to specify particular filename to load.
 #' @return Previously cached, weighted streetnet for specified city and mode.
 #' @family cache
 #' @export
