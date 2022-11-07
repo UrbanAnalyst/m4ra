@@ -5,23 +5,58 @@
 \title{Calculate matrix of pair-wise travel times between points using multiple
 modes of transport.}
 \usage{
-m4ra_times_multi_modal(graph, gtfs, from = NULL, start_time_limits = NULL)
+m4ra_times_multi_modal(
+  net_sc = NULL,
+  gtfs = NULL,
+  city_name = NULL,
+  day = NULL,
+  start_time_limits = NULL,
+  initial_mode = "foot",
+  final_mode = "foot",
+  from = NULL,
+  fast = FALSE,
+  n_closest = 10L,
+  quiet = FALSE
+)
 }
 \arguments{
-\item{graph}{A \code{dodgr} network returned from the \link{weight_streetnet}
-function using a network obtained with the \pkg{osmdata} \code{osmdata_sc}
-function.}
+\item{net_sc}{Local file path to a \pkg{silicate}, "SC", format object
+containing network data used to generate weighted street networks.}
 
-\item{gtfs}{A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
-'extract_gtfs'.}
+\item{gtfs}{Local file path to a \pkg{gtfsrouter} object saved via \code{saveRDS},
+containing GTFS (General Transit Feed Specification) data for network
+represented in \code{net_sc}. This \code{.Rds} object may include additional timetable
+or transfer information in addition to data represented in original
+\code{zip}-format data of provided GTFS feed.}
 
-\item{from}{Vector or matrix of points \strong{from} which route distances are to
-be calculated. If not given, times are calculated from all points in the
-network.}
+\item{city_name}{Name of city used to name cached files.}
+
+\item{day}{As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
+day for which the matrix is to be calculated.}
 
 \item{start_time_limits}{As for the 'gtfs_traveltimes' function of
 \pkg{gtfsrouter}, a vector of two values specifying the earliest and latest
 departure times from each station.}
+
+\item{initial_mode}{Initial mode of transport from origin points towards
+public transport stop.}
+
+\item{final_mode}{The mode of transport used for the final stage from GTFS
+stops to destination points.}
+
+\item{from}{List of OSM vertex IDs from which to calculate total multi-modal
+travel times. These must be vertices from the largest connected component of
+the contracted graph.}
+
+\item{fast}{Values of \code{TRUE} generate potentially enormous matrices which may
+not fit in local memory. The default value of \code{FALSE} is generally safer, but
+calculation may take considerably longer.}
+
+\item{n_closest}{Final travel times to each destination point are calculated
+by tracing back times to this number of closest GTFS stops. Lower values will
+result in faster calculation times, yet with potentially inaccurate results.}
+
+\item{quiet}{If \code{FALSE}, display progress information on screen.}
 }
 \description{
 Alias for \link{m4ra_times_multi_mode}
