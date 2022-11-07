@@ -29,7 +29,7 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
             const double time_i_to_j = net_times (i, j);
             for (int k = 0; k < n_gtfs; k++) {
                 const double time_j_to_k = gtfs_times (j, k);
-                const double time_i_to_k = time_i_to_j + time_j_to_k;
+                const double time_i_to_k = std::min (net_times (i, k), time_i_to_j + time_j_to_k);
                 if (time_i_to_k < res (i, k))
                 {
                     res (i, k) = time_i_to_k;
