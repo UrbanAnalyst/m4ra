@@ -163,11 +163,6 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
     if (!file.exists (fname)) {
 
-        if (!quiet) {
-            cli::cli_alert_info (cli::col_blue (
-                "Calculating times from terminal GTFS stops"))
-        }
-
         v <- dodgr::dodgr_vertices (graph_c)
         n_closest <- update_n_closest (v, stops, n_closest, quiet = quiet)
 
@@ -203,8 +198,12 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
             # This routine directly returns the expanded list into all original
             # GTFS stops:
-            closest_gtfs <-
-                closest_gtfs_to_net_slow (graph_c, stops, n_closest = n_closest)
+            closest_gtfs <- closest_gtfs_to_net_slow (
+                graph_c,
+                stops,
+                n_closest = n_closest,
+                quiet = quiet
+            )
         }
 
         n <- length (closest_gtfs) / 2
@@ -214,10 +213,6 @@ times_gtfs_to_net <- function (files, mode = "foot",
         )
 
         saveRDS (closest, fname)
-        if (!quiet) {
-            cli::cli_alert_success (cli::col_green (
-                "Calculated times from terminal GTFS stops"))
-        }
     }
 
     return (fname)
@@ -272,7 +267,7 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
     rcpp_closest_pts (tmat, n_closest, maxt)
 }
 
-closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
+closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest, quiet = FALSE) {
 
     v <- dodgr::dodgr_vertices (graph_c)
     from <- v$id
@@ -286,6 +281,10 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
 
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
+    if (!quiet) {
+        cli::cli_alert_info (cli::col_blue (
+            "Calculating times to all terminal GTFS stops"))
+    }
     dmat <- rcpp_dists_to_n_targets (
         graph_c,
         to_from_indices$vert_map,
@@ -293,6 +292,10 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
         to_from_indices$to$index,
         n_closest
     )
+    if (!quiet) {
+        cli::cli_alert_success (cli::col_green (
+            "Calculated times to all terminal GTFS stops  "))
+    }
 
     # The 2nd half of dmat (dmat [, 11:20] for n_closest = 10, say) then holds
     # indices into the vertices of the network. These are the same as the values
@@ -310,7 +313,15 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest) {
     # Then convert those index values into lists of all original stops which
     # map onto to the indicated stops. This routine also re-maps the vectors of
     # distances out to full expanded distances
+    if (!quiet) {
+        cli::cli_alert_info (cli::col_blue (
+            "Converting times to indices at each GTFS stop"))
+    }
     res <- rcpp_remap_verts_to_stops (dmat, index_out - 1L)
+    if (!quiet) {
+        cli::cli_alert_success (cli::col_green (
+            "Converted times to indices at each GTFS stop "))
+    }
 
     return (res)
 }
