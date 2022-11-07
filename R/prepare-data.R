@@ -213,7 +213,8 @@ update_n_closest <- function (v, stops, n_closest, quiet = FALSE) {
     n_closest_min <- max (table (pts)) + 1L
     if (n_closest_min > n_closest) {
         if (!quiet) {
-            message ("Updating 'n_closest' to ", n_closest_min)
+            cli::cli_alert_info (cli::col_blue (
+                "Updating 'n_closest' to ", n_closest_min))
         }
         n_closest <- n_closest_min
     }
