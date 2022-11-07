@@ -4,8 +4,7 @@
 #' rcpp_add_net_to_gtfs
 #'
 #' Add times from selected start points to all GTFS stations to total GTFS '
-NULL
-
+#' travel time matrix to generate fastest travel times to all GTFS end points.
 #' @noRd
 rcpp_add_net_to_gtfs <- function(net_times, gtfs_times, gtfs_to_net_index, gtfs_to_net_dist, nverts) {
     .Call(`_m4ra_rcpp_add_net_to_gtfs`, net_times, gtfs_times, gtfs_to_net_index, gtfs_to_net_dist, nverts)

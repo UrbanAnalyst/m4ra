@@ -4,7 +4,7 @@
 //' rcpp_add_net_to_gtfs
 //'
 //' Add times from selected start points to all GTFS stations to total GTFS '
-//travel time matrix to generate fastest travel times to all GTFS end points.
+//' travel time matrix to generate fastest travel times to all GTFS end points.
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
