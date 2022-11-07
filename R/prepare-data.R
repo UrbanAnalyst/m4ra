@@ -207,7 +207,6 @@ times_gtfs_to_net <- function (files, mode = "foot",
 #' @noRd
 update_n_closest <- function (v, stops, n_closest, quiet = FALSE) {
 
-    v <- dodgr::dodgr_vertices (graph_c)
     pts <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
 
