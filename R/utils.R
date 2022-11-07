@@ -51,6 +51,7 @@ m4ra_network_hash <- function (net) {
 m4ra_load_cached_network <- function (city = NULL, mode = "foot", filename = NULL) {
 
     if (is.null (filename)) {
+        city <- gsub ("\\s+", "-", tolower (city))
         checkmate::assert_character (city, max.len = 1L)
         checkmate::assert_character (mode, max.len = 1L)
 
