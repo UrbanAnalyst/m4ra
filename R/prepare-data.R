@@ -183,11 +183,22 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
             closest_gtfs [is.na (closest_gtfs)] <- -1
 
+            if (!quiet) {
+                cli::cli_alert_success (cli::col_green (
+                    "Calculated times from terminal GTFS stops  "))
+                cli::cli_alert_info (cli::col_blue (
+                    "Converting times to indices at each GTFS stop"))
+            }
+
             # This rcpp routine converts the [n_closest, nverts] array into a
             # list of indexes and distances, once for each GTFS station. Indices
             # are then back into verts.
             closest_gtfs <- rcpp_expand_closest_index (closest_gtfs)
 
+            if (!quiet) {
+                cli::cli_alert_success (cli::col_green (
+                    "Converted times to indices at each GTFS stop  "))
+            }
         } else {
 
             # This routine directly returns the expanded list into all original
