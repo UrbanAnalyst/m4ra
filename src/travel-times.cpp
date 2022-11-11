@@ -368,9 +368,11 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
             }
 
             set_ij.emplace (i);
+            index_map.erase (gtfs_index);
             index_map.emplace (gtfs_index, set_ij);
 
             d_ij.emplace (d);
+            dist_map.erase (gtfs_index);
             dist_map.emplace (gtfs_index, d_ij);
         }
     }
