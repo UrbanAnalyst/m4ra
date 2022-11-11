@@ -442,7 +442,9 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
         Rcpp::checkUserInterrupt ();
         if (i % 1000 == 0)
         {
-            Rcpp::Rcout << "\r" << i << " / " << n_verts;
+            const double progress = 100.0 * static_cast <double> (i) / static_cast <double> (n_verts);
+            Rcpp::Rcout << "\r" << i << " / " << n_verts << ": " <<
+                std::setprecision (2) << progress << "%";
             Rcpp::Rcout.flush ();
         }
 
