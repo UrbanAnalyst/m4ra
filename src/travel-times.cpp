@@ -433,14 +433,21 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
         index_out_map.emplace (index_out (i), index_vec);
     }
 
-    // Then make index and distance maps into the shorted index; expansion out
+    // Then make index and distance maps into the shorter index; expansion out
     // to the full `index_out` is then only done in the final stage.
-    std::map <int, std::set <int> > index_map;
-    std::map <int, std::set <double> > dist_map;
+    std::unordered_map <int, int_dbl_pair_set> index_dist_map;
+
     for (int i = 0; i < n_verts; i++)
     {
         Rcpp::checkUserInterrupt ();
+        if (i % 1000 == 0)
+        {
+            Rcpp::Rcout << "\r" << i << " / " << n_verts;
+            Rcpp::Rcout.flush ();
+        }
+
         const size_t i_st = static_cast <size_t> (i);
+
         for (size_t j = 0; j < n_closest; j++)
         {
             const int gtfs_index = static_cast <int> (dmat (i_st, n_closest + j));
@@ -450,43 +457,36 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
                 continue;
             }
 
-            if (index_map.find (gtfs_index) != index_map.end ())
+            int_dbl_pair_set index_dist_set;
+            if (index_dist_map.find (gtfs_index) != index_dist_map.end ())
             {
-                index_map.at (gtfs_index).emplace (i);
-                dist_map.at (gtfs_index).emplace (d);
-            } else
-            {
-                std::set <int> set_ij;
-                set_ij.emplace (i);
-                index_map.emplace (gtfs_index, set_ij);
-
-                std::set <double> d_ij;
-                d_ij.emplace (d);
-                dist_map.emplace (gtfs_index, d_ij);
+                index_dist_set = index_dist_map.at (gtfs_index);
+                index_dist_map.erase (gtfs_index);
             }
+            int_dbl_pair this_pair {i, d};
+            index_dist_set.emplace (this_pair);
+
+            index_dist_map.emplace (gtfs_index, index_dist_set);
         }
     }
 
     Rcpp::List res (2 * n_gtfs);
-    for (auto m: index_map)
+    for (auto m: index_dist_map)
     {
-        std::set <int> set_ij = m.second;
-        std::vector <int> vec_ij { set_ij.begin (), set_ij.end () };
-        std::vector <int> index_set = index_out_map.at (m.first);
-        for (auto i: index_set)
+        int_dbl_pair_set index_dist_set = m.second;
+        const size_t n = static_cast <size_t> (index_dist_set.size ());
+        std::vector <int> index_vec (n);
+        std::vector <double> dist_vec (n);
+        size_t i = 0;
+        for (auto s: index_dist_set)
         {
-            res (static_cast <size_t> (i)) = vec_ij;
+            index_vec [i] = s.first;
+            dist_vec [i] = s.second;
+            i++;
         }
-    }
-    for (auto m: dist_map)
-    {
-        std::set <double> d_ij = m.second;
-        std::vector <double> dvec_ij { d_ij.begin (), d_ij.end () };
-        std::vector <int> index_set = index_out_map.at (m.first);
-        for (auto i: index_set)
-        {
-            res (n_gtfs + static_cast <size_t> (i)) = dvec_ij;
-        }
+
+        res (static_cast <size_t> (m.first)) = index_vec;
+        res (n_gtfs + static_cast <size_t> (m.first)) = dist_vec;
     }
 
     return res;
