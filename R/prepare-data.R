@@ -298,6 +298,7 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest, quiet = FALSE) 
     index_out <- match (to, to [index_in])
     to <- to [index_in]
 
+    # That `dodgr` internal function returns zero-based indices.
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
     if (!quiet) {
@@ -325,8 +326,10 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest, quiet = FALSE) 
     to_index <- to_from_indices$to$index
     index <- seq_len (n_closest) + n_closest
     imat <- dmat [, index]
+    storage.mode (imat) <- "integer"
     # match - 1 to convert to 0-based C++ indices:
-    dmat [, index] <- array (match (imat, to_index) - 1, dim = dim (imat))
+    imat <- array (match (imat, to_index) - 1L, dim = dim (imat))
+    dmat [, index] <- imat
 
     dmat [is.na (dmat)] <- -1
 
