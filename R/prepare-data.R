@@ -168,6 +168,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
             cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
         }
         graph_c <- dodgr::dodgr_contract_graph (graph)
+        graph_c <- graph_c [graph_c$component == 1L, ]
         if (!quiet) {
             cli::cli_alert_success (cli::col_green ("Contracted network graph"))
         }
