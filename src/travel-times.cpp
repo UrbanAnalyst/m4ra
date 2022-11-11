@@ -417,36 +417,66 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
     const size_t n_closest = static_cast <size_t> (dmat.ncol () / 2);
     const size_t n_gtfs = static_cast <size_t> (index_out.size ());
 
-    // Make a map from each index_in = unique stop coordinates to all index_out
-    // = full stops which map on to those values.
-    std::unordered_map <int, std::vector <int> > index_out_map;
-    for (size_t i = 0; i < index_out.size (); i++)
-    {
-        std::vector <int> index_vec;
-        if (index_out_map.find (index_out (i)) != index_out_map.end ())
-        {
-            index_vec = index_out_map.at (index_out (i));
-        }
-        index_vec.push_back (static_cast <int> (i));
+    // Make a map from each unique stop coordinate to full stops which map on to
+    // those values.
 
-        index_out_map.erase (index_out (i));
-        index_out_map.emplace (index_out (i), index_vec);
+     std::unordered_map <int, std::vector <int> > index_out_map;
+     for (size_t i = 0; i < index_out.size (); i++)
+     {
+         std::vector <int> index_vec;
+         if (index_out_map.find (index_out (i)) != index_out_map.end ())
+             index_vec = index_out_map.at (index_out (i));
+         index_vec.push_back (static_cast <int> (i));
+         index_out_map.erase (index_out (i));
+         index_out_map.emplace (index_out (i), index_vec);
+     }
+     const size_t n_gtfs_unique = index_out_map.size ();
+
+    // Count numbers of end vertices at each GTFS stop, to pre-allocate
+    // vectors.
+    std::vector <int> gtfs_counts (n_gtfs, 0);
+    for (int i = 0; i < n_verts; i++)
+    {
+        const size_t i_st = static_cast <size_t> (i);
+        for (size_t j = 0; j < n_closest; j++)
+        {
+            const size_t gtfs_index = static_cast <size_t> (dmat (i_st, n_closest + j));
+            const double d = dmat (i_st, j);
+            if (gtfs_index < 0 || d < 0.0)
+            {
+                continue;
+            }
+
+            gtfs_counts [gtfs_index]++;
+        }
     }
 
-    // Then make index and distance maps into the shorter index; expansion out
-    // to the full `index_out` is then only done in the final stage.
-    std::unordered_map <int, int_dbl_pair_set> index_dist_map;
+    // Then pre-allocate all vectors in return result:
+    std::vector <std::vector <int> > index_list (n_gtfs);
+    std::vector <std::vector <double> > dist_list (n_gtfs);
+    for (int i = 0; i < n_gtfs; i++)
+    {
+        const int n_i = gtfs_counts [static_cast <size_t> (i)];
+        if (n_i == 0)
+        {
+            continue;
+        }
+
+        std::vector <int> index_i (n_i, INFINITE_INT);
+        std::vector <double> dist_i (n_i, INFINITE_DBL);
+
+        index_list [i].resize (n_i);
+        std::copy (index_list [i].begin (), index_list [i].end (), index_i.begin ());
+        dist_list [i].resize (n_i);
+        std::copy (dist_list [i].begin (), dist_list [i].end (), dist_i.begin ());
+
+        // and reset that count to 0:
+        gtfs_counts [static_cast <size_t> (i)] = 0;
+    }
 
     for (int i = 0; i < n_verts; i++)
     {
         Rcpp::checkUserInterrupt ();
-        if (i % 1000 == 0)
-        {
-            const double progress = 100.0 * static_cast <double> (i) / static_cast <double> (n_verts);
-            Rcpp::Rcout << "\r" << i << " / " << n_verts << ": " <<
-                std::setprecision (2) << progress << "%";
-            Rcpp::Rcout.flush ();
-        }
 
         const size_t i_st = static_cast <size_t> (i);
 
@@ -459,36 +489,29 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
                 continue;
             }
 
-            int_dbl_pair_set index_dist_set;
-            if (index_dist_map.find (gtfs_index) != index_dist_map.end ())
-            {
-                index_dist_set = index_dist_map.at (gtfs_index);
-                index_dist_map.erase (gtfs_index);
-            }
-            int_dbl_pair this_pair {i, d};
-            index_dist_set.emplace (this_pair);
+            const int gtfs_count = gtfs_counts [gtfs_index];
 
-            index_dist_map.emplace (gtfs_index, index_dist_set);
+            index_list [gtfs_index] [gtfs_count] = i;
+            dist_list [gtfs_index] [gtfs_count] = d;
+            gtfs_counts [gtfs_index]++;
         }
     }
 
     Rcpp::List res (2 * n_gtfs);
-    for (auto m: index_dist_map)
-    {
-        int_dbl_pair_set index_dist_set = m.second;
-        const size_t n = static_cast <size_t> (index_dist_set.size ());
-        std::vector <int> index_vec (n);
-        std::vector <double> dist_vec (n);
-        size_t i = 0;
-        for (auto s: index_dist_set)
-        {
-            index_vec [i] = s.first;
-            dist_vec [i] = s.second;
-            i++;
-        }
 
-        res (static_cast <size_t> (m.first)) = index_vec;
-        res (n_gtfs + static_cast <size_t> (m.first)) = dist_vec;
+    for (int i = 0; i < n_gtfs; i++)
+    {
+        if (index_out_map.find (i) == index_out_map.end ())
+        {
+            continue;
+        }
+        std::vector <int> index_out_i = index_out_map.at (i);
+
+        for (auto ii: index_out_i)
+        {
+            res (ii) = index_list [i];
+            res (n_gtfs + ii) = dist_list [i];
+        }
     }
 
     return res;
