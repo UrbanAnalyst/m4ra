@@ -10,7 +10,7 @@ const bool is_na (const int &x)
 struct OneMinDists : public RcppParallel::Worker
 {
     const RcppParallel::RMatrix <double> p_dists;
-    const int n_closest;
+    const size_t n_closest;
     const double maxd;
 
     RcppParallel::RMatrix <double> dout;
@@ -18,7 +18,7 @@ struct OneMinDists : public RcppParallel::Worker
     // constructor
     OneMinDists (
             const RcppParallel::RMatrix <double> dists_in,
-            const int n_closest_in,
+            const size_t n_closest_in,
             const double maxd_in,
             RcppParallel::RMatrix <double> dout_in) :
         p_dists (dists_in), n_closest (n_closest_in), maxd (maxd_in), dout (dout_in)
@@ -44,10 +44,10 @@ struct OneMinDists : public RcppParallel::Worker
             if (allna)
                 continue;
 
-            for (int j = 0; j < n_closest; j++)
+            for (size_t j = 0; j < n_closest; j++)
             {
                 dout (j, i) = static_cast <double> (*it);
-                dout (n_closest + j, i) = std::distance (col_i_vec.begin (), it);
+                dout (n_closest + j, i) = static_cast <double> (std::distance (col_i_vec.begin (), it));
                 *it = maxd;
                 it = std::min_element (col_i_vec.begin (), col_i_vec.end ());
             }
@@ -66,8 +66,8 @@ struct OneMinDists : public RcppParallel::Worker
 Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
         Rcpp::DataFrame stops, const int n_closest)
 {
-    const size_t nxy = vxy.nrow ();
-    const size_t nstns = stops.nrow ();
+    const size_t nxy = static_cast <size_t> (vxy.nrow ());
+    const size_t nstns = static_cast <size_t> (stops.nrow ());
 
     Rcpp::NumericVector vxy_x = vxy ["x"], vxy_y = vxy ["y"];
     Rcpp::NumericVector stop_x = stops ["stop_lon"], stop_y = stops ["stop_lat"];
@@ -89,9 +89,9 @@ Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
 
         // Then find the threshold distance of the "n_closest" stations:
         std::sort (dist_vec_s.begin (), dist_vec_s.end ());
-        double dist_max = dist_vec_s [n_closest - 1];
+        double dist_max = dist_vec_s [static_cast <size_t> (n_closest) - 1];
 
-        int len = 0;
+        size_t len = 0;
         for (auto d: dist_vec_s)
         {
             if (d <= dist_max)
@@ -107,7 +107,7 @@ Rcpp::List rcpp_closest_gtfs (Rcpp::DataFrame vxy,
         {
             if (dist_vec [j] <= dist_max)
             {
-                dout (len++) = j;
+                dout (len++) = static_cast <int> (j);
             }
         }
 
@@ -137,10 +137,11 @@ Rcpp::NumericMatrix rcpp_closest_pts (Rcpp::NumericMatrix dmat,
             Rcpp::NumericVector::get_na ());
     Rcpp::NumericMatrix res (n_closest * 2, nverts, na_vec.begin ());
 
-    OneMinDists one_closest (RcppParallel::RMatrix <double> (dmat), n_closest,
-            maxd, RcppParallel::RMatrix <double> (res));
+    OneMinDists one_closest (RcppParallel::RMatrix <double> (dmat),
+            static_cast <size_t> (n_closest), maxd,
+            RcppParallel::RMatrix <double> (res));
 
-    RcppParallel::parallelFor (0, nverts, one_closest);
+    RcppParallel::parallelFor (0, static_cast <size_t> (nverts), one_closest);
 
     return res;
 }
@@ -181,33 +182,34 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
     // Construct times to all terminal GTFS stops as 
     for (size_t i = 0; i < n_from; i++)
     {
-        const Rcpp::IntegerVector closest_gtfs_to_from = closest_gtfs_to_from (i);
-        const size_t n_closest = closest_gtfs_to_from.size ();
-        if (is_na (closest_gtfs_to_from [0]))
+        const Rcpp::IntegerVector closest_gtfs_to_from_vec = closest_gtfs_to_from (i);
+        const R_xlen_t n_closest = closest_gtfs_to_from_vec.size ();
+        if (is_na (closest_gtfs_to_from_vec [0]))
         {
             continue;
         }
 
         // Minimal travel times through the n_closest GTFS stops to all other
         // GTFS stops:
-        std::vector <int> times_to_gtfs_stops (n_gtfs);
+        std::vector <int> times_to_gtfs_stops (static_cast <size_t> (n_gtfs));
         std::fill (times_to_gtfs_stops.begin (), times_to_gtfs_stops.end (), INFINITE_INT);
 
-        for (size_t j = 0; j < n_closest; j++)
+        for (R_xlen_t j = 0; j < n_closest; j++)
         {
-            if (is_na (t_net_to_gtfs (i, closest_gtfs_to_from [j])))
+            const size_t closest_j = static_cast <size_t> (closest_gtfs_to_from_vec [j]);
+            if (is_na (t_net_to_gtfs (i, closest_j)))
             {
                 continue;
             }
 
             for (size_t k = 0; k < n_gtfs; k++)
             {
-                if (is_na (t_gtfs_to_gtfs (closest_gtfs_to_from [j], k)))
+                if (is_na (t_gtfs_to_gtfs (closest_j, k)))
                 {
                     continue;
                 }
 
-                const int t_to_gtfs_k = t_net_to_gtfs (i, closest_gtfs_to_from [j]) + t_gtfs_to_gtfs (closest_gtfs_to_from [j], k);
+                const int t_to_gtfs_k = t_net_to_gtfs (i, closest_j) + t_gtfs_to_gtfs (closest_j, k);
                 if (t_to_gtfs_k < times_to_gtfs_stops [k])
                 {
                     times_to_gtfs_stops [k] = t_to_gtfs_k;
@@ -218,7 +220,6 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
         // Then minimal times from all terminal GTFS stops to all other network
         // points, tracing only times from GTFS stops given in
         // `closest_gtfs_to_net`.
-        const size_t n_closest_gtfs = closest_gtfs_to_net.nrow ();
         for (size_t j = 0; j < n_gtfs; j++)
         {
             if (is_na (times_to_gtfs_stops [j]))
@@ -243,7 +244,7 @@ Rcpp::IntegerMatrix rcpp_net_gtfs_travel_times (Rcpp::IntegerMatrix t_net_to_gtf
         Rcpp::checkUserInterrupt ();
     }
 
-    for (int i = 0; i < n_from; i++)
+    for (size_t i = 0; i < n_from; i++)
     {
         for (size_t j = 0; j < n_verts; j++)
         {
@@ -261,13 +262,14 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
         const int &i, const int &n_closest)
 {
 
-    const int n_gtfs = times_to_gtfs_stops.ncol ();
+    const size_t n_gtfs = static_cast <size_t> (times_to_gtfs_stops.ncol ());
 
     std::vector <int> gtfs_stn_times (n_gtfs, INFINITE_INT);
     int min_time = INFINITE_INT;
+    const size_t i_st = static_cast <size_t> (i);
     for (size_t j = 0; j < n_gtfs; j++)
     {
-        gtfs_stn_times [j] = times_to_gtfs_stops (i, j);
+        gtfs_stn_times [j] = times_to_gtfs_stops (i_st, j);
         if (gtfs_stn_times [j] < min_time)
         {
             min_time = gtfs_stn_times [j];
@@ -294,7 +296,7 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
     size_t len = 0;
     for (size_t j = 0; j < n_gtfs; j++)
     {
-        if (times_to_gtfs_stops (i, j) <= max_time)
+        if (times_to_gtfs_stops (i_st, j) <= max_time)
         {
             len++;
         }
@@ -304,9 +306,9 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
     len = 0;
     for (size_t j = 0; j < n_gtfs; j++)
     {
-        if (times_to_gtfs_stops (i, j) <= max_time)
+        if (times_to_gtfs_stops (i_st, j) <= max_time)
         {
-            closest_gtfs [len++] = j;
+            closest_gtfs [len++] = static_cast <int> (j);
         }
         if (len == times_to_gtfs_stops.size ())
         {
@@ -327,13 +329,13 @@ std::vector <int> get_closest_gtfs_stns (Rcpp::IntegerMatrix &times_to_gtfs_stop
 // [[Rcpp::export]]
 Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
 {
-    const int n_closest = closest.nrow () / 2;
-    const int n_verts = closest.ncol ();
+    const size_t n_closest = static_cast <size_t> (closest.nrow () / 2);
+    const size_t n_verts = static_cast <size_t> (closest.ncol ());
     // Count total number of GTFS stations:
     int n_gtfs = 0;
-    for (int i = 0; i < n_closest; i++)
+    for (size_t i = 0; i < n_closest; i++)
     {
-        for (int j = 0; j < n_verts; j++)
+        for (size_t j = 0; j < n_verts; j++)
         {
             int cl_ij = static_cast <int> (closest (n_closest + i, j));
             if (cl_ij > n_gtfs)
@@ -347,7 +349,7 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
     n_gtfs++;
 
     std::unordered_map <int, int_dbl_pair_set> index_dist_map;
-    for (int i = 0; i < n_verts; i++)
+    for (size_t i = 0; i < n_verts; i++)
     {
         Rcpp::checkUserInterrupt ();
         if (i % 1000 == 0)
@@ -355,7 +357,7 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
             Rcpp::Rcout << "\r" << i << " / " << n_verts;
             Rcpp::Rcout.flush ();
         }
-        for (int j = 0; j < n_closest; j++)
+        for (size_t j = 0; j < n_closest; j++)
         {
             int gtfs_index = static_cast <int> (closest (n_closest + j, i));
             double d = closest (j, i);
@@ -382,7 +384,7 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
     for (auto m: index_dist_map)
     {
         int_dbl_pair_set index_dist_set = m.second;
-        const int n = index_dist_set.size ();
+        const size_t n = static_cast <size_t> (index_dist_set.size ());
         std::vector <int> index_vec (n);
         std::vector <double> dist_vec (n);
         size_t i = 0;
@@ -393,8 +395,8 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
             i++;
         }
 
-        res (m.first) = index_vec;
-        res (n_gtfs + m.first) = dist_vec;
+        res (static_cast <size_t> (m.first)) = index_vec;
+        res (static_cast <size_t> (n_gtfs + m.first)) = dist_vec;
     }
 
     return res;
@@ -412,20 +414,20 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
         Rcpp::IntegerVector &index_out)
 {
     const int n_verts = dmat.nrow ();
-    const int n_closest = dmat.ncol () / 2;
-    const int n_gtfs = index_out.size ();
+    const size_t n_closest = static_cast <size_t> (dmat.ncol () / 2);
+    const size_t n_gtfs = static_cast <size_t> (index_out.size ());
 
     // Make a map from each index_in = unique stop coordinates to all index_out
     // = full stops which map on to those values.
     std::unordered_map <int, std::vector <int> > index_out_map;
-    for (int i = 0; i < index_out.size (); i++)
+    for (size_t i = 0; i < index_out.size (); i++)
     {
         std::vector <int> index_vec;
         if (index_out_map.find (index_out (i)) != index_out_map.end ())
         {
             index_vec = index_out_map.at (index_out (i));
         }
-        index_vec.push_back (i);
+        index_vec.push_back (static_cast <int> (i));
 
         index_out_map.erase (index_out (i));
         index_out_map.emplace (index_out (i), index_vec);
@@ -437,10 +439,11 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
     std::map <int, std::set <double> > dist_map;
     for (int i = 0; i < n_verts; i++)
     {
-        for (int j = 0; j < n_closest; j++)
+        const size_t i_st = static_cast <size_t> (i);
+        for (size_t j = 0; j < n_closest; j++)
         {
-            const int gtfs_index = static_cast <int> (dmat (i, n_closest + j));
-            const double d = dmat (i, j);
+            const int gtfs_index = static_cast <int> (dmat (i_st, n_closest + j));
+            const double d = dmat (i_st, j);
             if (gtfs_index < 0 || d < 0.0)
             {
                 continue;
@@ -471,7 +474,7 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
         std::vector <int> index_set = index_out_map.at (m.first);
         for (auto i: index_set)
         {
-            res (i) = vec_ij;
+            res (static_cast <size_t> (i)) = vec_ij;
         }
     }
     for (auto m: dist_map)
@@ -481,7 +484,7 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
         std::vector <int> index_set = index_out_map.at (m.first);
         for (auto i: index_set)
         {
-            res (n_gtfs + i) = dvec_ij;
+            res (n_gtfs + static_cast <size_t> (i)) = dvec_ij;
         }
     }
 
