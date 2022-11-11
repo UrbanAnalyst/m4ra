@@ -439,6 +439,7 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
     std::map <int, std::set <double> > dist_map;
     for (int i = 0; i < n_verts; i++)
     {
+        Rcpp::checkUserInterrupt ();
         const size_t i_st = static_cast <size_t> (i);
         for (size_t j = 0; j < n_closest; j++)
         {
