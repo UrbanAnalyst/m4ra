@@ -342,6 +342,8 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
             }
         }
     }
+    // The index used as input is already zero-based, so need to add one to get
+    // actual number of stops:
     n_gtfs++;
 
     std::map <int, std::set <int> > index_map;
@@ -357,20 +359,19 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
                 continue;
             }
 
+            std::set <int> set_ij;
+            std::set <double> d_ij;
             if (index_map.find (gtfs_index) != index_map.end ())
             {
-                index_map.at (gtfs_index).emplace (i);
-                dist_map.at (gtfs_index).emplace (d);
-            } else
-            {
-                std::set <int> set_ij;
-                set_ij.emplace (i);
-                index_map.emplace (gtfs_index, set_ij);
-
-                std::set <double> d_ij;
-                d_ij.emplace (d);
-                dist_map.emplace (gtfs_index, d_ij);
+                set_ij = index_map.at (gtfs_index);
+                d_ij = dist_map.at (gtfs_index);
             }
+
+            set_ij.emplace (i);
+            index_map.emplace (gtfs_index, set_ij);
+
+            d_ij.emplace (d);
+            dist_map.emplace (gtfs_index, d_ij);
         }
     }
 
