@@ -48,7 +48,7 @@ const double rcpp_matrix_max (Rcpp::NumericMatrix mat)
 {
     const int dummy = 0;
 
-    const int nverts = mat.ncol ();
+    const size_t nverts = static_cast <size_t> (mat.ncol ());
 
     Rcpp::NumericVector res (nverts);
 
