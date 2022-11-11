@@ -175,7 +175,7 @@ struct OneDistNTargets : public RcppParallel::Worker
                 if (w [toi [j]] < INFINITE_DOUBLE)
                 {
                     dout (i, count) = d [toi [j]];
-                    dout (i, n_targets + count) = toi [j];
+                    dout (i, n_targets + count) = static_cast <double> (toi [j]);
                     count++;
                 }
                 if (count >= n_targets)
@@ -359,7 +359,7 @@ Rcpp::NumericMatrix rcpp_dists_to_n_targets (const Rcpp::DataFrame graph,
     std::shared_ptr <DGraph> g = std::make_shared <DGraph> (nverts);
     inst_graph (g, nedges, vert_map, from, to, dist, wt);
 
-    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * 2 * n_targets,
+    Rcpp::NumericVector na_vec = Rcpp::NumericVector (nfrom * 2 * static_cast <size_t> (n_targets),
             Rcpp::NumericVector::get_na ());
     Rcpp::NumericMatrix dout (static_cast <int> (nfrom),
             static_cast <int> (2 * n_targets), na_vec.begin ());
