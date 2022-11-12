@@ -53,11 +53,20 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
     {
         for (size_t j = 0; j < gtfs_to_net_index.size (); j++)
         {
+            if (times_to_end_stops (i, j) == INFINITE_DBL)
+            {
+                continue;
+            }
+
             Rcpp::IntegerVector index_j = gtfs_to_net_index (j);
             Rcpp::NumericVector d_j = gtfs_to_net_dist (j);
 
             for (size_t k = 0; k < index_j.size (); k++)
             {
+                if (d_j == INFINITE_DBL)
+                {
+                    continue;
+                }
                 const double time_i_to_k = times_to_end_stops (i, j) + d_j (k);
                 const size_t index_k = static_cast <size_t> (index_j [static_cast <R_xlen_t> (k)]);
 
