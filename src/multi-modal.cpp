@@ -63,7 +63,7 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
 
             for (size_t k = 0; k < index_j.size (); k++)
             {
-                if (d_j == INFINITE_DBL)
+                if (d_j (k) == INFINITE_DBL)
                 {
                     continue;
                 }
