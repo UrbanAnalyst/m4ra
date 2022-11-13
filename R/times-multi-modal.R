@@ -48,7 +48,6 @@ m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
     times <- m4ra_times_single_mode (graph_c, from = from, to = to)
-    n_closest <- update_n_closest (v, stops, n_closest = 10L)
 
     # Then convert initial times to nearest GTFS stops to times through entire
     # GTFS network to all termimal network vertices.
