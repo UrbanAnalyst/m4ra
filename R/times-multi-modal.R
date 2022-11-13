@@ -51,7 +51,9 @@ m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     n_closest <- update_n_closest (v, stops, n_closest = 10L)
 
     # Then convert initial times to nearest GTFS stops to times through entire
-    # GTFS network to all termimal network vertices:
+    # GTFS network to all termimal network vertices.
+    times [is.na (times)] <- -1
+    gtfs_mat [is.na (gtfs_mat)] <- -1
     res <- rcpp_add_net_to_gtfs (times, gtfs_mat, gtfs_to_net$index, gtfs_to_net$d, nrow (v))
     maxr <- rcpp_matrix_max (res)
     res [res == maxr] <- NA

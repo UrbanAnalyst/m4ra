@@ -23,15 +23,25 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
     Rcpp::NumericMatrix times_to_end_stops (static_cast <int> (nfrom), static_cast <int> (n_gtfs));
     std::fill (times_to_end_stops.begin (), times_to_end_stops.end (), INFINITE_DBL);
 
+    // Add initial times to all closest GTFS stops to the times to all terminal
+    // GTFS stops:
     for (size_t i = 0; i < nfrom; i++) {
 
         for (size_t j = 0; j < n_gtfs; j++) {
 
             const double time_i_to_j = net_times (i, j);
+            if (time_i_to_j < 0) // NA's have been replaced with -ve
+            {
+                continue;
+            }
 
             for (size_t k = 0; k < n_gtfs; k++) {
 
                 const double time_j_to_k = gtfs_times (j, k);
+                if (time_j_to_k < 0) // NA's have been replaced with -ve
+                {
+                    continue;
+                }
                 const double time_i_to_k = std::min (net_times (i, k), time_i_to_j + time_j_to_k);
 
                 if (time_i_to_k < times_to_end_stops (i, k))
@@ -67,6 +77,7 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
                 {
                     continue;
                 }
+
                 const double time_i_to_k = times_to_end_stops (i, j) + d_j (k);
                 const size_t index_k = static_cast <size_t> (index_j [static_cast <R_xlen_t> (k)]);
 
