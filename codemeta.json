@@ -7,13 +7,13 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.1.251",
+  "version": "0.0.1.252",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.2.1 (2022-06-23)",
+  "runtimePlatform": "R version 4.2.2 (2022-10-31)",
   "author": [
     {
       "@type": "Person",
@@ -57,6 +57,18 @@
     },
     {
       "@type": "SoftwareApplication",
+      "identifier": "geosphere",
+      "name": "geosphere",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=geosphere"
+    },
+    {
+      "@type": "SoftwareApplication",
       "identifier": "hms",
       "name": "hms",
       "provider": {
@@ -66,18 +78,6 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=hms"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "sf",
-      "name": "sf",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=sf"
     },
     {
       "@type": "SoftwareApplication",
@@ -146,7 +146,7 @@
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://github.com/atfutures/dodgr"
+      "sameAs": "https://CRAN.R-project.org/package=dodgr"
     },
     "6": {
       "@type": "SoftwareApplication",
@@ -233,7 +233,7 @@
     },
     "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "928.387KB",
+  "fileSize": "23675.938KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
   "contIntegration": [
     "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",
