@@ -20,6 +20,10 @@ m4ra_parking <- function (bb) {
 #' @noRd
 get_parking_data <- function (bb) {
 
+
+    # suppress no visible binding notes:
+    amenity <- parking <- NULL
+
     # key = "parking":
     dat_p <- osmdata::opq (bb) |>
         osmdata::add_osm_feature (key = "parking") |>
@@ -77,6 +81,9 @@ get_parking_data <- function (bb) {
 #' Total volumes of all buildings
 #' @noRd
 get_building_data <- function (bb) {
+
+    # suppress no visible binding notes:
+    building <- NULL
 
     dat_b <- osmdata::opq (bb) |>
         osmdata::add_osm_feature (key = "building") |>
