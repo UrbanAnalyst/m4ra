@@ -108,9 +108,9 @@ Rcpp::NumericMatrix rcpp_min_from_two_matrices (Rcpp::NumericMatrix mat1,
 
     Rcpp::NumericMatrix res (mat1.nrow (), mat1.ncol ());
 
-    for (int i = 0; i < mat1.nrow (); i++)
+    for (size_t i = 0; i < mat1.nrow (); i++)
     {
-        for (int j = 0; j < mat1.ncol (); j++)
+        for (size_t j = 0; j < mat1.ncol (); j++)
         {
             res (i, j) = std::min (mat1 (i, j), mat2 (i, j));
         }
