@@ -5,10 +5,15 @@
 \title{Get data on parking availability to estimate time penalties for automobile
 travel.}
 \usage{
-m4ra_parking(bb)
+m4ra_parking(bb, city_name, mode = "foot")
 }
 \arguments{
-\item{bb}{Bounding box for query}
+\item{bb}{Bounding box of city for query to extract parking data.}
+
+\item{city_name}{Name of city used to name cached files.}
+
+\item{mode}{Mode of transport used to extract OSM node IDs at which to
+estimate relative parking availability.}
 }
 \value{
 A list of two \pkg{sf} objects, "parking" with geographic coordinates

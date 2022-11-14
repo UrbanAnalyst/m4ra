@@ -2,11 +2,14 @@
 #' Get data on parking availability to estimate time penalties for automobile
 #' travel.
 #'
-#' @param bb Bounding box for query
+#' @param city_name Name of city used to name cached files.
+#' @param bb Bounding box of city for query to extract parking data.
+#' @param mode Mode of transport used to extract OSM node IDs at which to
+#' estimate relative parking availability.
 #' @return A list of two \pkg{sf} objects, "parking" with geographic coordinates
 #' and parking capacities, and "buildings" with building volumes.
 #' @export
-m4ra_parking <- function (bb) {
+m4ra_parking <- function (bb, city_name, mode = "foot") {
 
     requireNamespace ("dplyr")
     requireNamespace ("osmdata")
@@ -14,6 +17,11 @@ m4ra_parking <- function (bb) {
 
     parking <- get_parking_data (bb)
     buildings <- get_building_data (bb)
+
+    graph <- m4ra_load_cached_network (city = city_name, mode = mode)
+    graph_c <- dodgr::dodgr_contract_graph (graph)
+    graph_c <- graph_c [graph_c$component == 1L, ]
+    v <- dodgr::dodgr_vertices (graph_c)
 }
 
 #' Centroids of all parking polygons and points, and associated capacities.
