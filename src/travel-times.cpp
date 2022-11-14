@@ -447,7 +447,6 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
          index_out_map.erase (index_out (i));
          index_out_map.emplace (index_out (i), index_vec);
      }
-     const size_t n_gtfs_unique = index_out_map.size ();
 
     // Count numbers of end vertices at each GTFS stop, to pre-allocate
     // vectors.
