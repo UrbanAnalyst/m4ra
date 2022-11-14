@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.1.255",
+  "version": "0.0.1.256",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -78,6 +78,30 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=hms"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "osmdata",
+      "name": "osmdata",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=osmdata"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "sf",
+      "name": "sf",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=sf"
     },
     {
       "@type": "SoftwareApplication",
@@ -233,7 +257,7 @@
     },
     "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "23675.938KB",
+  "fileSize": "23679.404KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
   "contIntegration": [
     "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",

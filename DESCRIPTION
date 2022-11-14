@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.0.1.255
+Version: 0.0.1.256
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
@@ -31,6 +31,8 @@ Suggests:
     geodist,
     geosphere,
     hms,
+    osmdata,
+    sf,
     testthat (>= 3.0.0)
 LinkingTo:
     Rcpp,
