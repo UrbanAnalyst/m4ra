@@ -122,7 +122,6 @@ times_gtfs_to_net <- function (files, mode = "foot",
         stop ("files must contain a single file with mode [", mode, "]")
     }
     graph <- m4ra_load_cached_network (filename = f_net)
-    graph <- graph [graph$component == 1, ]
     graph_hash <- get_hash (graph, contracted = FALSE, force = TRUE)
     graph_hash <- substring (graph_hash, 1L, 6L)
 
