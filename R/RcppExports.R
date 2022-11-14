@@ -10,6 +10,15 @@ rcpp_add_net_to_gtfs <- function(net_times, gtfs_times, gtfs_to_net_index, gtfs_
     .Call(`_m4ra_rcpp_add_net_to_gtfs`, net_times, gtfs_times, gtfs_to_net_index, gtfs_to_net_dist, nverts)
 }
 
+#' rcpp_min_from_two_matrices
+#'
+#' Iterate over all rows and columns of two identical matrices, and return
+#' minimal values from same indices in both.
+#' @noRd
+rcpp_min_from_two_matrices <- function(mat1, mat2) {
+    .Call(`_m4ra_rcpp_min_from_two_matrices`, mat1, mat2)
+}
+
 #' rcpp_get_sp_dists_par
 #'
 #' @noRd

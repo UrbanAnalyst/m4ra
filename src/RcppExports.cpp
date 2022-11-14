@@ -26,6 +26,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_min_from_two_matrices
+Rcpp::NumericMatrix rcpp_min_from_two_matrices(Rcpp::NumericMatrix mat1, Rcpp::NumericMatrix mat2);
+RcppExport SEXP _m4ra_rcpp_min_from_two_matrices(SEXP mat1SEXP, SEXP mat2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat1(mat1SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat2(mat2SEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_min_from_two_matrices(mat1, mat2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_get_sp_dists_par
 Rcpp::NumericMatrix rcpp_get_sp_dists_par(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector fromi, Rcpp::IntegerVector toi_in);
 RcppExport SEXP _m4ra_rcpp_get_sp_dists_par(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP fromiSEXP, SEXP toi_inSEXP) {
@@ -161,6 +173,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_m4ra_rcpp_add_net_to_gtfs", (DL_FUNC) &_m4ra_rcpp_add_net_to_gtfs, 5},
+    {"_m4ra_rcpp_min_from_two_matrices", (DL_FUNC) &_m4ra_rcpp_min_from_two_matrices, 2},
     {"_m4ra_rcpp_get_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_get_sp_dists_par, 4},
     {"_m4ra_rcpp_dists_to_n_targets", (DL_FUNC) &_m4ra_rcpp_dists_to_n_targets, 5},
     {"_m4ra_rcpp_save_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_save_sp_dists_par, 6},

@@ -45,20 +45,30 @@ m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         )
     }
 
+    # need times to all vertices to extract overall minimal time from initial
+    # mode vs GTFS-routed modes at end. The times here are then reduced to times
+    # to the GTFS stops by matching vertices afterward.
+    times <- m4ra_times_single_mode (graph_c, from = from)
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
-    times <- m4ra_times_single_mode (graph_c, from = from, to = to)
+    times_to_gtfs <- times [, match (to, colnames (times)), drop = FALSE]
 
     # Then convert initial times to nearest GTFS stops to times through entire
     # GTFS network to all termimal network vertices.
     times [is.na (times)] <- -1
     gtfs_mat [is.na (gtfs_mat)] <- -1
-    res <- rcpp_add_net_to_gtfs (times, gtfs_mat, gtfs_to_net$index, gtfs_to_net$d, nrow (v))
+    res <- rcpp_add_net_to_gtfs (times_to_gtfs, gtfs_mat, gtfs_to_net$index, gtfs_to_net$d, nrow (v))
     maxr <- rcpp_matrix_max (res)
     res [res == maxr] <- NA
 
     rownames (res) <- from
     colnames (res) <- v$id
+
+    # At that stage, `res` holds the fastest values routed through the GTFS
+    # network. They just then have to be compared with the previously-calculated
+    # times to all vertices using "initial_mode".
+
+    res <- rcpp_min_from_two_matrices (res, times)
 
     return (res)
 }
