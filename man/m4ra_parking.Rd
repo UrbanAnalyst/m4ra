@@ -16,8 +16,9 @@ m4ra_parking(bb, city_name, mode = "foot")
 estimate relative parking availability.}
 }
 \value{
-A list of two \pkg{sf} objects, "parking" with geographic coordinates
-and parking capacities, and "buildings" with building volumes.
+A \code{data.frame} of the vertices of the (contracted) network, with
+additional columns quantifying number of parking spaces associated with each
+vertex, as well as the total volume of all surrounding buildings.
 }
 \description{
 Get data on parking availability to estimate time penalties for automobile

@@ -6,8 +6,9 @@
 #' @param bb Bounding box of city for query to extract parking data.
 #' @param mode Mode of transport used to extract OSM node IDs at which to
 #' estimate relative parking availability.
-#' @return A list of two \pkg{sf} objects, "parking" with geographic coordinates
-#' and parking capacities, and "buildings" with building volumes.
+#' @return A `data.frame` of the vertices of the (contracted) network, with
+#' additional columns quantifying number of parking spaces associated with each
+#' vertex, as well as the total volume of all surrounding buildings.
 #' @export
 m4ra_parking <- function (bb, city_name, mode = "foot") {
 
@@ -49,7 +50,7 @@ m4ra_parking <- function (bb, city_name, mode = "foot") {
     is_spatial <- is_graph_spatial (graph_c)
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
     if (to_from_indices$compound) {
-        graph <- to_from_indices$graph_compound
+        graph_c <- to_from_indices$graph_compound
     }
 
     d <- rcpp_weighted_dists (
@@ -68,6 +69,44 @@ m4ra_parking <- function (bb, city_name, mode = "foot") {
     capacity <- capacity * rel_nodes * sum (parking$capacity, na.rm = TRUE) /
         sum (capacity, na.rm = TRUE)
 
+    # Then the same for buildings
+    index <- dodgr::match_points_to_verts (v, sf::st_coordinates (buildings))
+    buildings$osm_id <- v$id [index]
+    xy <- sf::st_coordinates (buildings)
+    buildings <- sf::st_drop_geometry (buildings)
+    buildings$x <- xy [, 1]
+    buildings$y <- xy [, 2]
+    buildings <- buildings [which (is.finite (buildings$volume) & !is.na (buildings$volume)), ]
+
+    buildings <- dplyr::group_by (buildings, osm_id) |>
+        dplyr::summarise (
+            x = x [1],
+            y = y [1],
+            volume = sum (volume)
+        )
+
+    volume <- buildings [["volume"]]
+    to <- buildings$osm_id
+
+    to_from_indices <- to_from_index_with_tp (graph_c, from, to)
+
+    vol_wt <- rcpp_weighted_dists (
+        graph_c,
+        to_from_indices$vert_map,
+        to_from_indices$from$index,
+        to_from_indices$to$index,
+        volume,
+        dlim = 5000
+    )
+    volume <- vol_wt [, 2] / vol_wt [, 1]
+    rel_nodes <- nrow (v) / nrow (buildings)
+    volume <- volume * rel_nodes * sum (buildings$volume, na.rm = TRUE) /
+        sum (volume, na.rm = TRUE)
+
+    v$parking <- capacity
+    v$building_volume <- volume
+
+    return (v)
 }
 
 #' Centroids of all parking polygons and points, and associated capacities.
