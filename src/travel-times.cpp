@@ -332,12 +332,12 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
     const size_t n_closest = static_cast <size_t> (closest.nrow () / 2);
     const size_t n_verts = static_cast <size_t> (closest.ncol ());
     // Count total number of GTFS stations:
-    int n_gtfs = 0;
-    for (int i = 0; i < n_closest; i++)
+    size_t n_gtfs = 0;
+    for (size_t i = 0; i < n_closest; i++)
     {
         for (size_t j = 0; j < n_verts; j++)
         {
-            const int cl_ij = static_cast <int> (closest (n_closest + i, j));
+            const size_t cl_ij = static_cast <size_t> (closest (n_closest + i, j));
             if (cl_ij > n_gtfs)
             {
                 n_gtfs = cl_ij;
@@ -350,8 +350,8 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
 
     // Count numbers of end vertices at each GTFS stop, to pre-allocate
     // vectors.
-    std::vector <int> gtfs_counts (n_gtfs, 0);
-    for (int i = 0; i < n_closest; i++)
+    std::vector <size_t> gtfs_counts (n_gtfs, 0);
+    for (size_t i = 0; i < n_closest; i++)
     {
         for (size_t j = 0; j < n_verts; j++)
         {
@@ -369,9 +369,9 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
     // Then pre-allocate all vectors in return result:
     std::vector <std::vector <int> > index_list (n_gtfs);
     std::vector <std::vector <double> > dist_list (n_gtfs);
-    for (int i = 0; i < n_gtfs; i++)
+    for (size_t i = 0; i < n_gtfs; i++)
     {
-        const int n_i = gtfs_counts [static_cast <size_t> (i)];
+        const size_t n_i = gtfs_counts [i];
         if (n_i == 0)
         {
             continue;
@@ -390,7 +390,7 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
     }
 
     // Fill the vectors:
-    for (int i = 0; i < n_closest; i++)
+    for (size_t i = 0; i < n_closest; i++)
     {
         for (size_t j = 0; j < n_verts; j++)
         {
@@ -401,9 +401,9 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
                 continue;
             }
 
-            const int gtfs_count = gtfs_counts [gtfs_index];
+            const size_t gtfs_count = gtfs_counts [gtfs_index];
 
-            index_list [gtfs_index] [gtfs_count] = j;
+            index_list [gtfs_index] [gtfs_count] = static_cast <int> (j);
             dist_list [gtfs_index] [gtfs_count] = d;
             gtfs_counts [gtfs_index]++;
         }
@@ -411,7 +411,7 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
 
     Rcpp::List res (n_gtfs * 2);
 
-    for (int i = 0; i < n_gtfs; i++)
+    for (size_t i = 0; i < n_gtfs; i++)
     {
         res (i) = index_list [i];
         res (n_gtfs + i) = dist_list [i];
@@ -451,14 +451,13 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
 
     // Count numbers of end vertices at each GTFS stop, to pre-allocate
     // vectors.
-    std::vector <int> gtfs_counts (n_gtfs, 0);
-    for (int i = 0; i < n_verts; i++)
+    std::vector <size_t> gtfs_counts (n_gtfs, 0);
+    for (size_t i = 0; i < n_verts; i++)
     {
-        const size_t i_st = static_cast <size_t> (i);
         for (size_t j = 0; j < n_closest; j++)
         {
-            const size_t gtfs_index = static_cast <size_t> (dmat (i_st, n_closest + j));
-            const double d = dmat (i_st, j);
+            const size_t gtfs_index = static_cast <size_t> (dmat (i, n_closest + j));
+            const double d = dmat (i, j);
             if (gtfs_index < 0 || d < 0.0)
             {
                 continue;
@@ -471,9 +470,9 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
     // Then pre-allocate all vectors in return result:
     std::vector <std::vector <int> > index_list (n_gtfs);
     std::vector <std::vector <double> > dist_list (n_gtfs);
-    for (int i = 0; i < n_gtfs; i++)
+    for (size_t i = 0; i < n_gtfs; i++)
     {
-        const int n_i = gtfs_counts [static_cast <size_t> (i)];
+        const size_t n_i = gtfs_counts [i];
         if (n_i == 0)
         {
             continue;
@@ -499,14 +498,14 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
 
         for (size_t j = 0; j < n_closest; j++)
         {
-            const int gtfs_index = static_cast <int> (dmat (i_st, n_closest + j));
+            const size_t gtfs_index = static_cast <size_t> (dmat (i_st, n_closest + j));
             const double d = dmat (i_st, j);
             if (gtfs_index < 0 || d < 0.0)
             {
                 continue;
             }
 
-            const int gtfs_count = gtfs_counts [gtfs_index];
+            const size_t gtfs_count = gtfs_counts [gtfs_index];
 
             index_list [gtfs_index] [gtfs_count] = i;
             dist_list [gtfs_index] [gtfs_count] = d;
@@ -516,18 +515,20 @@ Rcpp::List rcpp_remap_verts_to_stops (Rcpp::NumericMatrix &dmat,
 
     Rcpp::List res (2 * n_gtfs);
 
-    for (int i = 0; i < n_gtfs; i++)
+    for (size_t i = 0; i < n_gtfs; i++)
     {
-        if (index_out_map.find (i) == index_out_map.end ())
+        const int ii = static_cast <int> (i);
+        if (index_out_map.find (ii) == index_out_map.end ())
         {
             continue;
         }
-        std::vector <int> index_out_i = index_out_map.at (i);
+        std::vector <int> index_out_i = index_out_map.at (ii);
 
-        for (auto ii: index_out_i)
+        for (auto idx: index_out_i)
         {
-            res (ii) = index_list [i];
-            res (n_gtfs + ii) = dist_list [i];
+            const size_t idx_st = static_cast <size_t> (idx);
+            res (idx_st) = index_list [i];
+            res (n_gtfs + idx_st) = dist_list [i];
         }
     }
 
