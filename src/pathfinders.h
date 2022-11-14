@@ -69,6 +69,14 @@ class PathFinder {
                 bool *m_closed_vec,
                 const size_t v,
                 const size_t n);
+        void scan_edges (
+                const DGraphEdge *edge,
+                std::vector<double>& d,
+                std::vector<double>& w,
+                std::vector<long int>& prev,
+                bool *m_open_vec,
+                const bool *m_closed_vec,
+                const size_t &v0);
         void scan_edges_heur ( // with A* heuristic
                 const DGraphEdge *edge,
                 std::vector<double>& d,
@@ -78,6 +86,13 @@ class PathFinder {
                 const bool *m_closed_vec,
                 const size_t &v0,
                 const std::vector<double> &heur);
+
+        void DijkstraLimit ( // For parking aggregation
+                std::vector<double>& d,
+                std::vector<double>& w,
+                std::vector<long int>& prev,
+                const size_t v0,
+                const double &dlim);
 
         void AStar (std::vector<double>& d,
                 std::vector<double>& w,

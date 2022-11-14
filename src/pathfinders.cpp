@@ -50,6 +50,38 @@ void PF::PathFinder::init_arrays (
     m_open_vec [v] = true;
 }
 
+void PF::PathFinder::scan_edges (const DGraphEdge *edge,
+        std::vector<double>& d,
+        std::vector<double>& w,
+        std::vector<long int>& prev,
+        bool *m_open_vec,
+        const bool *m_closed_vec,
+        const size_t &v0)
+{
+    while (edge) {
+        size_t et = edge->target;
+        if (!m_closed_vec [et])
+        {
+            double wt = w [v0] + edge->wt;
+            if (wt < w [et]) {
+                d [et] = d [v0] + edge->dist;
+                w [et] = wt;
+                prev [et] = static_cast <int> (v0);
+
+                if (m_open_vec [et]) {
+                    m_heap->decreaseKey(et, wt);
+                }
+                else {
+                    m_heap->insert (et, wt);
+                    m_open_vec [et] = true;
+                }
+            } else
+                m_closed [et] = true;
+        }
+        edge = edge->nextOut;
+    }
+}
+
 void PF::PathFinder::scan_edges_heur (const DGraphEdge *edge,
         std::vector<double>& d,
         std::vector<double>& w,
@@ -86,6 +118,50 @@ void PF::PathFinder::scan_edges_heur (const DGraphEdge *edge,
 /**********************************************************************
  ************************  PATH ALGORITHMS    *************************
  **********************************************************************/
+
+// Modified pathfinder only out to specified distance limit. Done as separate
+// routine to avoid costs of the `if` clause in general non-limited case.
+// Only used in parking and building aggregation routines.
+void PF::PathFinder::DijkstraLimit (
+        std::vector<double>& d,
+        std::vector<double>& w,
+        std::vector<long int>& prev,
+        const size_t v0,
+        const double &dlim)
+{
+    const DGraphEdge *edge;
+
+    const size_t n = m_graph->nVertices();
+    const std::vector<DGraphVertex>& vertices = m_graph->vertices();
+
+    PF::PathFinder::init_arrays (d, w, prev, m_open, m_closed, v0, n);
+    m_heap->insert (v0, 0.0);
+
+    while (m_heap->nItems() > 0) {
+        size_t v = m_heap->deleteMin();
+
+        m_closed [v] = true;
+        m_open [v] = false;
+
+        // explore the OUT set of v only if distances are < threshold
+        bool explore = false;
+        edge = vertices [v].outHead;
+        while (edge) {
+            if ((d [v] + edge->dist) <= dlim)
+            {
+                explore = true;
+                break;
+            }
+            edge = edge->nextOut;
+        }
+
+        if (explore)
+        {
+            edge = vertices [v].outHead;
+            scan_edges (edge, d, w, prev, m_open, m_closed, v);
+        }
+    } // end while nItems > 0
+}
 
 void PF::PathFinder::AStar (std::vector<double>& d,
         std::vector<double>& w,

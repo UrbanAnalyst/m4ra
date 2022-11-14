@@ -19,6 +19,13 @@ rcpp_min_from_two_matrices <- function(mat1, mat2) {
     .Call(`_m4ra_rcpp_min_from_two_matrices`, mat1, mat2)
 }
 
+#' rcpp_weighted_dists
+#'
+#' @noRd
+rcpp_weighted_dists <- function(graph, vert_map_in, fromi, toi_in, weights, dlim) {
+    .Call(`_m4ra_rcpp_weighted_dists`, graph, vert_map_in, fromi, toi_in, weights, dlim)
+}
+
 #' rcpp_get_sp_dists_par
 #'
 #' @noRd

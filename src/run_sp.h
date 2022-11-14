@@ -39,6 +39,13 @@ Rcpp::NumericMatrix rcpp_get_sp_dists_par (const Rcpp::DataFrame graph,
         Rcpp::IntegerVector fromi,
         Rcpp::IntegerVector toi_in);
 
+Rcpp::NumericMatrix rcpp_weighted_dists (const Rcpp::DataFrame graph,
+        const Rcpp::DataFrame vert_map_in,
+        Rcpp::IntegerVector fromi,
+        Rcpp::IntegerVector toi_in,
+        Rcpp::NumericVector weights,
+        const double dlim);
+
 Rcpp::NumericMatrix rcpp_dists_to_n_targets (const Rcpp::DataFrame graph,
         const Rcpp::DataFrame vert_map_in,
         Rcpp::IntegerVector fromi,

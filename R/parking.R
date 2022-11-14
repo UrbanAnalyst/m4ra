@@ -22,6 +22,52 @@ m4ra_parking <- function (bb, city_name, mode = "foot") {
     graph_c <- dodgr::dodgr_contract_graph (graph)
     graph_c <- graph_c [graph_c$component == 1L, ]
     v <- dodgr::dodgr_vertices (graph_c)
+
+    from <- v$id
+
+    # Aggregate parking at each node of `graph_c`:
+    index <- dodgr::match_points_to_verts (v, sf::st_coordinates (parking))
+    parking$osm_id <- v$id [index]
+    xy <- sf::st_coordinates (parking)
+    parking <- sf::st_drop_geometry (parking)
+    parking$x <- xy [, 1]
+    parking$y <- xy [, 2]
+    parking <- parking [which (is.finite (parking$capacity) & !is.na (parking$capacity)), ]
+
+    parking <- dplyr::group_by (parking, osm_id) |>
+        dplyr::summarise (
+            x = x [1],
+            y = y [1],
+            capacity = sum (capacity)
+        )
+
+    capacity <- parking [["capacity"]]
+    to <- parking$osm_id
+
+    graph_c <- preprocess_spatial_cols (graph_c)
+    gr_cols <- dodgr_graph_cols (graph_c)
+    is_spatial <- is_graph_spatial (graph_c)
+    to_from_indices <- to_from_index_with_tp (graph_c, from, to)
+    if (to_from_indices$compound) {
+        graph <- to_from_indices$graph_compound
+    }
+
+    d <- rcpp_weighted_dists (
+        graph_c,
+        to_from_indices$vert_map,
+        to_from_indices$from$index,
+        to_from_indices$to$index,
+        capacity,
+        dlim = 5000
+    )
+
+    capacity <- d [, 2] / d [, 1]
+    # Then re-scale to total actual capacity times relative difference in
+    # numbers of nodes
+    rel_nodes <- nrow (v) / nrow (parking)
+    capacity <- capacity * rel_nodes * sum (parking$capacity, na.rm = TRUE) /
+        sum (capacity, na.rm = TRUE)
+
 }
 
 #' Centroids of all parking polygons and points, and associated capacities.
