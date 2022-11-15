@@ -355,10 +355,9 @@ Rcpp::NumericMatrix rcpp_weighted_dists (const Rcpp::DataFrame graph,
         Rcpp::IntegerVector fromi,
         Rcpp::IntegerVector toi_in,
         Rcpp::NumericVector weights,
-        const double dlim)
+        const double dlim,
+        const double k)
 {
-    const double k = 1000.0;
-
     std::vector <size_t> toi =
         Rcpp::as <std::vector <size_t> > ( toi_in);
 

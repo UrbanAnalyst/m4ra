@@ -39,8 +39,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_weighted_dists
-Rcpp::NumericMatrix rcpp_weighted_dists(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector fromi, Rcpp::IntegerVector toi_in, Rcpp::NumericVector weights, const double dlim);
-RcppExport SEXP _m4ra_rcpp_weighted_dists(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP fromiSEXP, SEXP toi_inSEXP, SEXP weightsSEXP, SEXP dlimSEXP) {
+Rcpp::NumericMatrix rcpp_weighted_dists(const Rcpp::DataFrame graph, const Rcpp::DataFrame vert_map_in, Rcpp::IntegerVector fromi, Rcpp::IntegerVector toi_in, Rcpp::NumericVector weights, const double dlim, const double k);
+RcppExport SEXP _m4ra_rcpp_weighted_dists(SEXP graphSEXP, SEXP vert_map_inSEXP, SEXP fromiSEXP, SEXP toi_inSEXP, SEXP weightsSEXP, SEXP dlimSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -50,7 +50,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type toi_in(toi_inSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type weights(weightsSEXP);
     Rcpp::traits::input_parameter< const double >::type dlim(dlimSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_weighted_dists(graph, vert_map_in, fromi, toi_in, weights, dlim));
+    Rcpp::traits::input_parameter< const double >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_weighted_dists(graph, vert_map_in, fromi, toi_in, weights, dlim, k));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -190,7 +191,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_m4ra_rcpp_add_net_to_gtfs", (DL_FUNC) &_m4ra_rcpp_add_net_to_gtfs, 5},
     {"_m4ra_rcpp_min_from_two_matrices", (DL_FUNC) &_m4ra_rcpp_min_from_two_matrices, 2},
-    {"_m4ra_rcpp_weighted_dists", (DL_FUNC) &_m4ra_rcpp_weighted_dists, 6},
+    {"_m4ra_rcpp_weighted_dists", (DL_FUNC) &_m4ra_rcpp_weighted_dists, 7},
     {"_m4ra_rcpp_get_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_get_sp_dists_par, 4},
     {"_m4ra_rcpp_dists_to_n_targets", (DL_FUNC) &_m4ra_rcpp_dists_to_n_targets, 5},
     {"_m4ra_rcpp_save_sp_dists_par", (DL_FUNC) &_m4ra_rcpp_save_sp_dists_par, 6},

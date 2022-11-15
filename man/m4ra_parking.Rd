@@ -5,7 +5,7 @@
 \title{Get data on parking availability and building volumes to estimate time
 penalties for automobile travel.}
 \usage{
-m4ra_parking(bb, city_name, mode = "foot", dlim = 5000)
+m4ra_parking(bb, city_name, mode = "foot", dlim = 5000, k = 1000)
 }
 \arguments{
 \item{bb}{Bounding box of city for query to extract parking data.}
@@ -17,6 +17,10 @@ estimate relative parking availability.}
 
 \item{dlim}{Distance limit in metres out to which contributions of parking
 and buildings will be aggregated.}
+
+\item{k}{With of exponential function used to weight contributions with
+distance, \code{exp(-d / k)} for distance \code{d}. Default value of 1000 metres
+decreases weight to 37\% at 1km, 14\% at 2km, and 0.6\% at 5km.}
 }
 \value{
 A \code{data.frame} of the vertices of the (contracted) network, with

@@ -8,11 +8,14 @@
 #' estimate relative parking availability.
 #' @param dlim Distance limit in metres out to which contributions of parking
 #' and buildings will be aggregated.
+#' @param k With of exponential function used to weight contributions with
+#' distance, \code{exp(-d / k)} for distance `d`. Default value of 1000 metres
+#' decreases weight to 37% at 1km, 14% at 2km, and 0.6% at 5km.
 #' @return A `data.frame` of the vertices of the (contracted) network, with
 #' additional columns quantifying number of parking spaces associated with each
 #' vertex, as well as the total volume of all surrounding buildings.
 #' @export
-m4ra_parking <- function (bb, city_name, mode = "foot", dlim = 5000) {
+m4ra_parking <- function (bb, city_name, mode = "foot", dlim = 5000, k = 1000) {
 
     requireNamespace ("dplyr")
     requireNamespace ("osmdata")
@@ -132,7 +135,7 @@ get_building_data <- function (bb) {
 
 #' Aggregate raw parking data to each vertex of a contracted graph.
 #' @noRd
-aggregate_parking_data <- function (graph_c, parking, dlim = 5000) {
+aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
 
     # suppress no visible binding notes:
     osm_id <- x <- y <- NULL
@@ -174,7 +177,8 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000) {
         to_from_indices$from$index,
         to_from_indices$to$index,
         capacity,
-        dlim = dlim
+        dlim = dlim,
+        k = k
     )
 
     capacity <- d [, 2] / d [, 1]
@@ -187,7 +191,7 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000) {
     return (capacity)
 }
 
-aggregate_building_data <- function (graph_c, buildings, dlim = 5000) {
+aggregate_building_data <- function (graph_c, buildings, dlim = 5000, k = 1000) {
 
     # suppress no visible binding notes:
     osm_id <- x <- y <- from <- NULL
@@ -224,7 +228,8 @@ aggregate_building_data <- function (graph_c, buildings, dlim = 5000) {
         to_from_indices$from$index,
         to_from_indices$to$index,
         volume,
-        dlim = dlim
+        dlim = dlim,
+        k = k
     )
     volume <- vol_wt [, 2] / vol_wt [, 1]
     rel_nodes <- nrow (v) / nrow (buildings)
