@@ -1,18 +1,18 @@
 
-#' Get data on parking availability to estimate time penalties for automobile
-#' travel.
+#' Get data on parking availability and building volumes to estimate time
+#' penalties for automobile travel.
 #'
 #' @param city_name Name of city used to name cached files.
 #' @param bb Bounding box of city for query to extract parking data.
 #' @param mode Mode of transport used to extract OSM node IDs at which to
 #' estimate relative parking availability.
+#' @param dlim Distance limit in metres out to which contributions of parking
+#' and buildings will be aggregated.
 #' @return A `data.frame` of the vertices of the (contracted) network, with
 #' additional columns quantifying number of parking spaces associated with each
 #' vertex, as well as the total volume of all surrounding buildings.
 #' @export
-m4ra_parking <- function (bb, city_name, mode = "foot") {
-
-    dlim <- 5000
+m4ra_parking <- function (bb, city_name, mode = "foot", dlim = 5000) {
 
     requireNamespace ("dplyr")
     requireNamespace ("osmdata")
@@ -188,6 +188,9 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000) {
 }
 
 aggregate_building_data <- function (graph_c, buildings, dlim = 5000) {
+
+    # suppress no visible binding notes:
+    osm_id <- x <- y <- from <- NULL
 
     index <- dodgr::match_points_to_verts (v, sf::st_coordinates (buildings))
     buildings$osm_id <- v$id [index]

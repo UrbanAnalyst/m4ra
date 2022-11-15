@@ -2,10 +2,10 @@
 % Please edit documentation in R/parking.R
 \name{m4ra_parking}
 \alias{m4ra_parking}
-\title{Get data on parking availability to estimate time penalties for automobile
-travel.}
+\title{Get data on parking availability and building volumes to estimate time
+penalties for automobile travel.}
 \usage{
-m4ra_parking(bb, city_name, mode = "foot")
+m4ra_parking(bb, city_name, mode = "foot", dlim = 5000)
 }
 \arguments{
 \item{bb}{Bounding box of city for query to extract parking data.}
@@ -14,6 +14,9 @@ m4ra_parking(bb, city_name, mode = "foot")
 
 \item{mode}{Mode of transport used to extract OSM node IDs at which to
 estimate relative parking availability.}
+
+\item{dlim}{Distance limit in metres out to which contributions of parking
+and buildings will be aggregated.}
 }
 \value{
 A \code{data.frame} of the vertices of the (contracted) network, with
@@ -21,6 +24,6 @@ additional columns quantifying number of parking spaces associated with each
 vertex, as well as the total volume of all surrounding buildings.
 }
 \description{
-Get data on parking availability to estimate time penalties for automobile
-travel.
+Get data on parking availability and building volumes to estimate time
+penalties for automobile travel.
 }
