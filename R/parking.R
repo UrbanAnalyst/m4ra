@@ -163,6 +163,9 @@ get_building_data <- function (bb) {
 #' @noRd
 aggregate_parking_data <- function (graph_c, parking, dlim = 5000) {
 
+    # suppress no visible binding notes:
+    osm_id <- x <- y <- NULL
+
     v <- dodgr::dodgr_vertices (graph_c)
 
     from <- v$id
