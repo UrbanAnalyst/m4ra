@@ -196,6 +196,10 @@ aggregate_building_data <- function (graph_c, buildings, dlim = 5000, k = 1000) 
     # suppress no visible binding notes:
     osm_id <- x <- y <- from <- NULL
 
+    v <- dodgr::dodgr_vertices (graph_c)
+
+    from <- v$id
+
     index <- dodgr::match_points_to_verts (v, sf::st_coordinates (buildings))
     buildings$osm_id <- v$id [index]
     xy <- sf::st_coordinates (buildings)
