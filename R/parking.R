@@ -31,6 +31,10 @@ m4ra_parking <- function (bb, city_name, mode = "foot") {
     v$parking <- parking
     v$building_volume <- buildings
 
+    # The final ratio is then number of parking spaces divided by the cubic root
+    # of the buildnig volume.
+    v$ratio <- v$parking / as.numeric (v$building_volume) ^ (1 / 3)
+
     return (v)
 }
 
