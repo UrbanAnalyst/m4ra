@@ -14,6 +14,8 @@
 #' @return A `data.frame` of the vertices of the (contracted) network, with
 #' additional columns quantifying number of parking spaces associated with each
 #' vertex, as well as the total volume of all surrounding buildings.
+#'
+#' @family analyses
 #' @export
 m4ra_parking <- function (bb, city_name, mode = "foot", dlim = 5000, k = 1000) {
 

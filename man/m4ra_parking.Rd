@@ -31,3 +31,9 @@ vertex, as well as the total volume of all surrounding buildings.
 Get data on parking availability and building volumes to estimate time
 penalties for automobile travel.
 }
+\seealso{
+Other analyses: 
+\code{\link{m4ra_bike_car_ratio_areas}()},
+\code{\link{m4ra_bike_car_times}()}
+}
+\concept{analyses}
