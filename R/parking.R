@@ -26,43 +26,10 @@ m4ra_parking <- function (bb, city_name, mode = "foot") {
     graph_c <- graph_c [graph_c$component == 1L, ]
 
     parking <- aggregate_parking_data (graph_c, parking, dlim)
+    buildings <- aggregate_building_data (graph_c, buildings, dlim)
 
-    # Then the same for buildings
-    index <- dodgr::match_points_to_verts (v, sf::st_coordinates (buildings))
-    buildings$osm_id <- v$id [index]
-    xy <- sf::st_coordinates (buildings)
-    buildings <- sf::st_drop_geometry (buildings)
-    buildings$x <- xy [, 1]
-    buildings$y <- xy [, 2]
-    buildings <- buildings [which (is.finite (buildings$volume) & !is.na (buildings$volume)), ]
-
-    buildings <- dplyr::group_by (buildings, osm_id) |>
-        dplyr::summarise (
-            x = x [1],
-            y = y [1],
-            volume = sum (volume)
-        )
-
-    volume <- buildings [["volume"]]
-    to <- buildings$osm_id
-
-    to_from_indices <- to_from_index_with_tp (graph_c, from, to)
-
-    vol_wt <- rcpp_weighted_dists (
-        graph_c,
-        to_from_indices$vert_map,
-        to_from_indices$from$index,
-        to_from_indices$to$index,
-        volume,
-        dlim = 5000
-    )
-    volume <- vol_wt [, 2] / vol_wt [, 1]
-    rel_nodes <- nrow (v) / nrow (buildings)
-    volume <- volume * rel_nodes * sum (buildings$volume, na.rm = TRUE) /
-        sum (volume, na.rm = TRUE)
-
-    v$parking <- capacity
-    v$building_volume <- volume
+    v$parking <- parking
+    v$building_volume <- buildings
 
     return (v)
 }
@@ -214,4 +181,48 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000) {
         sum (capacity, na.rm = TRUE)
 
     return (capacity)
+}
+
+aggregate_building_data <- function (graph_c, buildings, dlim = 5000) {
+
+    index <- dodgr::match_points_to_verts (v, sf::st_coordinates (buildings))
+    buildings$osm_id <- v$id [index]
+    xy <- sf::st_coordinates (buildings)
+    buildings <- sf::st_drop_geometry (buildings)
+    buildings$x <- xy [, 1]
+    buildings$y <- xy [, 2]
+    buildings <- buildings [which (is.finite (buildings$volume) & !is.na (buildings$volume)), ]
+
+    buildings <- dplyr::group_by (buildings, osm_id) |>
+        dplyr::summarise (
+            x = x [1],
+            y = y [1],
+            volume = sum (volume)
+        )
+
+    volume <- buildings [["volume"]]
+    to <- buildings$osm_id
+
+    graph_c <- preprocess_spatial_cols (graph_c)
+    gr_cols <- dodgr_graph_cols (graph_c)
+    is_spatial <- is_graph_spatial (graph_c)
+    to_from_indices <- to_from_index_with_tp (graph_c, from, to)
+    if (to_from_indices$compound) {
+        graph_c <- to_from_indices$graph_compound
+    }
+
+    vol_wt <- rcpp_weighted_dists (
+        graph_c,
+        to_from_indices$vert_map,
+        to_from_indices$from$index,
+        to_from_indices$to$index,
+        volume,
+        dlim = dlim
+    )
+    volume <- vol_wt [, 2] / vol_wt [, 1]
+    rel_nodes <- nrow (v) / nrow (buildings)
+    volume <- volume * rel_nodes * sum (buildings$volume, na.rm = TRUE) /
+        sum (volume, na.rm = TRUE)
+
+    return (volume)
 }
