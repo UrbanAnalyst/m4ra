@@ -59,6 +59,11 @@ m4ra_parking <- function (bb, city_name, mode = "motorcar",
         b <- as.numeric (v$building_volume) ^ (1 / 3)
         v$ratio <- v$parking / as.numeric (v$building_volume) ^ (1 / 3)
 
+        # And that is then converted to penalties at start and end
+        # See https://github.com/ATFutures/m4ra/issues/9
+        v$penalty_start <- v$ratio * 2
+        v$penalty_end <- v$ratio * 3
+
         saveRDS (v, f_parking)
     }
 
