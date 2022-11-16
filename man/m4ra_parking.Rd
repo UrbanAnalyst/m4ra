@@ -8,7 +8,7 @@ penalties for automobile travel.}
 m4ra_parking(
   bb,
   city_name,
-  mode = "foot",
+  mode = "motorcar",
   planet_file = NULL,
   dlim = 5000,
   k = 1000,
@@ -21,7 +21,7 @@ m4ra_parking(
 \item{city_name}{Name of city used to name cached files.}
 
 \item{mode}{Mode of transport used to extract OSM node IDs at which to
-estimate relative parking availability.}
+estimate relative parking availability (should generally be "motorcar").}
 
 \item{planet_file}{Optional file path to local \code{.osm.pbf} or \code{.osm.bz2} file
 encompassing specified bounding box. If given, data are extracted with

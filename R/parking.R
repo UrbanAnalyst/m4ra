@@ -5,7 +5,7 @@
 #' @param city_name Name of city used to name cached files.
 #' @param bb Bounding box of city for query to extract parking data.
 #' @param mode Mode of transport used to extract OSM node IDs at which to
-#' estimate relative parking availability.
+#' estimate relative parking availability (should generally be "motorcar").
 #' @param planet_file Optional file path to local `.osm.pbf` or `.osm.bz2` file
 #' encompassing specified bounding box. If given, data are extracted with
 #' system-level calls to "osmium", which must be installed.
@@ -21,7 +21,7 @@
 #'
 #' @family analyses
 #' @export
-m4ra_parking <- function (bb, city_name, mode = "foot",
+m4ra_parking <- function (bb, city_name, mode = "motorcar",
                           planet_file = NULL, dlim = 5000, k = 1000,
                           quiet = FALSE) {
 
