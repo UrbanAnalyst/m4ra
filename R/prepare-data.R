@@ -21,6 +21,9 @@
 #' or transfer information in addition to data represented in original
 #' `zip`-format data of provided GTFS feed.
 #' @param city_name Name of city used to name cached files.
+#' @param planet_file Optional file path to local `.osm.pbf` or `.osm.bz2` file
+#' encompassing specified bounding box. If given, data are extracted with
+#' system-level calls to "osmium", which must be installed.
 #' @param day As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 #' day for which the matrix is to be calculated.
 #' @param start_time_limits As for the 'gtfs_traveltimes' function of
@@ -38,6 +41,7 @@
 #' @family main
 #' @export
 m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
+                               planet_file = NULL,
                                day = NULL, start_time_limits = NULL,
                                final_mode = "foot", fast = FALSE,
                                n_closest = 10L, quiet = FALSE) {
@@ -100,13 +104,27 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         n_closest = n_closest,
         quiet = quiet
     )
+    files <- c (files, fname_gtfs, f_closest_gtfs)
+
+    # Then parking data for time penalties for motorcar transport:
+    x <- net$vertex$x_
+    x <- mean (range (x)) + c (-0.5, 0.5) * diff (range (x)) 
+    y <- net$vertex$y_
+    y <- mean (range (y)) + c (-0.5, 0.5) * diff (range (y))
+    bb <- rbind (x, y)
+    colnames (bb) <- c ("min", "max")
+
+    dat_p <- m4ra_parking (bb, city_name, mode = "motorcar",
+        planet_file = planet_file, dlim = 5000, k = 1000, quiet = quiet)
+    f <- list.files (cache_dir, pattern = city_name)
+    f_parking <- grep ("parking", f, value = TRUE)
 
     if (!quiet) {
         cli::cli_alert_success (cli::col_green (
             "Total time for data preparation: ", process_time (pt0_whole)))
     }
 
-    return (c (files, fname_gtfs, f_closest_gtfs))
+    return (c (files, fname_gtfs, f_closest_gtfs, f_parking))
 }
 
 #' Identify closest GTFS stops to every network point.
