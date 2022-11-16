@@ -45,9 +45,11 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
         v_f <- dodgr::dodgr_vertices (graph_f)
     }
     graph_b <- m4ra_load_cached_network (city, mode = "bicycle")
+    graph_b <- dodgr::dodgr_contract_graph (graph_b)
     graph_b <- graph_b [graph_b$component == 1, ]
     v_b <- dodgr::dodgr_vertices (graph_b)
     graph_c <- m4ra_load_cached_network (city, mode = "motorcar")
+    graph_c <- dodgr::dodgr_contract_graph (graph_c)
     graph_c <- graph_c [graph_c$component == 1, ]
     v_c <- dodgr::dodgr_vertices (graph_c)
 
@@ -69,11 +71,26 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
     ids <- unique (v$id)
     v <- v [match (ids, v$id), ]
 
-    car_times <- m4ra_times_single_mode (graph_c, from = from)
+    # match "from" points on to nearest pts in car network:
+    v_from <- v [match (from, v$id), ]
+    from_car <- v_c$id [dodgr::match_points_to_verts (v_c, v_from [, c ("x", "y")])]
+    car_times <- m4ra_times_single_mode (graph_c, from = from_car) # dim: (nfrom, nverts)
+
+    # Add start and end time penalties for parking
+    bb <- bb_from_graph (graph_c)
+    parking <- m4ra_parking (bb, city, mode = "motorcar", dlim = 5000, k = 1000, quiet = TRUE)
+    index <- match (rownames (car_times), parking$id)
+    p_start_mat <- array (parking$penalty_start [index], dim = dim (car_times))
+    index <- match (colnames (car_times), parking$id)
+    p_end_mat <- t (array (parking$penalty_start [index], dim = rev (dim (car_times))))
+    car_times <- p_start_mat + car_times + p_end_mat
+
     car_times <- data.frame (t (car_times))
     car_times <- cbind (id = rownames (car_times), car_times)
 
-    bike_times <- m4ra_times_single_mode (graph_b, from = from)
+    # match "from" points on to nearest pts in bike network:
+    from_bike <- v_b$id [dodgr::match_points_to_verts (v_b, v_from [, c ("x", "y")])]
+    bike_times <- m4ra_times_single_mode (graph_b, from = from_bike)
     bike_times <- data.frame (t (bike_times))
     bike_times <- cbind (id = rownames (bike_times), bike_times)
 
