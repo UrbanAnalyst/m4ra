@@ -6,25 +6,31 @@
 #' @param bb Bounding box of city for query to extract parking data.
 #' @param mode Mode of transport used to extract OSM node IDs at which to
 #' estimate relative parking availability.
+#' @param planet_file Optional file path to local `.osm.pbf` or `.osm.bz2` file
+#' encompassing specified bounding box. If given, data are extracted with
+#' system-level calls to "osmium", which must be installed.
 #' @param dlim Distance limit in metres out to which contributions of parking
 #' and buildings will be aggregated.
 #' @param k With of exponential function used to weight contributions with
 #' distance, \code{exp(-d / k)} for distance `d`. Default value of 1000 metres
 #' decreases weight to 37% at 1km, 14% at 2km, and 0.6% at 5km.
+#' @param quiet If `FALSE`, display progress information on screen.
 #' @return A `data.frame` of the vertices of the (contracted) network, with
 #' additional columns quantifying number of parking spaces associated with each
 #' vertex, as well as the total volume of all surrounding buildings.
 #'
 #' @family analyses
 #' @export
-m4ra_parking <- function (bb, city_name, mode = "foot", dlim = 5000, k = 1000) {
+m4ra_parking <- function (bb, city_name, mode = "foot",
+                          planet_file = NULL, dlim = 5000, k = 1000,
+                          quiet = FALSE) {
 
     requireNamespace ("dplyr")
     requireNamespace ("osmdata")
     requireNamespace ("sf")
 
-    parking <- get_parking_data (bb)
-    buildings <- get_building_data (bb)
+    parking <- get_parking_data (bb, planet_file, city_name, quiet)
+    buildings <- get_building_data (bb, planet_file, city_name, quiet)
 
     graph <- m4ra_load_cached_network (city = city_name, mode = mode)
     graph_c <- dodgr::dodgr_contract_graph (graph)
@@ -47,25 +53,47 @@ m4ra_parking <- function (bb, city_name, mode = "foot", dlim = 5000, k = 1000) {
 #'
 #' Centroids of all parking polygons and points, and associated capacities.
 #' @noRd
-get_parking_data <- function (bb) {
-
+get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) {
 
     # suppress no visible binding notes:
     amenity <- parking <- NULL
 
-    # key = "parking":
-    dat_p <- osmdata::opq (bb) |>
-        osmdata::add_osm_feature (key = "parking") |>
-        osmdata::osmdata_sf (quiet = FALSE)
+    if (!is.null (planet_file)) {
 
-    # key = "amenity" or "building":
-    dat_a <- osmdata::opq (bb) |>
-        osmdata::add_osm_features (features = c (
-            "\"amentiy\"=\"parking\"",
-            "\"building\"=\"garage\"",
-            "\"building\"=\"garages\""
-        )) |>
-        osmdata::osmdata_sf (quiet = FALSE)
+        osm_files <- osmium_process (planet_file, bb, city_name, quiet = quiet)
+
+        # key = "parking":
+        f_p <- grep ("parking\\.", osm_files, value = TRUE)
+        dat_p <- osmdata::opq (bb) |>
+            osmdata::add_osm_feature (key = "parking") |>
+            osmdata::osmdata_sf (doc = f_p, quiet = FALSE)
+
+        # key = "amenity" or "building":
+        f_a <- grep ("amenity", osm_files, value = TRUE)
+        dat_a <- osmdata::opq (bb) |>
+            osmdata::add_osm_features (features = c (
+                "\"amentiy\"=\"parking\"",
+                "\"building\"=\"garage\"",
+                "\"building\"=\"garages\""
+            )) |>
+            osmdata::osmdata_sf (doc = f_a, quiet = FALSE)
+
+    } else {
+
+        # key = "parking":
+        dat_p <- osmdata::opq (bb) |>
+            osmdata::add_osm_feature (key = "parking") |>
+            osmdata::osmdata_sf (quiet = FALSE)
+
+        # key = "amenity" or "building":
+        dat_a <- osmdata::opq (bb) |>
+            osmdata::add_osm_features (features = c (
+                "\"amentiy\"=\"parking\"",
+                "\"building\"=\"garage\"",
+                "\"building\"=\"garages\""
+            )) |>
+            osmdata::osmdata_sf (quiet = FALSE)
+    }
 
     combine_pts_and_polys <- function (dat) {
 
@@ -116,14 +144,26 @@ get_parking_data <- function (bb) {
 #'
 #' Total volumes of all buildings
 #' @noRd
-get_building_data <- function (bb) {
+get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
 
     # suppress no visible binding notes:
     building <- NULL
 
-    dat_b <- osmdata::opq (bb) |>
-        osmdata::add_osm_feature (key = "building") |>
-        osmdata::osmdata_sf (quiet = FALSE)
+    if (!is.null (planet_file)) {
+
+        osm_files <- osmium_process (planet_file, bb, city_name, quiet = quiet)
+
+        f_b <- grep ("building", osm_files, value = TRUE)
+        dat_b <- osmdata::opq (bb) |>
+            osmdata::add_osm_feature (key = "building") |>
+            osmdata::osmdata_sf (doc = f_b, quiet = FALSE)
+    
+    } else {
+
+        dat_b <- osmdata::opq (bb) |>
+            osmdata::add_osm_feature (key = "building") |>
+            osmdata::osmdata_sf (quiet = FALSE)
+    }
 
     cols <- c ("building", "height")
     p <- dat_b$osm_polygons [, c (cols, "geometry")]

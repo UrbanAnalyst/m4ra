@@ -5,7 +5,15 @@
 \title{Get data on parking availability and building volumes to estimate time
 penalties for automobile travel.}
 \usage{
-m4ra_parking(bb, city_name, mode = "foot", dlim = 5000, k = 1000)
+m4ra_parking(
+  bb,
+  city_name,
+  mode = "foot",
+  planet_file = NULL,
+  dlim = 5000,
+  k = 1000,
+  quiet = FALSE
+)
 }
 \arguments{
 \item{bb}{Bounding box of city for query to extract parking data.}
@@ -15,12 +23,18 @@ m4ra_parking(bb, city_name, mode = "foot", dlim = 5000, k = 1000)
 \item{mode}{Mode of transport used to extract OSM node IDs at which to
 estimate relative parking availability.}
 
+\item{planet_file}{Optional file path to local \code{.osm.pbf} or \code{.osm.bz2} file
+encompassing specified bounding box. If given, data are extracted with
+system-level calls to "osmium", which must be installed.}
+
 \item{dlim}{Distance limit in metres out to which contributions of parking
 and buildings will be aggregated.}
 
 \item{k}{With of exponential function used to weight contributions with
 distance, \code{exp(-d / k)} for distance \code{d}. Default value of 1000 metres
 decreases weight to 37\% at 1km, 14\% at 2km, and 0.6\% at 5km.}
+
+\item{quiet}{If \code{FALSE}, display progress information on screen.}
 }
 \value{
 A \code{data.frame} of the vertices of the (contracted) network, with
