@@ -41,6 +41,7 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
 
     if (walk_dists) {
         graph_f <- m4ra_load_cached_network (city, mode = "foot")
+        graph_f <- dodgr::dodgr_contract_graph (graph_f)
         graph_f <- graph_f [graph_f$component == 1, ]
         v_f <- dodgr::dodgr_vertices (graph_f)
     }
@@ -96,7 +97,8 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
 
     all_ids <- c (bike_times$id, car_times$id)
     if (walk_dists) {
-        walk_d <- dodgr::dodgr_distances (graph_f, from = from)
+        from_foot <- v_f$id [dodgr::match_points_to_verts (v_f, v_from [, c ("x", "y")])]
+        walk_d <- dodgr::dodgr_distances (graph_f, from = from_foot)
         walk_d <- data.frame (t (walk_d))
         walk_d <- cbind (id = rownames (walk_d), walk_d)
         all_ids <- c (all_ids, walk_d$id)
