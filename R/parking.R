@@ -38,8 +38,8 @@ m4ra_parking <- function (bb, city_name, mode = "foot",
 
     v <- dodgr::dodgr_vertices (graph_c)
 
-    parking <- aggregate_parking_data (graph_c, parking, dlim)
-    buildings <- aggregate_building_data (graph_c, buildings, dlim)
+    parking <- aggregate_parking_data (graph_c, parking, dlim = dlim, k = k)
+    buildings <- aggregate_building_data (graph_c, buildings, dlim = dlim, k = k)
 
     v$parking <- parking
     v$building_volume <- buildings
