@@ -110,16 +110,16 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     )
     files <- c (files, fname_gtfs, f_closest_gtfs)
 
-    # Then parking data for time penalties for motorcar transport:
-    x <- net$vertex$x_
-    x <- mean (range (x)) + c (-0.5, 0.5) * diff (range (x)) 
-    y <- net$vertex$y_
-    y <- mean (range (y)) + c (-0.5, 0.5) * diff (range (y))
-    bb <- rbind (x, y)
-    colnames (bb) <- c ("min", "max")
-
     f_parking <- NULL
     if (parking) {
+
+        x <- net$vertex$x_
+        x <- mean (range (x)) + c (-0.5, 0.5) * diff (range (x)) 
+        y <- net$vertex$y_
+        y <- mean (range (y)) + c (-0.5, 0.5) * diff (range (y))
+        bb <- rbind (x, y)
+        colnames (bb) <- c ("min", "max")
+
         dat_p <- m4ra_parking (bb, city_name, mode = "motorcar",
             planet_file = planet_file, dlim = 5000, k = 1000, quiet = quiet)
         f <- list.files (cache_dir, pattern = city_name)
@@ -131,7 +131,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
             "Total time for data preparation: ", process_time (pt0_whole)))
     }
 
-    return (c (files, fname_gtfs, f_closest_gtfs, f_parking))
+    return (c (files, f_parking))
 }
 
 #' Identify closest GTFS stops to every network point.
