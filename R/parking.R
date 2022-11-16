@@ -29,24 +29,40 @@ m4ra_parking <- function (bb, city_name, mode = "motorcar",
     requireNamespace ("osmdata")
     requireNamespace ("sf")
 
-    parking <- get_parking_data (bb, planet_file, city_name, quiet)
-    buildings <- get_building_data (bb, planet_file, city_name, quiet)
-
     graph <- m4ra_load_cached_network (city = city_name, mode = mode)
     graph_c <- dodgr::dodgr_contract_graph (graph)
     graph_c <- graph_c [graph_c$component == 1L, ]
 
     v <- dodgr::dodgr_vertices (graph_c)
 
-    parking <- aggregate_parking_data (graph_c, parking, dlim = dlim, k = k)
-    buildings <- aggregate_building_data (graph_c, buildings, dlim = dlim, k = k)
+    cache_dir <- m4ra_cache_dir ()
 
-    v$parking <- parking
-    v$building_volume <- buildings
+    v_hash <- substring (digest::digest (v$id), 1, 6)
 
-    # The final ratio is then number of parking spaces divided by the cubic root
-    # of the buildnig volume.
-    v$ratio <- v$parking / as.numeric (v$building_volume) ^ (1 / 3)
+    f_parking <- paste0 ("m4ra-", city_name, "-parking-", v_hash, ".Rds")
+    f_parking <- file.path (cache_dir, f_parking)
+
+    if (file.exists (f_parking)) {
+
+        v <- readRDS (f_parking)
+
+    } else {
+
+        parking <- get_parking_data (bb, planet_file, city_name, quiet)
+        buildings <- get_building_data (bb, planet_file, city_name, quiet)
+
+        parking <- aggregate_parking_data (graph_c, parking, dlim = dlim, k = k)
+        buildings <- aggregate_building_data (graph_c, buildings, dlim = dlim, k = k)
+
+        v$parking <- parking
+        v$building_volume <- buildings
+
+        # The final ratio is then number of parking spaces divided by the cubic root
+        # of the buildnig volume.
+        v$ratio <- v$parking / as.numeric (v$building_volume) ^ (1 / 3)
+
+        saveRDS (v, f_parking)
+    }
 
     return (v)
 }
