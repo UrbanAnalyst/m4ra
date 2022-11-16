@@ -26,7 +26,7 @@ rappdirs package, or by a local environment parameter,
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.287</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.294</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,11 +78,13 @@ in a local cache directory defined by the <code>user_cache_dir()</code> function
 <span>  net_sc <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gtfs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  city_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  planet_file <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  day <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  start_time_limits <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  final_mode <span class="op">=</span> <span class="st">"foot"</span>,</span>
 <span>  fast <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  n_closest <span class="op">=</span> <span class="fl">10L</span>,</span>
+<span>  parking <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -104,6 +106,12 @@ or transfer information in addition to data represented in original
 
 <dt>city_name</dt>
 <dd><p>Name of city used to name cached files.</p></dd>
+
+
+<dt>planet_file</dt>
+<dd><p>Optional file path to local <code>.osm.pbf</code> or <code>.osm.bz2</code> file
+encompassing specified bounding box. If given, data are extracted with
+system-level calls to "osmium", which must be installed.</p></dd>
 
 
 <dt>day</dt>
@@ -132,6 +140,12 @@ calculation may take considerably longer.</p></dd>
 <dd><p>Final travel times to each destination point are calculated
 by tracing back times to this number of closest GTFS stops. Lower values will
 result in faster calculation times, yet with potentially inaccurate results.</p></dd>
+
+
+<dt>parking</dt>
+<dd><p>If <code>TRUE</code>, calculate local densities of parking availability
+and building volumes, and convert to a score used to calculate time penalties
+for automobile routing.</p></dd>
 
 
 <dt>quiet</dt>
