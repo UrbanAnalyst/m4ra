@@ -37,6 +37,9 @@
 #' @param n_closest Final travel times to each destination point are calculated
 #' by tracing back times to this number of closest GTFS stops. Lower values will
 #' result in faster calculation times, yet with potentially inaccurate results.
+#' @param parking If `TRUE`, calculate local densities of parking availability
+#' and building volumes, and convert to a score used to calculate time penalties
+#' for automobile routing.
 #' @param quiet If `FALSE`, display progress information on screen.
 #' @family main
 #' @export
@@ -44,7 +47,8 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                                planet_file = NULL,
                                day = NULL, start_time_limits = NULL,
                                final_mode = "foot", fast = FALSE,
-                               n_closest = 10L, quiet = FALSE) {
+                               n_closest = 10L, parking = FALSE,
+                               quiet = FALSE) {
 
     pt0_whole <- proc.time ()
 
@@ -114,10 +118,12 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     bb <- rbind (x, y)
     colnames (bb) <- c ("min", "max")
 
-    dat_p <- m4ra_parking (bb, city_name, mode = "motorcar",
-        planet_file = planet_file, dlim = 5000, k = 1000, quiet = quiet)
-    f <- list.files (cache_dir, pattern = city_name)
-    f_parking <- grep ("parking", f, value = TRUE)
+    if (parking) {
+        dat_p <- m4ra_parking (bb, city_name, mode = "motorcar",
+            planet_file = planet_file, dlim = 5000, k = 1000, quiet = quiet)
+        f <- list.files (cache_dir, pattern = city_name)
+        f_parking <- grep ("parking", f, value = TRUE)
+    }
 
     if (!quiet) {
         cli::cli_alert_success (cli::col_green (

@@ -8,11 +8,13 @@ m4ra_prepare_data(
   net_sc = NULL,
   gtfs = NULL,
   city_name = NULL,
+  planet_file = NULL,
   day = NULL,
   start_time_limits = NULL,
   final_mode = "foot",
   fast = FALSE,
   n_closest = 10L,
+  parking = FALSE,
   quiet = FALSE
 )
 }
@@ -27,6 +29,10 @@ or transfer information in addition to data represented in original
 \code{zip}-format data of provided GTFS feed.}
 
 \item{city_name}{Name of city used to name cached files.}
+
+\item{planet_file}{Optional file path to local \code{.osm.pbf} or \code{.osm.bz2} file
+encompassing specified bounding box. If given, data are extracted with
+system-level calls to "osmium", which must be installed.}
 
 \item{day}{As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 day for which the matrix is to be calculated.}
@@ -45,6 +51,10 @@ calculation may take considerably longer.}
 \item{n_closest}{Final travel times to each destination point are calculated
 by tracing back times to this number of closest GTFS stops. Lower values will
 result in faster calculation times, yet with potentially inaccurate results.}
+
+\item{parking}{If \code{TRUE}, calculate local densities of parking availability
+and building volumes, and convert to a score used to calculate time penalties
+for automobile routing.}
 
 \item{quiet}{If \code{FALSE}, display progress information on screen.}
 }
