@@ -25,10 +25,6 @@ m4ra_parking <- function (bb, city_name, mode = "motorcar",
                           planet_file = NULL, dlim = 5000, k = 1000,
                           quiet = FALSE) {
 
-    requireNamespace ("dplyr")
-    requireNamespace ("osmdata")
-    requireNamespace ("sf")
-
     graph <- m4ra_load_cached_network (city = city_name, mode = mode)
     graph_c <- dodgr::dodgr_contract_graph (graph)
     graph_c <- graph_c [graph_c$component == 1L, ]
@@ -47,6 +43,10 @@ m4ra_parking <- function (bb, city_name, mode = "motorcar",
         v <- readRDS (f_parking)
 
     } else {
+
+        requireNamespace ("dplyr")
+        requireNamespace ("osmdata")
+        requireNamespace ("sf")
 
         parking <- get_parking_data (bb, planet_file, city_name, quiet)
         buildings <- get_building_data (bb, planet_file, city_name, quiet)
