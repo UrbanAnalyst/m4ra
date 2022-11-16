@@ -165,7 +165,90 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
             replace(x, is.na(x), mean(x, na.rm = TRUE))
         })
 
-    return (dat_p)
+    # Finally add any on-street parking denoted with "parking:lane:<side>" keys.
+    # This is done by converting the ways/lines to a `dodgr` network, and
+    # matching vertices.
+    dat_l <- process_onstreet_lanes (dat_l)
+
+    return (list (dat_p = dat_p, dat_l = dat_l))
+}
+
+#' Calculate on-street parking denoted with "parking:lane:<side>" keys.
+#' This is done by converting the ways/lines to a `dodgr` network, and
+#' matching vertices.
+#' @noRd
+process_onstreet_lanes <- function (dat_l) {
+
+    keep_cols <- grep ("^parking\\.lane", names (dat_l$osm_lines), value = TRUE)
+    net <- dodgr::weight_streetnet (dat_l$osm_lines, wt_profile = 1,
+        keep_cols = keep_cols)
+
+    # All possible combinations of parking lane tags:
+    cols <- expand.grid (c ("both", "left", "right"),
+                         c ("", "parallel", "diagonal", "perpendicular"))
+    cols <- paste0 ("parking.lane.", paste0 (cols [, 1], ".", cols [, 2]))
+    cols <- gsub ("\\.$", "", cols)
+    cols <- cols [which (cols %in% keep_cols)]
+
+    # Use the following translations (in metres), mostly from
+    # https://en.wikipedia.org/wiki/Parking_space
+    sizes <- c (
+        parallel = 6.5,
+        perpendicular = 3,
+        diagonal = 4.75 # (par + perp) / 2
+    )
+
+    # First need to process the tags which just end in "<side>", and have values
+    # identifying parking direction:
+    col_side <- grep ("(both|left|right)$", cols, value = TRUE)
+    for (co in col_side) {
+        index <- which (!is.na (net [[co]]))
+        col_sub <- net [[co]] [index]
+        i_par <- which (col_sub == "parallel")
+        i_per <- which (col_sub == "perpendicular")
+        i_dia <- which (col_sub == "diagonal")
+        col_sub [i_par] <- sizes [1]
+        col_sub [i_per] <- sizes [2]
+        col_sub [i_dia] <- sizes [3]
+        # replace any other sizes with random samples from actual distribution:
+        index_in <- sort (c (i_par, i_per, i_dia))
+        index_out <- seq_along (col_sub) [-index_in]
+        values <- as.numeric (col_sub [index_in])
+        col_sub [index_out] <- sample (values, size = length (index_out), replace = TRUE)
+        net [[co]] [index] <- col_sub
+        net [[co]] [which (is.na (net [[co]]))] <- 0
+        net [[co]] <- as.numeric (net [[co]])
+
+        if (co == "parking.lane.both") {
+            net [[co]] <- 2 * net [[co]]
+        }
+
+        net [[co]] [index] <- as.integer (floor (net$d [index] / net [[co]] [index]))
+    }
+
+    # Other columns are then the explicit "parking:lane:<side>:<direction>"
+    # tags. Key values for these don't matter, as they're mostly just
+    # descriptions like "on_street" or "half_on_kerb".
+    cols_dir <- cols [which (!cols %in% col_side)]
+    for (co in cols_dir) {
+        index <- which (!is.na (net [[co]]))
+        net [[co]] [which (is.na (net [[co]]))] <- 0
+        direction <- gsub ("^.*\\.", "", co)
+        this_size <- sizes [match (direction, names (sizes))]
+        net [[co]] [index] <- floor (net$d [index] / this_size)
+        net [[co]] <- as.integer (net [[co]])
+
+        if (grepl ("both", co)) {
+            net [[co]] <- 2 * net [[co]]
+        }
+    }
+
+    net$street_parking <- apply (net [, cols], 1, sum)
+
+    net <- net [, c ("from_id", "from_lon", "from_lat",
+        "to_id", "to_lon", "to_lat", "way_id", "street_parking")]
+
+    return (net)
 }
 
 #' Get raw Open Street Map building data
@@ -214,8 +297,16 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
 }
 
 #' Aggregate raw parking data to each vertex of a contracted graph.
+#'
+#' @param parking A list of two objects: `dat_p` containing vertices and
+#' capacities of parking from OSM nodes and polygons; and `dat_l` containing a
+#' reduced `dodgr` street network with numbers of onstreet parking spaces
+#' calculated in `process_onstreet_lanes()`.
 #' @noRd
 aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
+
+    parking_lanes <- parking$dat_l
+    parking <- parking$dat_p
 
     # suppress no visible binding notes:
     osm_id <- x <- y <- NULL
@@ -224,7 +315,7 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
 
     from <- v$id
 
-    # Aggregate parking at each node of `graph_c`:
+    # Aggregate parking from `dat_p` at each node of `graph_c`:
     index <- dodgr::match_points_to_verts (v, sf::st_coordinates (parking))
     parking$osm_id <- v$id [index]
     xy <- sf::st_coordinates (parking)
@@ -234,6 +325,23 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
     parking <- parking [
         which (is.finite (parking$capacity) & !is.na (parking$capacity)),
     ]
+    parking <- parking [, c ("osm_id", "x", "y", "capacity")]
+
+    # Then add the results of `process_onstreet_lanes`, allocating half of the
+    # street parking to each terminal node.
+    p_lanes <- data.frame (
+        id = c (parking_lanes$from_id, parking_lanes$to_id),
+        x = c (parking_lanes$from_lon, parking_lanes$to_lon),
+        y = c (parking_lanes$from_lat, parking_lanes$to_lat),
+        capacity = c (parking_lanes$street_parking, parking_lanes$street_parking) / 2
+    )
+    p_lanes <- dplyr::group_by (p_lanes, id) |>
+        dplyr::summarise (x = x [1], y = y [1], capacity = sum (capacity))
+    index <- dodgr::match_points_to_verts (v, p_lanes [, c ("x", "y")])
+    p_lanes$osm_id <- v$id [index]
+    p_lanes$id <- NULL
+
+    parking <- dplyr::bind_rows (parking, p_lanes)
 
     parking <- dplyr::group_by (parking, osm_id) |>
         dplyr::summarise (
@@ -241,6 +349,7 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
             y = y [1],
             capacity = sum (capacity)
         )
+    parking$capacity <- as.integer (round (parking$capacity))
 
     capacity <- parking [["capacity"]]
     to <- parking$osm_id
