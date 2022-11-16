@@ -95,3 +95,14 @@ process_time <- function (pt0) {
 
     paste0 (hh, ":", mm, ":", ss)
 }
+
+bb_from_graph <- function (graph) {
+
+    v <- dodgr::dodgr_vertices (graph)
+    x <- mean (range (v$x)) + c (-0.5, 0.5) * diff (range (v$x)) 
+    y <- mean (range (v$y)) + c (-0.5, 0.5) * diff (range (v$y))
+    bb <- rbind (x, y)
+    colnames (bb) <- c ("min", "max")
+
+    return (bb)
+}
