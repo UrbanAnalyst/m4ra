@@ -194,7 +194,8 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
     return (list (dat_p = dat_p, dat_l = dat_l))
 }
 
-#' Calculate on-street parking denoted with "parking:lane:<side>" keys.
+#' Calculate on-street parking denoted with "parking:lane:\<side\>" keys.
+#'
 #' This is done by converting the ways/lines to a `dodgr` network, and
 #' matching vertices.
 #' @noRd
