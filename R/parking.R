@@ -66,7 +66,7 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
         f_p <- grep ("parking\\.", osm_files, value = TRUE)
         dat_p <- osmdata::opq (bb) |>
             osmdata::add_osm_feature (key = "parking") |>
-            osmdata::osmdata_sf (doc = f_p, quiet = FALSE)
+            osmdata::osmdata_sf (doc = f_p, quiet = quiet)
 
         # key = "amenity" or "building":
         f_a <- grep ("amenity", osm_files, value = TRUE)
@@ -76,7 +76,7 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
                 "\"building\"=\"garage\"",
                 "\"building\"=\"garages\""
             )) |>
-            osmdata::osmdata_sf (doc = f_a, quiet = FALSE)
+            osmdata::osmdata_sf (doc = f_a, quiet = quiet)
 
             # key = "parking:lane:<side>"
         f_l <- grep ("lane", osm_files, value = TRUE)
@@ -86,14 +86,14 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
                 "\"parking:lane:right\"",
                 "\"parking:lane:both\""
             )) |>
-            osmdata::osmdata_sf (doc = f_l, quiet = FALSE)
+            osmdata::osmdata_sf (doc = f_l, quiet = quiet)
 
     } else {
 
         # key = "parking":
         dat_p <- osmdata::opq (bb) |>
             osmdata::add_osm_feature (key = "parking") |>
-            osmdata::osmdata_sf (quiet = FALSE)
+            osmdata::osmdata_sf (quiet = quiet)
 
         # key = "amenity" or "building":
         dat_a <- osmdata::opq (bb) |>
@@ -102,7 +102,7 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
                 "\"building\"=\"garage\"",
                 "\"building\"=\"garages\""
             )) |>
-            osmdata::osmdata_sf (quiet = FALSE)
+            osmdata::osmdata_sf (quiet = quiet)
 
         dat_l <- osmdata::opq (bb) |>
             osmdata::add_osm_features (features = c (
@@ -110,7 +110,7 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
                 "\"parking:lane:right\"",
                 "\"parking:lane:both\""
             )) |>
-            osmdata::osmdata_sf (quiet = FALSE)
+            osmdata::osmdata_sf (quiet = quiet)
     }
 
     combine_pts_and_polys <- function (dat) {
@@ -184,13 +184,13 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
         f_b <- grep ("building", osm_files, value = TRUE)
         dat_b <- osmdata::opq (bb) |>
             osmdata::add_osm_feature (key = "building") |>
-            osmdata::osmdata_sf (doc = f_b, quiet = FALSE)
+            osmdata::osmdata_sf (doc = f_b, quiet = quiet)
     
     } else {
 
         dat_b <- osmdata::opq (bb) |>
             osmdata::add_osm_feature (key = "building") |>
-            osmdata::osmdata_sf (quiet = FALSE)
+            osmdata::osmdata_sf (quiet = quiet)
     }
 
     cols <- c ("building", "height")
