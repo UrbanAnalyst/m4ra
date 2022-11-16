@@ -77,14 +77,22 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
     from_car <- v_c$id [dodgr::match_points_to_verts (v_c, v_from [, c ("x", "y")])]
     car_times <- m4ra_times_single_mode (graph_c, from = from_car) # dim: (nfrom, nverts)
 
-    # Add start and end time penalties for parking
-    bb <- bb_from_graph (graph_c)
-    parking <- m4ra_parking (bb, city, mode = "motorcar", dlim = 5000, k = 1000, quiet = TRUE)
-    index <- match (rownames (car_times), parking$id)
-    p_start_mat <- array (parking$penalty_start [index], dim = dim (car_times))
-    index <- match (colnames (car_times), parking$id)
-    p_end_mat <- t (array (parking$penalty_start [index], dim = rev (dim (car_times))))
-    car_times <- p_start_mat + car_times + p_end_mat
+    # Add start and end time penalties for parking, only reading directly from
+    # cached parking file if it exists
+    flist <- list.files (m4ra_cache_dir (), full.names = TRUE, pattern = city)
+    f_parking <- grep ("parking", flist, value = TRUE)
+    if (length (f_parking) > 0) {
+        f_parking_hash <- substring (digest::digest (v_c$id), 1, 6)
+        f_parking <- grep (f_parking_hash, f_parking, value = TRUE)
+    }
+    if (length (f_parking == 1L)) {
+        parking <- readRDS (f_parking)
+        index <- match (rownames (car_times), parking$id)
+        p_start_mat <- array (parking$penalty_start [index], dim = dim (car_times))
+        index <- match (colnames (car_times), parking$id)
+        p_end_mat <- t (array (parking$penalty_start [index], dim = rev (dim (car_times))))
+        car_times <- p_start_mat + car_times + p_end_mat
+    }
 
     car_times <- data.frame (t (car_times))
     car_times <- cbind (id = rownames (car_times), car_times)
