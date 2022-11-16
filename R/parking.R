@@ -51,14 +51,12 @@ m4ra_parking <- function (bb, city_name, mode = "motorcar",
         parking <- get_parking_data (bb, planet_file, city_name, quiet)
         buildings <- get_building_data (bb, planet_file, city_name, quiet)
 
-        parking <- aggregate_parking_data (graph, parking, dlim = dlim, k = k)
-        buildings <- aggregate_building_data (graph, buildings, dlim = dlim, k = k)
-
-        v$parking <- parking
-        v$building_volume <- buildings
+        v$parking <- aggregate_parking_data (graph, parking, dlim = dlim, k = k)
+        v$building_volume <- aggregate_building_data (graph, buildings, dlim = dlim, k = k)
 
         # The final ratio is then number of parking spaces divided by the cubic root
         # of the buildnig volume.
+        b <- as.numeric (v$building_volume) ^ (1 / 3)
         v$ratio <- v$parking / as.numeric (v$building_volume) ^ (1 / 3)
 
         saveRDS (v, f_parking)
@@ -310,6 +308,9 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
     p$area <- sf::st_area (p)
     p$volume <- p$area * p$height
     p <- sf::st_centroid (p)
+
+    # Finally, exclude any buildings < 20 m ^ 2 or < 3 m high
+    p <- p [which (as.numeric (p$area) > 20 & p$height > 3), ]
 
     return (p)
 }
