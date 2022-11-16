@@ -78,6 +78,16 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
             )) |>
             osmdata::osmdata_sf (doc = f_a, quiet = FALSE)
 
+            # key = "parking:lane:<side>"
+        f_l <- grep ("lane", osm_files, value = TRUE)
+        dat_l <- osmdata::opq (bb) |>
+            osmdata::add_osm_features (features = c (
+                "\"parking:lane:left\"",
+                "\"parking:lane:right\"",
+                "\"parking:lane:both\""
+            )) |>
+            osmdata::osmdata_sf (doc = f_l, quiet = FALSE)
+
     } else {
 
         # key = "parking":
@@ -91,6 +101,14 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
                 "\"amentiy\"=\"parking\"",
                 "\"building\"=\"garage\"",
                 "\"building\"=\"garages\""
+            )) |>
+            osmdata::osmdata_sf (quiet = FALSE)
+
+        dat_l <- osmdata::opq (bb) |>
+            osmdata::add_osm_features (features = c (
+                "\"parking:lane:left\"",
+                "\"parking:lane:right\"",
+                "\"parking:lane:both\""
             )) |>
             osmdata::osmdata_sf (quiet = FALSE)
     }
