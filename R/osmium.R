@@ -11,8 +11,6 @@ osmium_cut <- function (planet_file, bb, city_name, quiet = FALSE) {
             call. = FALSE)
     }
 
-    requireNamespace ("withr")
-
     planet_dir <- dirname (planet_file)
     f <- file.path (planet_dir, paste0 (city_name, ".osm.pbf"))
 
