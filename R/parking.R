@@ -334,7 +334,7 @@ aggregate_parking_data <- function (graph, parking, dlim = 5000, k = 1000) {
     parking <- parking$dat_p
 
     # suppress no visible binding notes:
-    osm_id <- x <- y <- NULL
+    osm_id <- x <- y <- id <- NULL
 
     graph_c <- dodgr::dodgr_contract_graph (graph)
     graph_c <- graph_c [graph_c$component == 1L, ]
