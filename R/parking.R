@@ -128,7 +128,17 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
         "motorcycle_parking"
     )
     dat_p <- dat_p [which (!dat_p$amenity %in% not_these), ]
-    dat_p$capacity <- as.integer (dat_p$capacity)
+
+    # Process "capacity" values first by taking mean of any ranges:
+    index <- grep ("\\-", dat_p$capacity)
+    if (length (index) > 0) {
+        cap <- sapply (strsplit (dat_p$capacity [index], "-"), function (i)
+                       mean (as.integer (i)))
+        dat_p$capacity [index] <- round (cap)
+
+    }
+    # And remove everything except integers:
+    dat_p$capacity <- as.integer (gsub ("[^(0-9)+]", "", dat_p$capacity))
 
     # Then replace all NA "capacity" values by mean values for each pair of
     # "amenity" and "parking" key-values:
@@ -170,7 +180,9 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
     index <- grep ("ft$|feet$", p$height)
     p$height [index] <-
         as.numeric (gsub ("ft$|feet$", "", p$height [index])) * 12 * 0.0254
-    p$height <- as.numeric (gsub ("\\s?m$", "", p$height))
+    # Then remove everything that is not numeric:
+    p$height <- gsub ("[^(0-9)+(?\\.(0-9)+)]", "", p$height)
+    p$height <- as.numeric (p$height)
 
     p <- dplyr::group_by (p, building) |>
         dplyr::mutate_at ("height", function(x) {
