@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.0.1.294",
+  "version": "0.1.0.001",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -257,7 +257,7 @@
     },
     "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "23679.404KB",
+  "fileSize": "7079.14KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
   "contIntegration": [
     "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",
