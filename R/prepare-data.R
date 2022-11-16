@@ -118,6 +118,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     bb <- rbind (x, y)
     colnames (bb) <- c ("min", "max")
 
+    f_parking <- NULL
     if (parking) {
         dat_p <- m4ra_parking (bb, city_name, mode = "motorcar",
             planet_file = planet_file, dlim = 5000, k = 1000, quiet = quiet)
