@@ -69,12 +69,15 @@ get_parking_data <- function (bb) {
 
     combine_pts_and_polys <- function (dat) {
 
-        cols0 <- c ("osm_id", "amenity", "building", "parking", "capacity", "geometry")
+        cols0 <- c ("osm_id", "amenity", "building",
+            "parking", "capacity", "geometry")
         cols <- cols0 [which (cols0 %in% names (dat$osm_points))]
-        dat_pts <- dat$osm_points [grep ("parking", dat$osm_points$amenity), cols]
+        dat_pts <-
+            dat$osm_points [grep ("parking", dat$osm_points$amenity), cols]
 
         cols <- cols0 [which (cols0 %in% names (dat$osm_polygons))]
-        dat_poly <- dat$osm_polygons [grep ("parking", dat$osm_polygons$amenity), cols]
+        dat_poly <-
+            dat$osm_polygons [grep ("parking", dat$osm_polygons$amenity), cols]
 
         # Rm any nodes that are part of those polygons
         ids <- length (unique (names (unlist (dat_poly$geometry))))
@@ -102,7 +105,9 @@ get_parking_data <- function (bb) {
     # Then replace all NA "capacity" values by mean values for each pair of
     # "amenity" and "parking" key-values:
     dat_p <- dplyr::group_by (dat_p, amenity, parking) |>
-        dplyr::mutate_at("capacity", function(x) replace(x, is.na(x), mean(x, na.rm = TRUE)))
+        dplyr::mutate_at("capacity", function(x) {
+            replace(x, is.na(x), mean(x, na.rm = TRUE))
+        })
 
     return (dat_p)
 }
@@ -123,11 +128,14 @@ get_building_data <- function (bb) {
     cols <- c ("building", "height")
     p <- dat_b$osm_polygons [, c (cols, "geometry")]
     index <- grep ("ft$|feet$", p$height)
-    p$height [index] <- as.numeric (gsub ("ft$|feet$", "", p$height [index])) * 12 * 0.0254
+    p$height [index] <-
+        as.numeric (gsub ("ft$|feet$", "", p$height [index])) * 12 * 0.0254
     p$height <- as.numeric (gsub ("\\s?m$", "", p$height))
 
     p <- dplyr::group_by (p, building) |>
-        dplyr::mutate_at ("height", function(x) replace(x, is.na(x), mean(x, na.rm = TRUE)))
+        dplyr::mutate_at ("height", function(x) {
+            replace(x, is.na(x), mean(x, na.rm = TRUE))
+        })
     p$area <- sf::st_area (p)
     p$volume <- p$area * p$height
     p <- sf::st_centroid (p)
@@ -153,7 +161,9 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
     parking <- sf::st_drop_geometry (parking)
     parking$x <- xy [, 1]
     parking$y <- xy [, 2]
-    parking <- parking [which (is.finite (parking$capacity) & !is.na (parking$capacity)), ]
+    parking <- parking [
+        which (is.finite (parking$capacity) & !is.na (parking$capacity)),
+    ]
 
     parking <- dplyr::group_by (parking, osm_id) |>
         dplyr::summarise (
@@ -166,8 +176,6 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
     to <- parking$osm_id
 
     graph_c <- preprocess_spatial_cols (graph_c)
-    gr_cols <- dodgr_graph_cols (graph_c)
-    is_spatial <- is_graph_spatial (graph_c)
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
     if (to_from_indices$compound) {
         graph_c <- to_from_indices$graph_compound
@@ -193,7 +201,8 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
     return (capacity)
 }
 
-aggregate_building_data <- function (graph_c, buildings, dlim = 5000, k = 1000) {
+aggregate_building_data <- function (graph_c, buildings,
+                                     dlim = 5000, k = 1000) {
 
     # suppress no visible binding notes:
     osm_id <- x <- y <- from <- NULL
@@ -208,7 +217,9 @@ aggregate_building_data <- function (graph_c, buildings, dlim = 5000, k = 1000) 
     buildings <- sf::st_drop_geometry (buildings)
     buildings$x <- xy [, 1]
     buildings$y <- xy [, 2]
-    buildings <- buildings [which (is.finite (buildings$volume) & !is.na (buildings$volume)), ]
+    buildings <- buildings [
+        which (is.finite (buildings$volume) & !is.na (buildings$volume)),
+    ]
 
     buildings <- dplyr::group_by (buildings, osm_id) |>
         dplyr::summarise (
@@ -221,8 +232,6 @@ aggregate_building_data <- function (graph_c, buildings, dlim = 5000, k = 1000) 
     to <- buildings$osm_id
 
     graph_c <- preprocess_spatial_cols (graph_c)
-    gr_cols <- dodgr_graph_cols (graph_c)
-    is_spatial <- is_graph_spatial (graph_c)
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
     if (to_from_indices$compound) {
         graph_c <- to_from_indices$graph_compound
