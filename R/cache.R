@@ -101,7 +101,8 @@ m4ra_cache_network <- function (net, city) {
 #' @return Previously cached, weighted streetnet for specified city and mode.
 #' @family cache
 #' @export
-m4ra_load_cached_network <- function (city = NULL, mode = "foot", filename = NULL) {
+m4ra_load_cached_network <- function (city = NULL, mode = "foot",
+                                      filename = NULL) {
 
     if (is.null (filename)) {
         city <- gsub ("\\s+", "-", tolower (city))
@@ -113,7 +114,13 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot", filename = NUL
         flist <- fs::dir_ls (m4ra_cache_dir (), regexp = city)
         f <- grep (mode, flist, value = TRUE)
         if (length (f) != 1L) {
-            stop ("No single file found for [city, mode] = [", city, ", ", mode, "]")
+            stop (
+                "No single file found for [city, mode] = [",
+                city,
+                ", ",
+                mode,
+                "]"
+            )
         }
         checkmate::assert_file_exists (f)
     } else {
