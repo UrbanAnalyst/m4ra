@@ -17,9 +17,6 @@ m4ra_weight_networks <- function (net, city, quiet = TRUE) {
 
     checkmate::assert_character (city)
 
-    requireNamespace ("dplyr")
-    requireNamespace ("geodist")
-
     wt_profiles <- c ("foot", "bicycle", "motorcar")
 
     filenames <- cache_networks (
@@ -40,41 +37,44 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
         dir.create (cache_dir, recursive = TRUE)
     }
 
-    filenames <- NULL
+    filenames <- list.files (cache_dir, full.names = TRUE)
+
+    cache_flag <- fs::path (
+        cache_dir,
+        paste0 ("m4ra-", city, "-", hash, "-done")
+    )
+    filenames <- filenames [which (!filenames == cache_flag)]
+
+    if (file.exists (cache_flag)) {
+        return (filenames)
+    }
+
+    writeLines ("done", cache_flag)
 
     for (w in wt_profiles) {
 
-        filename <- fs::path (
-            cache_dir,
-            paste0 ("m4ra-", city, "-", hash, "-", w, ".Rds")
-        )
-
-        if (!file.exists (filename)) {
-
-            if (!quiet) {
-                cli::cli_alert_info (cli::col_blue (
-                    "Weighting network with '{w}' profile"))
-            }
-            if (w == "motorcar") {
-                f <- write_wt_profile (traffic_lights = 16, turn = 1)
-                net_w <- dodgr::weight_streetnet (
-                    net,
-                    wt_profile = w,
-                    wt_profile_file = f,
-                    turn_penalty = TRUE
-                )
-            } else {
-                net_w <- dodgr::weight_streetnet (net, wt_profile = w)
-            }
-
-            fst::write_fst (net_w, filename)
-            if (!quiet) {
-                cli::cli_alert_success (cli::col_green (
-                    "Weighted network with '{w}' profile"))
-            }
+        if (!quiet) {
+            cli::cli_alert_info (cli::col_blue (
+                "Weighting network with '{w}' profile"))
+        }
+        if (w == "motorcar") {
+            f <- write_wt_profile (traffic_lights = 16, turn = 1)
+            net_w <- dodgr::weight_streetnet (
+                net,
+                wt_profile = w,
+                wt_profile_file = f,
+                turn_penalty = TRUE
+            )
+        } else {
+            net_w <- dodgr::weight_streetnet (net, wt_profile = w)
         }
 
-        filenames <- c (filenames, filename)
+        m4ra_cache_network (net_w, city = city, mode = w) 
+
+        if (!quiet) {
+            cli::cli_alert_success (cli::col_green (
+                "Weighted network with '{w}' profile"))
+        }
     }
 
     return (filenames)
