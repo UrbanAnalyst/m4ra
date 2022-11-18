@@ -13,8 +13,8 @@
 m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                                    day = NULL, start_time_limits = NULL,
                                    initial_mode = "foot", final_mode = "foot",
-                                   from = NULL,
-                                   fast = FALSE, n_closest = 10L, quiet = FALSE) {
+                                   from = NULL, fast = FALSE, n_closest = 10L,
+                                   quiet = FALSE) {
 
     files <- m4ra_prepare_data (
         net_sc = net_sc,
@@ -28,14 +28,11 @@ m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         quiet = quiet
     )
 
-    graph <- m4ra_load_cached_network (city = city_name, mode = initial_mode)
-    stops <- readRDS (gtfs)$stops
-    f <- grep ("gtfs\\-.*[0-9]{5}\\-[0-9]{5}\\.Rds$", files, value = TRUE)
-    gtfs_mat <- readRDS (f)
-    f <- grep ("gtfs\\-to\\-net", files, value = TRUE)
-    gtfs_to_net <- readRDS (f)
-
-    graph_c <- dodgr::dodgr_contract_graph (graph)
+    graph_c <- m4ra_load_cached_network (
+        city = city_name,
+        mode = initial_mode,
+        contracted = TRUE
+    )
     graph_c <- graph_c [graph_c$component == 1L, ]
     v <- dodgr::dodgr_vertices (graph_c)
     if (!all (from %in% v$id)) {
@@ -44,6 +41,13 @@ m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
             "largest connected component of the street network."
         )
     }
+
+    stops <- readRDS (gtfs)$stops
+    f <- grep ("gtfs\\-.*[0-9]{5}\\-[0-9]{5}\\.Rds$", files, value = TRUE)
+    gtfs_mat <- readRDS (f)
+    f <- grep ("gtfs\\-to\\-net", files, value = TRUE)
+    gtfs_to_net <- readRDS (f)
+
 
     # need times to all vertices to extract overall minimal time from initial
     # mode vs GTFS-routed modes at end. The times here are then reduced to times
