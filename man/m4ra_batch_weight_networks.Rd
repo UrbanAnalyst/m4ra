@@ -26,6 +26,7 @@ over-ridden by specifying a local environment variable, "M4RA_CACHE_DIR".
 }
 \seealso{
 Other cache: 
+\code{\link{m4ra_cache_network}()},
 \code{\link{m4ra_load_cached_network}()},
 \code{\link{m4ra_network_hash}()},
 \code{\link{m4ra_weight_networks}()}

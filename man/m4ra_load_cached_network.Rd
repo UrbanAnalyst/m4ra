@@ -22,6 +22,7 @@ Load cached file for one city and mode
 \seealso{
 Other cache: 
 \code{\link{m4ra_batch_weight_networks}()},
+\code{\link{m4ra_cache_network}()},
 \code{\link{m4ra_network_hash}()},
 \code{\link{m4ra_weight_networks}()}
 }

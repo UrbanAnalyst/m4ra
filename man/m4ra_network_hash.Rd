@@ -21,6 +21,7 @@ have been previously cached.
 \seealso{
 Other cache: 
 \code{\link{m4ra_batch_weight_networks}()},
+\code{\link{m4ra_cache_network}()},
 \code{\link{m4ra_load_cached_network}()},
 \code{\link{m4ra_weight_networks}()}
 }

@@ -5,8 +5,10 @@
 #' "M4RA_CACHE_DIR". The "city" parameter is only used as a prefix for the
 #' cached networks.
 #'
-#' @inheritParams m4ra
+#' @param net An urban network in `osmdata_sc` format from the \pkg{osmdata}
+#' package.
 #' @param city Name of city; only used to name cached network files.
+#' @param quiet If `FALSE`, display progress information on screen.
 #' @return A character vector of local locations of cached versions of the
 #' variously weighted network representations used in \link{m4ra}.
 #' @family cache
@@ -33,12 +35,17 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
     hash <- m4ra_network_hash (net)
 
+    cache_dir <- file.path (m4ra_cache_dir (), city)
+    if (!dir.exists (cache_dir)) {
+        dir.create (cache_dir, recursive = TRUE)
+    }
+
     filenames <- NULL
 
     for (w in wt_profiles) {
 
         filename <- fs::path (
-            m4ra_cache_dir (),
+            cache_dir,
             paste0 ("m4ra-", city, "-", hash, "-", w, ".Rds")
         )
 
