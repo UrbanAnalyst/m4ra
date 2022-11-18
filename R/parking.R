@@ -52,8 +52,8 @@ m4ra_parking <- function (bb, city_name, mode = "motorcar",
         parking <- get_parking_data (bb, planet_file, city_name, quiet)
         buildings <- get_building_data (bb, planet_file, city_name, quiet)
 
-        v$parking <- aggregate_parking_data (graph, parking, dlim = dlim, k = k)
-        v$building_volume <- aggregate_building_data (graph, buildings, dlim = dlim, k = k)
+        v$parking <- aggregate_parking_data (graph_c, parking, dlim = dlim, k = k)
+        v$building_volume <- aggregate_building_data (graph_c, buildings, dlim = dlim, k = k)
 
         # The final ratio is then number of parking spaces divided by the cubic root
         # of the buildnig volume.
@@ -329,7 +329,7 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
 #' reduced `dodgr` street network with numbers of onstreet parking spaces
 #' calculated in `process_onstreet_lanes()`.
 #' @noRd
-aggregate_parking_data <- function (graph, parking, dlim = 5000, k = 1000) {
+aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
 
     parking_lanes <- parking$dat_l
     parking <- parking$dat_p
@@ -337,8 +337,6 @@ aggregate_parking_data <- function (graph, parking, dlim = 5000, k = 1000) {
     # suppress no visible binding notes:
     osm_id <- x <- y <- id <- NULL
 
-    graph_c <- dodgr::dodgr_contract_graph (graph)
-    graph_c <- graph_c [graph_c$component == 1L, ]
     v <- dodgr::dodgr_vertices (graph_c)
 
     from <- v$id
@@ -408,14 +406,11 @@ aggregate_parking_data <- function (graph, parking, dlim = 5000, k = 1000) {
     return (capacity)
 }
 
-aggregate_building_data <- function (graph, buildings,
+aggregate_building_data <- function (graph_c, buildings,
                                      dlim = 5000, k = 1000) {
 
     # suppress no visible binding notes:
     osm_id <- x <- y <- from <- NULL
-
-    graph_c <- dodgr::dodgr_contract_graph (graph)
-    graph_c <- graph_c [graph_c$component == 1L, ]
 
     v <- dodgr::dodgr_vertices (graph_c)
 
