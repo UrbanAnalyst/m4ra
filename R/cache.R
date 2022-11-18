@@ -74,10 +74,10 @@ m4ra_cache_network <- function (net, city) {
     netc <- dodgr::dodgr_contract_graph (net)
     a <- names (attributes (netc))
     a_nms <- a [which (!a %in% c ("names", "row.names", "col.names", "px"))]
-    a <- lapply (a_nms, function (i) attr (net, i))
+    a <- lapply (a_nms, function (i) attr (netc, i))
     names (a) <- a_nms
 
-    hashc <- attr (netc, "hashc")
+    hashc <- a$hashc
     fname <- paste0 ("m4ra-", city, "-attrc-", substring (hashc, 1, 6), ".Rds")
     fpath <- file.path (tempdir (), fname)
 
