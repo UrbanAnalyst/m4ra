@@ -52,8 +52,6 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 
     pt0_whole <- proc.time ()
 
-    cache_dir <- m4ra_cache_dir ()
-
     checkmate::assert_character (net_sc, max.len = 1L)
     checkmate::assert_character (gtfs, max.len = 1L)
     checkmate::assert_character (city_name, max.len = 1L)
@@ -68,6 +66,8 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     day <- match.arg (substring (tolower (day), 1, 2), days)
     city_name <- gsub ("\\s+", "-", tolower (city_name))
 
+    cache_dir <- fs::path (m4ra_cache_dir (), city_name)
+
     net <- readRDS (net_sc)
     net_files <- m4ra_weight_networks (net, city = city_name, quiet = quiet)
 
@@ -75,7 +75,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     gtfs_hash <- substring (digest::digest (gtfs_data), 1, 6)
     fname_gtfs <- paste0 ("m4ra-", city_name, "-gtfs-", gtfs_hash,
         "-", day, "-", paste0 (start_time_limits, collapse = "-"), ".Rds")
-    fname_gtfs <- file.path (cache_dir, city_name, fname_gtfs)
+    fname_gtfs <- file.path (cache_dir, fname_gtfs)
 
     if (!file.exists (fname_gtfs)) {
 
@@ -142,21 +142,18 @@ times_gtfs_to_net <- function (files, mode = "foot",
     checkmate::assert_character (mode, len = 1L)
     mode <- match.arg (mode, c ("foot", "bicycle"))
 
-    f_net <- grep (mode, files, value = TRUE)
-    if (length (f_net) != 1L) {
-        stop ("files must contain a single file with mode [", mode, "]")
-    }
-    graph <- m4ra_load_cached_network (filename = f_net)
-    graph_hash <- get_hash (graph, contracted = FALSE, force = TRUE)
-    graph_hash <- substring (graph_hash, 1L, 6L)
+    cache_files <- grep (m4ra_cache_dir (), files, fixed = TRUE, value = TRUE)
+    dirs <- fs::path_split (cache_files) [[1]]
+    city <- dirs [length (dirs) - 1L]
 
-    city <- regmatches (f_net, regexpr ("m4ra\\-.*[^\\-]\\-", f_net))
-    city <- gsub ("^m4ra\\-|\\-.*$", "", tolower (city))
+    graph <- m4ra_load_cached_network (city = city, mode = mode, contracted = FALSE)
+    graph_hash <- substring (attr (graph, "hash"), 1L, 6L)
+
     f_gtfs_tmat <- grep (
         paste0 ("m4ra-", city, "-gtfs.*[0-9]+\\-[0-9]+\\.Rds$"),
         files,
         value = TRUE,
-        fixed = TRUE
+        fixed = FALSE
     )
     # That is the pre-processed GTFS travel times matrix, so the actual feed is
     # the other 'files' entry with "gtfs":
@@ -164,6 +161,10 @@ times_gtfs_to_net <- function (files, mode = "foot",
     if (length (f_gtfs_tmat) > 0) {
         f_gtfs <- f_gtfs [which (!f_gtfs == f_gtfs_tmat)]
     }
+    if (length (f_gtfs) > 1L) {
+        f_gtfs <- f_gtfs [which (!grepl ("\\-to\\-net\\-", f_gtfs))]
+    }
+    checkmate::assert_character (f_gtfs, max.len = 1L)
     gtfs <- readRDS (f_gtfs)
     stops <- gtfs$stops
     # Generate hash only from the stops table, so timetable can be updated, but
@@ -193,7 +194,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
         if (!quiet) {
             cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
         }
-        graph_c <- dodgr::dodgr_contract_graph (graph)
+        graph_c <- m4ra_load_cached_network (city = city, mode = mode, contracted = TRUE)
         graph_c <- graph_c [graph_c$component == 1L, ]
         if (!quiet) {
             cli::cli_alert_success (cli::col_green ("Contracted network graph"))
