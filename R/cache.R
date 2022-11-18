@@ -111,7 +111,7 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
 
         mode <- match.arg (tolower (mode), c ("foot", "bicycle", "motorcar"))
 
-        flist <- fs::dir_ls (m4ra_cache_dir (), regexp = city)
+        flist <- fs::dir_ls (fs::path (m4ra_cache_dir (), city))
         f <- grep (mode, flist, value = TRUE)
         if (length (f) != 1L) {
             stop (
