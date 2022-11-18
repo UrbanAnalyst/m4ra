@@ -75,7 +75,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     gtfs_hash <- substring (digest::digest (gtfs_data), 1, 6)
     fname_gtfs <- paste0 ("m4ra-", city_name, "-gtfs-", gtfs_hash,
         "-", day, "-", paste0 (start_time_limits, collapse = "-"), ".Rds")
-    fname_gtfs <- file.path (cache_dir, fname_gtfs)
+    fname_gtfs <- file.path (cache_dir, city_name, fname_gtfs)
 
     if (!file.exists (fname_gtfs)) {
 
@@ -186,7 +186,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
         ifelse (fast, "fast", "slow"),
         ".Rds"
     )
-    fname <- fs::path (m4ra_cache_dir (), fname)
+    fname <- fs::path (m4ra_cache_dir (), city_name, fname)
 
     if (!file.exists (fname)) {
 
