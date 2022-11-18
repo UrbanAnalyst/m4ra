@@ -135,5 +135,9 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
     attr (graph, "left_side") <- FALSE
     attr (graph, "turn_penalty") <- ifelse (mode == "motorcar", 1., 0.)
 
+    gr_cols <- dodgr_graph_cols (graph)
+    hash <- digest::digest (list (graph [[gr_cols$edge_id]], names (graph)))
+    attr (graph, "hash") <- hash
+
     return (graph)
 }
