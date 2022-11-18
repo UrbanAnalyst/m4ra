@@ -25,17 +25,18 @@ m4ra_parking <- function (bb, city_name, mode = "motorcar",
                           planet_file = NULL, dlim = 5000, k = 1000,
                           quiet = FALSE) {
 
-    graph <- m4ra_load_cached_network (city = city_name, mode = mode)
-    graph_c <- dodgr::dodgr_contract_graph (graph)
+    city <- gsub ("\\s+", "-", tolower (city_name))
+
+    graph_c <- m4ra_load_cached_network (city = city_name, mode = mode, contracted = TRUE)
     graph_c <- graph_c [graph_c$component == 1L, ]
 
     v <- dodgr::dodgr_vertices (graph_c)
 
-    cache_dir <- m4ra_cache_dir ()
+    cache_dir <- fs::path (m4ra_cache_dir (), city_name)
 
     v_hash <- substring (digest::digest (v$id), 1, 6)
 
-    f_parking <- paste0 ("m4ra-", city_name, "-parking-", v_hash, ".Rds")
+    f_parking <- paste0 ("m4ra-", city, "-parking-", v_hash, ".Rds")
     f_parking <- file.path (cache_dir, f_parking)
 
     if (file.exists (f_parking)) {
