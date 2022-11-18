@@ -4,7 +4,7 @@ test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
 
 test_that ("prepare data", {
 
-    Sys.setenv ("M4RA_CACHE_DIR" = tempdir ())
+    Sys.setenv ("M4RA_CACHE_DIR" = fs::path_temp ())
     Sys.setenv ("M4RA_NUM_CORES" = 1L)
 
     z <- gtfsrouter::berlin_gtfs_to_zip ()

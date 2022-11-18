@@ -99,7 +99,7 @@ m4ra_cache_network <- function (net, city, mode) {
     flist_out <- c (flist_out, fa)
 
     # Edge map and junctions:
-    flist <- list.files (tempdir (), pattern = hashc, full.names = TRUE)
+    flist <- list.files (fs::path_temp (), pattern = hashc, full.names = TRUE)
     edge_map <- readRDS (grep ("edge\\_map", flist, value = TRUE))
     fe <- gsub ("attrc", "edge-map", fpath)
     fst::write_fst (edge_map, fe)

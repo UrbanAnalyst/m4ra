@@ -85,7 +85,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
 write_wt_profile <- function (traffic_lights = 1, turn = 2) {
 
-    f <- file.path (tempdir (), "wt_profile.json")
+    f <- file.path (fs::path_temp (), "wt_profile.json")
     dodgr::write_dodgr_wt_profile (f)
 
     w <- readLines (f)
