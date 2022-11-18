@@ -64,7 +64,8 @@ m4ra_cache_network <- function (net, city, mode) {
     names (a) <- a_nms
 
     hash <- attr (net, "hash")
-    fname <- paste0 ("m4ra-", city, "-", mode, "-attr-", substring (hash, 1, 6), ".Rds")
+    fname <- paste0 ("m4ra-", city, "-", mode, "-attr-",
+        substring (hash, 1, 6), ".Rds")
     fpath <- file.path (cache_dir, fname)
 
     saveRDS (a, fpath)
@@ -79,7 +80,8 @@ m4ra_cache_network <- function (net, city, mode) {
     names (a) <- a_nms
 
     hashc <- a$hashc
-    fname <- paste0 ("m4ra-", city, "-", mode, "-attrc-", substring (hashc, 1, 6), ".Rds")
+    fname <- paste0 ("m4ra-", city, "-", mode, "-attrc-",
+        substring (hashc, 1, 6), ".Rds")
     fpath <- file.path (cache_dir, fname)
 
     saveRDS (a, fpath)
@@ -100,33 +102,55 @@ m4ra_cache_network <- function (net, city, mode) {
 #'
 #' @param city City for which file is to be loaded.
 #' @param mode One of "foot", "bicycle", or "motorcar".
+#' @param contracted If `TRUE`, load the contracted version of the graph;
+#' otherwise load the full graph.
+#' @param filename Optional name of specific file to load.
 #' @return Previously cached, weighted streetnet for specified city and mode.
 #' @family cache
 #' @export
-m4ra_load_cached_network <- function (city = NULL, mode = "foot") {
+m4ra_load_cached_network <- function (city = NULL, mode = "foot",
+                                      contracted = TRUE, filename = NULL) {
 
-    city <- gsub ("\\s+", "-", tolower (city))
-    checkmate::assert_character (city, max.len = 1L)
-    checkmate::assert_character (mode, max.len = 1L)
+    ptn <- paste0 ("\\-", ifelse (contracted, "netc", "net"), "\\-")
 
-    mode <- match.arg (tolower (mode), c ("foot", "bicycle", "motorcar"))
+    if (!is.null (filename)) {
 
-    flist <- fs::dir_ls (fs::path (m4ra_cache_dir (), city), regexp = mode)
-    f <- grep ("\\-net\\-", flist, value = TRUE)
-    if (length (f) != 1L) {
-        stop (
-            "No single file found for [city, mode] = [",
-            city,
-            ", ",
-            mode,
-            "]"
-        )
+        checkmate::assert_file_exists (filename)
+        dirs <- fs::path_split (filename) [[1]]
+        city <- dirs [length (dirs) - 1L]
+        f <- filename
+
+        flist <- fs::dir_ls (fs::path (m4ra_cache_dir (), city), regexp = mode)
+
+    } else {
+
+        city <- gsub ("\\s+", "-", tolower (city))
+        checkmate::assert_character (city, max.len = 1L)
+        checkmate::assert_character (mode, max.len = 1L)
+
+        mode <- match.arg (tolower (mode), c ("foot", "bicycle", "motorcar"))
+
+        flist <- fs::dir_ls (fs::path (m4ra_cache_dir (), city), regexp = mode)
+
+        f <- grep (ptn, flist, value = TRUE)
+
+        if (length (f) != 1L) {
+            stop (
+                "No single file found for [city, mode] = [",
+                city,
+                ", ",
+                mode,
+                "]"
+            )
+        }
+        checkmate::assert_file_exists (f)
+
     }
-    checkmate::assert_file_exists (f)
 
     graph <- fst::read_fst (f)
 
-    a <- readRDS (grep ("\\-attr\\-", flist, value = TRUE))
+    ptn <- gsub ("net", "attr", ptn) # retains 'attrc' for contracted
+    a <- readRDS (grep (ptn, flist, value = TRUE))
     for (i in seq_along (a)) {
         attr (graph, names (a) [i]) <- a [[i]]
     }
