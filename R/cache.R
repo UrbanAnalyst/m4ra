@@ -76,7 +76,7 @@ m4ra_cache_network <- function (net, city) {
     a <- lapply (a, function (i) attr (net, i))
 
     hashc <- attr (netc, "hashc")
-    fname <- paste0 ("m4ra-", city, "-attr-", substring (hashc, 1, 6), ".Rds")
+    fname <- paste0 ("m4ra-", city, "-attrc-", substring (hashc, 1, 6), ".Rds")
     fpath <- file.path (tempdir (), fname)
 
     saveRDS (a, fpath)
