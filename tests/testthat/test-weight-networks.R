@@ -27,6 +27,6 @@ test_that ("weight networks", {
     )
 
     expect_type (f, "character")
-    expect_length (f, 3L)
+    expect_length (f, 15L)
     expect_true (all (file.exists (f)))
 })

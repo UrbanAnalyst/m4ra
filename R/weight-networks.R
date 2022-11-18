@@ -69,7 +69,10 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
             net_w <- dodgr::weight_streetnet (net, wt_profile = w)
         }
 
-        m4ra_cache_network (net_w, city = city, mode = w) 
+        filenames <- c (
+            filenames,
+            m4ra_cache_network (net_w, city = city, mode = w) 
+        )
 
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (

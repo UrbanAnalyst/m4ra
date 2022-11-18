@@ -56,6 +56,8 @@ m4ra_network_hash <- function (net) {
 #' @export
 m4ra_cache_network <- function (net, city, mode) {
 
+    flist_out <- NULL
+
     cache_dir <- fs::path (m4ra_cache_dir (), city)
     city <- tolower (city)
 
@@ -69,10 +71,13 @@ m4ra_cache_network <- function (net, city, mode) {
     fname <- paste0 ("m4ra-", city, "-", mode, "-attr-",
         substring (hash, 1, 6), ".Rds")
     fpath <- file.path (cache_dir, fname)
+    flist_out <- c (flist_out, fpath)
 
     saveRDS (a, fpath)
 
-    fst::write_fst (net, gsub ("attr", "net", fpath))
+    fa <- gsub ("attr", "net", fpath)
+    fst::write_fst (net, fa)
+    flist_out <- c (flist_out, fa)
 
     # Contracted graph:
     netc <- dodgr::dodgr_contract_graph (net)
@@ -87,17 +92,26 @@ m4ra_cache_network <- function (net, city, mode) {
     fpath <- file.path (cache_dir, fname)
 
     saveRDS (a, fpath)
+    flist_out <- c (flist_out, fpath)
 
-    fst::write_fst (netc, gsub ("attrc", "netc", fpath))
+    fa <- gsub ("attrc", "netc", fpath)
+    fst::write_fst (netc, fa)
+    flist_out <- c (flist_out, fa)
 
     # Edge map and junctions:
     flist <- list.files (tempdir (), pattern = hashc, full.names = TRUE)
     edge_map <- readRDS (grep ("edge\\_map", flist, value = TRUE))
-    fst::write_fst (edge_map, gsub ("attrc", "edge-map", fpath))
+    fe <- gsub ("attrc", "edge-map", fpath)
+    fst::write_fst (edge_map, fe)
+    flist_out <- c (flist_out, fe)
     junctions <- readRDS (grep ("junctions", flist, value = TRUE))
     if (length (junctions) > 0L) {
-        fst::write_fst (junctions, gsub ("attrc", "junctions", fpath))
+        fj <- gsub ("attrc", "junctions", fpath)
+        fst::write_fst (junctions, fj)
+        flist_out <- c (flist_out, fj)
     }
+
+    return (flist_out)
 }
 
 #' Load cached file for one city and mode

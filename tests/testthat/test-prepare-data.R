@@ -33,7 +33,7 @@ test_that ("prepare data", {
         gtfs = gtfs_path,
         city_name = "berlin",
         day = "mo",
-        start_time_limits = 8:9 * 3600,
+        start_time_limits = start_time_limits,
         final_mode = "foot",
         fast = FALSE,
         n_closest = 10L)
@@ -41,9 +41,9 @@ test_that ("prepare data", {
     expect_type (flist, "character")
     expect_true (all (file.exists (flist)))
 
-    expect_length (flist, 6L)
+    expect_length (flist, 18L)
     # 3 weighted networks:
-    expect_length (grep ("foot|bicycle|motorcar", flist), 3L)
+    expect_length (grep ("foot|bicycle|motorcar", flist), 15L)
     # 1 GTFS source:
     expect_length (grep ("berlin\\-gtfs\\.Rds$", flist), 1L)
     # plus one GTFS travel time matrix, and one GTFS-to-final network time
