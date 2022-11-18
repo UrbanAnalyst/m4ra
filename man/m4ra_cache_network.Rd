@@ -5,12 +5,15 @@
 \title{Save a weighted street network in both full and contracted forms to local
 cache.}
 \usage{
-m4ra_cache_network(net, city)
+m4ra_cache_network(net, city, mode)
 }
 \arguments{
 \item{net}{The full network to be cached.}
 
 \item{city}{Name of city; used to name cached network files.}
+
+\item{mode}{Mode of transport, as name of weighting profile used to weight
+networks in \pkg{dodgr}; used to name cached network files.}
 }
 \description{
 This uses \pkg{fst}, which strips all attributes, so they are saved

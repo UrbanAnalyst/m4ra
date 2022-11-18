@@ -4,14 +4,22 @@
 \alias{m4ra_load_cached_network}
 \title{Load cached file for one city and mode}
 \usage{
-m4ra_load_cached_network(city = NULL, mode = "foot", filename = NULL)
+m4ra_load_cached_network(
+  city = NULL,
+  mode = "foot",
+  contracted = TRUE,
+  filename = NULL
+)
 }
 \arguments{
 \item{city}{City for which file is to be loaded.}
 
 \item{mode}{One of "foot", "bicycle", or "motorcar".}
 
-\item{filename}{Can be used to specify particular filename to load.}
+\item{contracted}{If \code{TRUE}, load the contracted version of the graph;
+otherwise load the full graph.}
+
+\item{filename}{Optional name of specific file to load.}
 }
 \value{
 Previously cached, weighted streetnet for specified city and mode.
