@@ -108,7 +108,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         n_closest = n_closest,
         quiet = quiet
     )
-    files <- c (files, fname_gtfs, f_closest_gtfs)
+    files <- unique (c (files, fname_gtfs, f_closest_gtfs))
 
     f_parking <- NULL
     if (parking) {
