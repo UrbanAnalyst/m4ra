@@ -151,7 +151,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
     graph_hash <- substring (graph_hash, 1L, 6L)
 
     city <- regmatches (f_net, regexpr ("m4ra\\-.*[^\\-]\\-", f_net))
-    city <- gsub ("^m4ra\\-|\\-.*$", "", city)
+    city <- gsub ("^m4ra\\-|\\-.*$", "", tolower (city))
     f_gtfs_tmat <- grep (
         paste0 ("m4ra-", city, "-gtfs.*[0-9]+\\-[0-9]+\\.Rds$"),
         files,
@@ -186,7 +186,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
         ifelse (fast, "fast", "slow"),
         ".Rds"
     )
-    fname <- fs::path (m4ra_cache_dir (), city_name, fname)
+    fname <- fs::path (m4ra_cache_dir (), city, fname)
 
     if (!file.exists (fname)) {
 
