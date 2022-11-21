@@ -40,17 +40,14 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
     graph_f <- v_f <- NULL
 
     if (walk_dists) {
-        graph_f <- m4ra_load_cached_network (city, mode = "foot")
-        graph_f <- dodgr::dodgr_contract_graph (graph_f)
+        graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
         graph_f <- graph_f [graph_f$component == 1, ]
         v_f <- dodgr::dodgr_vertices (graph_f)
     }
-    graph_b <- m4ra_load_cached_network (city, mode = "bicycle")
-    graph_b <- dodgr::dodgr_contract_graph (graph_b)
+    graph_b <- m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
     graph_b <- graph_b [graph_b$component == 1, ]
     v_b <- dodgr::dodgr_vertices (graph_b)
-    graph_c <- m4ra_load_cached_network (city, mode = "motorcar")
-    graph_c <- dodgr::dodgr_contract_graph (graph_c)
+    graph_c <- m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
     graph_c <- graph_c [graph_c$component == 1, ]
     v_c <- dodgr::dodgr_vertices (graph_c)
 
