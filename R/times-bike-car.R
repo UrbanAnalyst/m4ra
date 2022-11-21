@@ -35,6 +35,11 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
 
     requireNamespace ("dplyr")
 
+    if (is.null (from)) {
+        stop ("'from' must be specified")
+    }
+    checkmate::assert_character (from, min.len = 1L)
+
     # suppress no visible binding notes:
     bike_t <- car_t <- walk_d <- ratio <- NULL
     graph_f <- v_f <- NULL
@@ -51,19 +56,11 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
     graph_c <- graph_c [graph_c$component == 1, ]
     v_c <- dodgr::dodgr_vertices (graph_c)
 
-    if (is.null (from)) {
-        # Get vertices common to all networks:
-        all_from <- c (graph_b$.vx0, graph_c$.vx0)
-        if (walk_dists) {
-            all_from <- c (all_from, graph_f$.vx0)
-        }
-        vert_count <- table (c (unique (all_from)))
-        verts_all <- names (vert_count) [which (vert_count == 3)]
-        v <- v_b [which (v_b$id %in% verts_all), ]
+    # Need to remove 'wt_profile_file' attribute, as turn angles are already
+    # included within the graph:
+    attr (graph_c, "wt_profile_file") <- NULL
 
-        from <- v$id
-        message ("Calculating times from [", length (from), "] vertices")
-    }
+    message ("Calculating times from [", length (from), "] vertices")
 
     v <- rbind (v_f, v_b, v_c)
     ids <- unique (v$id)

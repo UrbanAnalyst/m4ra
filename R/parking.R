@@ -1,4 +1,14 @@
 
+# Global variables defining time penalties for parking a car at the start and
+# end of journeys. These are multiplied by the internal scale of the ratio of
+# nearby parking capacity divided by the cubic root of nearby building volume.
+# That ratio generally has mean and median values between 1 and 2, and maximal
+# values around 4-5. These ratios are then converted to corresponding times in
+# minutes by multiplying by the following factors, as documented in
+# https://github.com/ATFutures/m4ra/issues/9
+parking_ratio_multiplier_start <- 2
+parking_ratio_multiplier_end <- 3
+
 #' Get data on parking availability and building volumes to estimate time
 #' penalties for automobile travel.
 #'
@@ -82,10 +92,10 @@ m4ra_parking <- function (bb,
         # root of the building volume.
         v$ratio <- v$parking / as.numeric (v$building_volume) ^ (1 / 3)
 
-        # And that is then converted to penalties at start and end
-        # See https://github.com/ATFutures/m4ra/issues/9
-        v$penalty_start <- v$ratio * 2 * 60
-        v$penalty_end <- v$ratio * 3 * 60
+        # And that is then converted to penalties at start and end, as
+        # documented at top of this file.
+        v$penalty_start <- v$ratio * parking_ratio_multiplier_start * 60
+        v$penalty_end <- v$ratio * parking_ratio_multiplier_end * 60
 
         saveRDS (v, f_parking)
     }
