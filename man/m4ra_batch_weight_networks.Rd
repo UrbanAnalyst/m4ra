@@ -15,7 +15,8 @@ converted into weighted network form.}
 }
 \value{
 A character vector of local locations of cached versions of the
-variously weighted network representations used in \link{m4ra}.
+variously weighted network representations used in the various routing
+functions.
 }
 \description{
 This function runs of a directory which contain a number of \pkg{silicate} or

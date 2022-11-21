@@ -7,8 +7,8 @@
 m4ra_weight_networks(net, city, quiet = TRUE)
 }
 \arguments{
-\item{net}{An urban network in \code{osmdata_sc} format from the \pkg{osmdata}
-package.}
+\item{net}{A \pkg{silicate}, "SC", format object containing network data used
+to generate weighted street networks.}
 
 \item{city}{Name of city; only used to name cached network files.}
 
@@ -16,7 +16,8 @@ package.}
 }
 \value{
 A character vector of local locations of cached versions of the
-variously weighted network representations used in \link{m4ra}.
+variously weighted network representations used in the various routing
+functions.
 }
 \description{
 Uses a default cache location specified by \code{rappdirs::user_cache_dir()}. This
