@@ -17,6 +17,8 @@ m4ra_weight_networks <- function (net, city, quiet = TRUE) {
 
     checkmate::assert_character (city)
 
+    attr (net, "hash") <- m4ra_network_hash (net)
+
     wt_profiles <- c ("foot", "bicycle", "motorcar")
 
     filenames <- cache_networks (

@@ -68,10 +68,10 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 
     cache_dir <- fs::path (m4ra_cache_dir (), city_name)
 
-    net <- readRDS (net_sc)
+    net <- m_readRDS (net_sc)
     net_files <- m4ra_weight_networks (net, city = city_name, quiet = quiet)
 
-    gtfs_data <- readRDS (gtfs)
+    gtfs_data <- m_readRDS (gtfs)
     gtfs_hash <- substring (digest::digest (gtfs_data), 1, 6)
     fname_gtfs <- paste0 ("m4ra-", city_name, "-gtfs-", gtfs_hash,
         "-", day, "-", paste0 (start_time_limits, collapse = "-"), ".Rds")
@@ -165,7 +165,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
         f_gtfs <- f_gtfs [which (!grepl ("\\-to\\-net\\-", f_gtfs))]
     }
     checkmate::assert_character (f_gtfs, max.len = 1L)
-    gtfs <- readRDS (f_gtfs)
+    gtfs <- m_readRDS (f_gtfs)
     stops <- gtfs$stops
     # Generate hash only from the stops table, so timetable can be updated, but
     # the final stage will only need to be re-calculated if the stops themselves

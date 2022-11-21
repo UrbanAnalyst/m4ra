@@ -42,11 +42,11 @@ m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         )
     }
 
-    stops <- readRDS (gtfs)$stops
+    stops <- m_readRDS (gtfs)$stops
     f <- grep ("gtfs\\-.*[0-9]{5}\\-[0-9]{5}\\.Rds$", files, value = TRUE)
-    gtfs_mat <- readRDS (f)
+    gtfs_mat <- m_readRDS (f)
     f <- grep ("gtfs\\-to\\-net", files, value = TRUE)
-    gtfs_to_net <- readRDS (f)
+    gtfs_to_net <- m_readRDS (f)
 
 
     # need times to all vertices to extract overall minimal time from initial

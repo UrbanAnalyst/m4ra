@@ -36,7 +36,20 @@ m4ra_network_hash <- function (net) {
 
     checkmate::assert_class (net, "osmdata_sc")
 
-    full_hash <- digest::digest (net)
+    full_hash <- attr (net, "hash")
+    if (!is.null (full_hash)) {
+        return (full_hash)
+    }
+
+    ids <- list (
+        nodes = net$nodes$vertex_,
+        obj = net$object$object_,
+        edge = net$edge$edge_,
+        vertex = net$vertex$vertex_,
+        meta = net$meta
+    )
+
+    full_hash <- digest::digest (ids)
     hash <- substr (full_hash, 1L, 6L)
 
     return (hash)
@@ -173,3 +186,5 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
 
     return (graph)
 }
+
+m_readRDS <- memoise::memoise (function (path) readRDS (path))
