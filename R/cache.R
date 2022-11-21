@@ -176,7 +176,7 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
 
     }
 
-    graph <- fst::read_fst (f)
+    graph <- m_read_fst (f)
 
     ptn <- gsub ("net", "attr", ptn) # retains 'attrc' for contracted
     a <- readRDS (grep (ptn, flist, value = TRUE))
@@ -188,3 +188,5 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
 }
 
 m_readRDS <- memoise::memoise (function (path) readRDS (path))
+
+m_read_fst <- memoise::memoise (function (path) fst::read_fst (path))
