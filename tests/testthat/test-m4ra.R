@@ -6,30 +6,35 @@ Sys.setenv ("M4RA_CACHE_DIR" = tempdir ())
 
 test_that ("m4ra errors", {
 
-    expect_error (m4ra (),
-        "argument \"net\" is missing, with no default")
-    expect_error (m4ra (net = 1L),
-        "Assertion on \'net\' failed: Must inherit from class \'osmdata_sc\'")
-    net <- structure (1L, class = "osmdata_sc")
-    expect_error (m4ra (net = net),
-        "Assertion on \'from\' failed: Must be of type \'character\', not \'NULL\'")
+    expect_error (m4ra_times_multi_modal (),
+        "Assertion on 'net_sc' failed: Must be of type 'character'")
+    expect_error (m4ra_times_multi_modal (net = 1L),
+        "Assertion on 'net_sc' failed: Must be of type 'character', not 'integer'")
 
     net <- m4ra_hampi
-    expect_error (m4ra (net = net, from = "a", gtfs = 1L),
-        "Assertion on \'gtfs\' failed: Must inherit from class \'gtfs\', but has class \'integer\'")
-    expect_error (m4ra (net = net, from = "a", to = 1L),
-        "Assertion on \'to\' failed: Must be of type \'character\', not \'integer\'")
+    net_path <- fs::path (fs::path_temp (), "hampi.Rds")
+    saveRDS (net, net_path)
+    expect_error (m4ra_times_multi_modal (net = net_path, from = "a", gtfs = 1L),
+        "Assertion on 'gtfs' failed: Must be of type 'character', not 'integer'")
+
+    try (file.remove (net_path))
 })
 
 test_that ("m4ra function", {
 
     net <- m4ra_hampi
+    net_path <- fs::path (fs::path_temp (), "hampi.Rds")
+    if (!file.exists (net_path)) {
+        saveRDS (net, net_path)
+    }
+
     net_w <- dodgr::weight_streetnet (net, wt_profile = "foot")
     v <- dodgr::dodgr_vertices (net_w)
     set.seed (1L)
     from <- sample (v$id, size = 10L)
 
     #expect_silent ( # fstcore produces startup messages
-        out <- m4ra (net, from = from)
+    #    out <- m4ra_times_multi_modal (net_path, from = from)
     #)
+    try (file.remove (net_path))
 })
