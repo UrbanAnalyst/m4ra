@@ -82,7 +82,7 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
         f_parking <- grep (f_parking_hash, f_parking, value = TRUE)
     }
     if (length (f_parking == 1L)) {
-        parking <- readRDS (f_parking)
+        parking <- m_readRDS (f_parking)
         index <- match (rownames (car_times), parking$id)
         p_start_mat <- array (parking$penalty_start [index], dim = dim (car_times))
         index <- match (colnames (car_times), parking$id)
