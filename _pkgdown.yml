@@ -5,12 +5,15 @@ template:
   bootstrap: 5
 
 reference:
-- title: Main functions
+- title: Routing functions
   contents:
   - has_concept("main")
-- title: Analysis functions
+- title: Analysis and meta-routing functions
   contents:
   - has_concept("analyses")
+- title: Data preparation
+  contents:
+  - has_concept("prep")
 - title: Save, Load, and Caching
   contents:
   - has_concept("cache")

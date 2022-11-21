@@ -43,7 +43,6 @@ dat <- m4ra_bike_car_ratios (city = city, from = from)
 }
 \seealso{
 Other analyses: 
-\code{\link{m4ra_bike_car_ratio_areas}()},
-\code{\link{m4ra_parking}()}
+\code{\link{m4ra_bike_car_ratio_areas}()}
 }
 \concept{analyses}

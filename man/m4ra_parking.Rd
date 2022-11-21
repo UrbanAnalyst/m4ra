@@ -46,8 +46,8 @@ Get data on parking availability and building volumes to estimate time
 penalties for automobile travel.
 }
 \seealso{
-Other analyses: 
-\code{\link{m4ra_bike_car_ratio_areas}()},
-\code{\link{m4ra_times_bike_car}()}
+Other prep: 
+\code{\link{m4ra_prepare_data}()},
+\code{\link{m4ra_times_to_gtfs_stops}()}
 }
-\concept{analyses}
+\concept{prep}

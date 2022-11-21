@@ -29,7 +29,7 @@ parking_ratio_multiplier_end <- 3
 #' additional columns quantifying number of parking spaces associated with each
 #' vertex, as well as the total volume of all surrounding buildings.
 #'
-#' @family analyses
+#' @family prep
 #' @export
 
 m4ra_parking <- function (bb,

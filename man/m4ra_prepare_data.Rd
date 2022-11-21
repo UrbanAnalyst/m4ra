@@ -72,11 +72,8 @@ in a local cache directory defined by the \code{user_cache_dir()} function of th
 "M4RA_CACHE_DIR", if set.
 }
 \seealso{
-Other main: 
-\code{\link{m4ra_gtfs_traveltimes}()},
-\code{\link{m4ra_times_multi_modal}()},
-\code{\link{m4ra_times_multi_mode}()},
-\code{\link{m4ra_times_single_mode}()},
+Other prep: 
+\code{\link{m4ra_parking}()},
 \code{\link{m4ra_times_to_gtfs_stops}()}
 }
-\concept{main}
+\concept{prep}

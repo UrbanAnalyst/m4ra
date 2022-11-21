@@ -85,7 +85,7 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 #' @return An integer matrix of fastest travel times either between all 'gtfs'
 #' stops and all network points (for 'graph_to_gtfs = FALSE'), or the other way
 #' around (for 'graph_to_gtfs = TRUE').
-#' @family main
+#' @family prep
 #' @export
 
 m4ra_times_to_gtfs_stops <- function (graph, gtfs, from = NULL, graph_to_gtfs = TRUE) {

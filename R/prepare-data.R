@@ -41,7 +41,7 @@
 #' and building volumes, and convert to a score used to calculate time penalties
 #' for automobile routing.
 #' @param quiet If `FALSE`, display progress information on screen.
-#' @family main
+#' @family prep
 #' @export
 m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                                planet_file = NULL,
