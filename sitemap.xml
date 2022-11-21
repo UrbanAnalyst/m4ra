@@ -16,16 +16,10 @@
     <loc>https://atfutures.github.io/m4ra/reference/m4ra-package.html</loc>
   </url>
   <url>
-    <loc>https://atfutures.github.io/m4ra/reference/m4ra.html</loc>
-  </url>
-  <url>
     <loc>https://atfutures.github.io/m4ra/reference/m4ra_batch_weight_networks.html</loc>
   </url>
   <url>
     <loc>https://atfutures.github.io/m4ra/reference/m4ra_bike_car_ratio_areas.html</loc>
-  </url>
-  <url>
-    <loc>https://atfutures.github.io/m4ra/reference/m4ra_bike_car_times.html</loc>
   </url>
   <url>
     <loc>https://atfutures.github.io/m4ra/reference/m4ra_cache_network.html</loc>
@@ -47,6 +41,9 @@
   </url>
   <url>
     <loc>https://atfutures.github.io/m4ra/reference/m4ra_prepare_data.html</loc>
+  </url>
+  <url>
+    <loc>https://atfutures.github.io/m4ra/reference/m4ra_times_bike_car.html</loc>
   </url>
   <url>
     <loc>https://atfutures.github.io/m4ra/reference/m4ra_times_multi_modal.html</loc>
