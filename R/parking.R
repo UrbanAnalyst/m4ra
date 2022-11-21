@@ -21,13 +21,22 @@
 #'
 #' @family analyses
 #' @export
-m4ra_parking <- function (bb, city_name, mode = "motorcar",
-                          planet_file = NULL, dlim = 5000, k = 1000,
+
+m4ra_parking <- function (bb,
+                          city_name,
+                          mode = "motorcar",
+                          planet_file = NULL,
+                          dlim = 5000,
+                          k = 1000,
                           quiet = FALSE) {
 
     city <- gsub ("\\s+", "-", tolower (city_name))
 
-    graph_c <- m4ra_load_cached_network (city = city_name, mode = mode, contracted = TRUE)
+    graph_c <- m4ra_load_cached_network (
+        city = city_name,
+        mode = mode,
+        contracted = TRUE
+    )
     graph_c <- graph_c [graph_c$component == 1L, ]
 
     v <- dodgr::dodgr_vertices (graph_c)
@@ -52,12 +61,21 @@ m4ra_parking <- function (bb, city_name, mode = "motorcar",
         parking <- get_parking_data (bb, planet_file, city_name, quiet)
         buildings <- get_building_data (bb, planet_file, city_name, quiet)
 
-        v$parking <- aggregate_parking_data (graph_c, parking, dlim = dlim, k = k)
-        v$building_volume <- aggregate_building_data (graph_c, buildings, dlim = dlim, k = k)
+        v$parking <- aggregate_parking_data (
+            graph_c,
+            parking,
+            dlim = dlim,
+            k = k
+        )
+        v$building_volume <- aggregate_building_data (
+            graph_c,
+            buildings,
+            dlim = dlim,
+            k = k
+        )
 
-        # The final ratio is then number of parking spaces divided by the cubic root
-        # of the buildnig volume.
-        b <- as.numeric (v$building_volume) ^ (1 / 3)
+        # The final ratio is then number of parking spaces divided by the cubic
+        # root of the building volume.
         v$ratio <- v$parking / as.numeric (v$building_volume) ^ (1 / 3)
 
         # And that is then converted to penalties at start and end
@@ -75,7 +93,8 @@ m4ra_parking <- function (bb, city_name, mode = "motorcar",
 #'
 #' Centroids of all parking polygons and points, and associated capacities.
 #' @noRd
-get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) {
+get_parking_data <- function (bb,
+                              planet_file = NULL, city_name, quiet = FALSE) {
 
     # suppress no visible binding notes:
     amenity <- parking <- NULL
@@ -172,8 +191,8 @@ get_parking_data <- function (bb, planet_file = NULL, city_name, quiet = FALSE) 
     # Process "capacity" values first by taking mean of any ranges:
     index <- grep ("\\-", dat_p$capacity)
     if (length (index) > 0) {
-        cap <- sapply (strsplit (dat_p$capacity [index], "-"), function (i)
-                       mean (as.integer (i)))
+        cap <- sapply (strsplit (dat_p$capacity [index], "-"),
+                       function (i) mean (as.integer (i)))
         dat_p$capacity [index] <- round (cap)
 
     }
@@ -237,7 +256,8 @@ process_onstreet_lanes <- function (dat_l) {
         index_in <- sort (c (i_par, i_per, i_dia))
         index_out <- seq_along (col_sub) [-index_in]
         values <- as.numeric (col_sub [index_in])
-        col_sub [index_out] <- sample (values, size = length (index_out), replace = TRUE)
+        col_sub [index_out] <-
+            sample (values, size = length (index_out), replace = TRUE)
         net [[co]] [index] <- col_sub
         net [[co]] [which (is.na (net [[co]]))] <- 0
         net [[co]] <- as.numeric (net [[co]])
@@ -246,7 +266,8 @@ process_onstreet_lanes <- function (dat_l) {
             net [[co]] <- 2 * net [[co]]
         }
 
-        net [[co]] [index] <- as.integer (floor (net$d [index] / net [[co]] [index]))
+        net [[co]] [index] <-
+            as.integer (floor (net$d [index] / net [[co]] [index]))
     }
 
     # Other columns are then the explicit "parking:lane:<side>:<direction>"
@@ -291,7 +312,7 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
         dat_b <- osmdata::opq (bb) |>
             osmdata::add_osm_feature (key = "building") |>
             osmdata::osmdata_sf (doc = f_b, quiet = quiet)
-    
+
     } else {
 
         dat_b <- osmdata::opq (bb) |>
@@ -359,7 +380,10 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
         id = c (parking_lanes$from_id, parking_lanes$to_id),
         x = c (parking_lanes$from_lon, parking_lanes$to_lon),
         y = c (parking_lanes$from_lat, parking_lanes$to_lat),
-        capacity = c (parking_lanes$street_parking, parking_lanes$street_parking) / 2
+        capacity = c (
+            parking_lanes$street_parking,
+            parking_lanes$street_parking
+        ) / 2
     )
     p_lanes <- dplyr::group_by (p_lanes, id) |>
         dplyr::summarise (x = x [1], y = y [1], capacity = sum (capacity))
