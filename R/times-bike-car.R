@@ -39,6 +39,8 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
         stop ("'from' must be specified")
     }
     checkmate::assert_character (from, min.len = 1L)
+    checkmate::assert_character (city, max.len = 1L)
+    city <- gsub ("\\s+", "-", tolower (city))
 
     # suppress no visible binding notes:
     bike_t <- car_t <- walk_d <- ratio <- NULL
@@ -73,8 +75,8 @@ m4ra_bike_car_times <- function (city = NULL, from = NULL, walk_dists = TRUE) {
 
     # Add start and end time penalties for parking, only reading directly from
     # cached parking file if it exists
-    flist <- list.files (m4ra_cache_dir (), full.names = TRUE, pattern = city)
-    f_parking <- grep ("parking", flist, value = TRUE)
+    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    f_parking <- list.files (cache_dir, full.names = TRUE, pattern = "parking")
     if (length (f_parking) > 0) {
         f_parking_hash <- substring (digest::digest (v_c$id), 1, 6)
         f_parking <- grep (f_parking_hash, f_parking, value = TRUE)
