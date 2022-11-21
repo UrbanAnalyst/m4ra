@@ -1,5 +1,6 @@
 #' @keywords internal
 #' @useDynLib m4ra, .registration = TRUE
+#' @importFrom memoise memoise
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #' @aliases m4ra-package
