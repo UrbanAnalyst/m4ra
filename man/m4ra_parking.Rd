@@ -48,6 +48,6 @@ penalties for automobile travel.
 \seealso{
 Other analyses: 
 \code{\link{m4ra_bike_car_ratio_areas}()},
-\code{\link{m4ra_bike_car_times}()}
+\code{\link{m4ra_times_bike_car}()}
 }
 \concept{analyses}

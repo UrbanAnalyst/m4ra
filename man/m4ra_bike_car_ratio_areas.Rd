@@ -8,7 +8,7 @@ range of ratios of the two travel times.}
 m4ra_bike_car_ratio_areas(bike_car_dat, ratio_lims = 1 + 0:10/10)
 }
 \arguments{
-\item{bike_car_dat}{Result of \link{m4ra_bike_car_times} function for a
+\item{bike_car_dat}{Result of \link{m4ra_times_bike_car} function for a
 specified vector of \code{from} points.}
 
 \item{ratio_lims}{Vector of ratio limits used to calculate areas within which
@@ -16,7 +16,7 @@ ratio of bicycle to automobile times is less than specified limits.}
 }
 \value{
 A \code{data.frame} with one row for each \code{from} point used to calculate
-\link{m4ra_bike_car_times}, and columns including the OSM "id" value and
+\link{m4ra_times_bike_car}, and columns including the OSM "id" value and
 corresponding coordinates ("x" and "y"), followed by a series of columns, one
 for each specified value of \code{ratio_lims}, containing the areas in square
 kilometres over which bicycle travel times are within the specified ratio of
@@ -28,7 +28,7 @@ range of ratios of the two travel times.
 }
 \seealso{
 Other analyses: 
-\code{\link{m4ra_bike_car_times}()},
-\code{\link{m4ra_parking}()}
+\code{\link{m4ra_parking}()},
+\code{\link{m4ra_times_bike_car}()}
 }
 \concept{analyses}
