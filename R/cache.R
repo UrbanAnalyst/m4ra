@@ -28,7 +28,8 @@ m4ra_cache_dir <- function () {
 #' particular to determine whether or not weighted versions of a given network
 #' have been previously cached.
 #'
-#' @inheritParams m4ra
+#' @param net A \pkg{silicate}, "SC", format object containing network data used
+#' to generate weighted street networks.
 #' @return Single character value with unique hash of given network.
 #' @family cache
 #' @export

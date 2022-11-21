@@ -7,8 +7,8 @@
 m4ra_network_hash(net)
 }
 \arguments{
-\item{net}{An urban network in \code{osmdata_sc} format from the \pkg{osmdata}
-package.}
+\item{net}{A \pkg{silicate}, "SC", format object containing network data used
+to generate weighted street networks.}
 }
 \value{
 Single character value with unique hash of given network.

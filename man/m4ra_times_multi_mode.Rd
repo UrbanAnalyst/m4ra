@@ -68,7 +68,6 @@ Other main:
 \code{\link{m4ra_prepare_data}()},
 \code{\link{m4ra_times_multi_modal}()},
 \code{\link{m4ra_times_single_mode}()},
-\code{\link{m4ra_times_to_gtfs_stops}()},
-\code{\link{m4ra}()}
+\code{\link{m4ra_times_to_gtfs_stops}()}
 }
 \concept{main}
