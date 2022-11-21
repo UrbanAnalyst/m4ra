@@ -10,10 +10,16 @@
 #' @inheritParams m4ra_prepare_data
 #' @family main
 #' @export
-m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
-                                   day = NULL, start_time_limits = NULL,
-                                   initial_mode = "foot", final_mode = "foot",
-                                   from = NULL, fast = FALSE, n_closest = 10L,
+m4ra_times_multi_mode <- function (net_sc = NULL,
+                                   gtfs = NULL,
+                                   city_name = NULL,
+                                   day = NULL,
+                                   start_time_limits = NULL,
+                                   initial_mode = "foot",
+                                   final_mode = "foot",
+                                   from = NULL,
+                                   fast = FALSE,
+                                   n_closest = 10L,
                                    quiet = FALSE) {
 
     files <- m4ra_prepare_data (
@@ -61,7 +67,15 @@ m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     # GTFS network to all termimal network vertices.
     times [is.na (times)] <- -1
     gtfs_mat [is.na (gtfs_mat)] <- -1
-    res <- rcpp_add_net_to_gtfs (times_to_gtfs, gtfs_mat, gtfs_to_net$index, gtfs_to_net$d, nrow (v))
+
+    res <- rcpp_add_net_to_gtfs (
+        times_to_gtfs,
+        gtfs_mat,
+        gtfs_to_net$index,
+        gtfs_to_net$d,
+        nrow (v)
+    )
+
     maxr <- rcpp_matrix_max (res)
     res [res == maxr] <- NA
 
@@ -84,11 +98,17 @@ m4ra_times_multi_mode <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 #' @inherit m4ra_times_multi_mode
 #' @family main
 #' @export
-m4ra_times_multi_modal <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
-                                   day = NULL, start_time_limits = NULL,
-                                   initial_mode = "foot", final_mode = "foot",
-                                   from = NULL,
-                                   fast = FALSE, n_closest = 10L, quiet = FALSE) {
+m4ra_times_multi_modal <- function (net_sc = NULL,
+                                    gtfs = NULL,
+                                    city_name = NULL,
+                                    day = NULL,
+                                    start_time_limits = NULL,
+                                    initial_mode = "foot",
+                                    final_mode = "foot",
+                                    from = NULL,
+                                    fast = FALSE,
+                                    n_closest = 10L,
+                                    quiet = FALSE) {
 
     m4ra_times_multi_mode (
         net_sc = net_sc,
