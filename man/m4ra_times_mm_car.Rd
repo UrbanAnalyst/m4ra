@@ -62,8 +62,6 @@ result in faster calculation times, yet with potentially inaccurate results.}
 \item{walk_dists}{If \code{TRUE}, also calculate equivalent walking distances.}
 
 \item{quiet}{If \code{FALSE}, display progress information on screen.}
-
-\item{city}{City for which values are to be calculated}
 }
 \value{
 A \code{data.frame} of destination vertices, including Open Street Map ID

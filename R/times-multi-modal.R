@@ -99,7 +99,6 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
 #' \link{m4ra_batch_weight_networks} function, and for corresponding networks to
 #' exist in the `m4ra` cache directory for the specified city.
 #'
-#' @param city City for which values are to be calculated
 #' @param from Vector of OSM ID values of vertices from which ratios are to be
 #' calculated. Typically obtained by loading one weighted network, and
 #' sampling or extracting vertices from the \pkg{dodgr} function
