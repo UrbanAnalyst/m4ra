@@ -7,28 +7,63 @@ versus private automobile, along with (optionally) corresponding walking
 distances.}
 \usage{
 m4ra_times_mm_car(
-  city = NULL,
-  from = NULL,
-  walk_dists = TRUE,
+  net_sc = NULL,
+  gtfs = NULL,
+  city_name = NULL,
+  day = NULL,
+  start_time_limits = NULL,
   initial_mode = "foot",
-  final_mode = "foot"
+  final_mode = "foot",
+  from = NULL,
+  fast = FALSE,
+  n_closest = 10L,
+  walk_dists = TRUE,
+  quiet = FALSE
 )
 }
 \arguments{
-\item{city}{City for which values are to be calculated}
+\item{net_sc}{Local file path to a \pkg{silicate}, "SC", format object
+containing network data used to generate weighted street networks.}
 
-\item{from}{Vector of OSM ID values of vertices from which ratios are to be
-calculated. Typically obtained by loading one weighted network, and
-sampling or extracting vertices from the \pkg{dodgr} function
-\code{dodgr_vertices}.}
+\item{gtfs}{Local file path to a \pkg{gtfsrouter} object saved via \code{saveRDS},
+containing GTFS (General Transit Feed Specification) data for network
+represented in \code{net_sc}. This \code{.Rds} object may include additional timetable
+or transfer information in addition to data represented in original
+\code{zip}-format data of provided GTFS feed.}
 
-\item{walk_dists}{If \code{TRUE}, also calculate equivalent walking distances.}
+\item{city_name}{Name of city used to name cached files.}
+
+\item{day}{As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
+day for which the matrix is to be calculated.}
+
+\item{start_time_limits}{As for the 'gtfs_traveltimes' function of
+\pkg{gtfsrouter}, a vector of two values specifying the earliest and latest
+departure times from each station.}
 
 \item{initial_mode}{Initial mode of transport from origin points towards
 public transport stop.}
 
 \item{final_mode}{The mode of transport used for the final stage from GTFS
 stops to destination points.}
+
+\item{from}{Vector of OSM ID values of vertices from which ratios are to be
+calculated. Typically obtained by loading one weighted network, and
+sampling or extracting vertices from the \pkg{dodgr} function
+\code{dodgr_vertices}.}
+
+\item{fast}{Values of \code{TRUE} generate potentially enormous matrices which may
+not fit in local memory. The default value of \code{FALSE} is generally safer, but
+calculation may take considerably longer.}
+
+\item{n_closest}{Final travel times to each destination point are calculated
+by tracing back times to this number of closest GTFS stops. Lower values will
+result in faster calculation times, yet with potentially inaccurate results.}
+
+\item{walk_dists}{If \code{TRUE}, also calculate equivalent walking distances.}
+
+\item{quiet}{If \code{FALSE}, display progress information on screen.}
+
+\item{city}{City for which values are to be calculated}
 }
 \value{
 A \code{data.frame} of destination vertices, including Open Street Map ID

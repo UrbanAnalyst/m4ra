@@ -148,10 +148,6 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     checkmate::assert_character (city_name, max.len = 1L)
     city <- gsub ("\\s+", "-", tolower (city_name))
 
-    # suppress no visible binding notes:
-    mm_t <- car_t <- walk_d <- ratio <- NULL
-    graph_f <- v_f <- NULL
-
     if (walk_dists) {
         graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
         graph_f <- graph_f [graph_f$component == 1, ]
@@ -209,11 +205,23 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     }
 
     from_initial <- initial_verts$id [
-        dodgr::match_points_to_verts (initial_graph, v_from [, c ("x", "y")])
+        dodgr::match_points_to_verts (initial_verts, v_from [, c ("x", "y")])
     ]
-    initial_times <- m4ra_times_single_mode (initial_graph, from = from_initial)
-    initial_times <- data.frame (t (initial_times))
-    initial_times <- cbind (id = rownames (initial_times), initial_times)
+    mm_times <- m4ra_times_multi_mode (
+        net_sc = net_sc,
+        gtfs = gtfs,
+        city_name = city,
+        day = day,
+        start_time_limits = start_time_limits,
+        initial_mode = initial_mode,
+        final_mode = final_mode,
+        from = from_initial,
+        fast = fast,
+        n_closest = n_closest,
+        quiet = quiet
+    )
+    mm_times <- data.frame (t (mm_times))
+    mm_times <- cbind (id = rownames (mm_times), mm_times)
 
     all_ids <- c (initial_verts$id, car_times$id)
 
@@ -231,12 +239,12 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     num_ids <- ifelse (walk_dists, 3L, 2L)
     ids <- names (ids) [which (ids == num_ids)]
     car_times <- car_times [match (ids, car_times$id), -1, drop = FALSE]
-    initial_times <- initial_times [match (ids, initial_times$id), -1, drop = FALSE]
+    mm_times <- mm_times [match (ids, mm_times$id), -1, drop = FALSE]
     if (walk_dists) {
         walk_d <- walk_d [match (ids, walk_d$id), -1, drop = FALSE] / 1000
     }
 
-    ratio <- initial_times / car_times
+    ratio <- mm_times / car_times
     v <- v [match (ids, v$id), , drop = FALSE]
 
     return (list (
