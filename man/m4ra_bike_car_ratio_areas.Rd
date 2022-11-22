@@ -28,6 +28,7 @@ range of ratios of the two travel times.
 }
 \seealso{
 Other analyses: 
-\code{\link{m4ra_times_bike_car}()}
+\code{\link{m4ra_times_bike_car}()},
+\code{\link{m4ra_times_mm_car}()}
 }
 \concept{analyses}
