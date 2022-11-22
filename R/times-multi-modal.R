@@ -90,37 +90,3 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
 
     return (res)
 }
-
-#' Calculate matrix of pair-wise travel times between points using multiple
-#' modes of transport.
-#'
-#' Alias for \link{m4ra_times_multi_mode}
-#' @inherit m4ra_times_multi_mode
-#' @family main
-#' @export
-m4ra_times_multi_modal <- function (net_sc = NULL,
-                                    gtfs = NULL,
-                                    city_name = NULL,
-                                    day = NULL,
-                                    start_time_limits = NULL,
-                                    initial_mode = "foot",
-                                    final_mode = "foot",
-                                    from = NULL,
-                                    fast = FALSE,
-                                    n_closest = 10L,
-                                    quiet = FALSE) {
-
-    m4ra_times_multi_mode (
-        net_sc = net_sc,
-        gtfs = gtfs,
-        city_name = city_name,
-        day = day,
-        start_time_limits = start_time_limits,
-        initial_mode = initial_mode,
-        final_mode = final_mode,
-        from = from,
-        fast = fast,
-        n_closest = n_closest,
-        quiet = quiet
-    )
-}
