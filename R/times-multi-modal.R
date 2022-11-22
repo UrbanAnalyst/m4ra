@@ -126,9 +126,18 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
 #' @family analyses
 #' @export
 
-m4ra_times_mm_car <- function (city = NULL, from = NULL, walk_dists = TRUE,
+m4ra_times_mm_car <- function (net_sc = NULL,
+                               gtfs = NULL,
+                               city_name = NULL,
+                               day = NULL,
+                               start_time_limits = NULL,
                                initial_mode = "foot",
-                               final_mode = "foot") {
+                               final_mode = "foot",
+                               from = NULL,
+                               fast = FALSE,
+                               n_closest = 10L,
+                               walk_dists = TRUE,
+                               quiet = FALSE) {
 
     requireNamespace ("dplyr")
 
@@ -136,8 +145,8 @@ m4ra_times_mm_car <- function (city = NULL, from = NULL, walk_dists = TRUE,
         stop ("'from' must be specified")
     }
     checkmate::assert_character (from, min.len = 1L)
-    checkmate::assert_character (city, max.len = 1L)
-    city <- gsub ("\\s+", "-", tolower (city))
+    checkmate::assert_character (city_name, max.len = 1L)
+    city <- gsub ("\\s+", "-", tolower (city_name))
 
     # suppress no visible binding notes:
     mm_t <- car_t <- walk_d <- ratio <- NULL
