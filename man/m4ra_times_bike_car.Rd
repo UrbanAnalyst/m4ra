@@ -2,8 +2,8 @@
 % Please edit documentation in R/times-bike-car.R
 \name{m4ra_times_bike_car}
 \alias{m4ra_times_bike_car}
-\title{Calculate times from a specified point by bicycle and automobile, along with
-(optionally) corresponding walking distances.}
+\title{Calculate relative times from a specified point by bicycle versus private
+automobile, along with (optionally) corresponding walking distances.}
 \usage{
 m4ra_times_bike_car(city = NULL, from = NULL, walk_dists = TRUE)
 }

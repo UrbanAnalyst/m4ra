@@ -1,5 +1,5 @@
-#' Calculate times from a specified point by bicycle and automobile, along with
-#' (optionally) corresponding walking distances.
+#' Calculate relative times from a specified point by bicycle versus private
+#' automobile, along with (optionally) corresponding walking distances.
 #'
 #' This city expects weighted networks to have been generated with the
 #' \link{m4ra_batch_weight_networks} function, and for corresponding networks to
