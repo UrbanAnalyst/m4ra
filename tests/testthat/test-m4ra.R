@@ -6,15 +6,15 @@ Sys.setenv ("M4RA_CACHE_DIR" = tempdir ())
 
 test_that ("m4ra errors", {
 
-    expect_error (m4ra_times_multi_modal (),
+    expect_error (m4ra_times_multi_mode (),
         "Assertion on 'net_sc' failed: Must be of type 'character'")
-    expect_error (m4ra_times_multi_modal (net = 1L),
+    expect_error (m4ra_times_multi_mode (net = 1L),
         "Assertion on 'net_sc' failed: Must be of type 'character', not 'integer'")
 
     net <- m4ra_hampi
     net_path <- fs::path (fs::path_temp (), "hampi.Rds")
     saveRDS (net, net_path)
-    expect_error (m4ra_times_multi_modal (net = net_path, from = "a", gtfs = 1L),
+    expect_error (m4ra_times_multi_mode (net = net_path, from = "a", gtfs = 1L),
         "Assertion on 'gtfs' failed: Must be of type 'character', not 'integer'")
 
     try (file.remove (net_path))
@@ -34,7 +34,7 @@ test_that ("m4ra function", {
     from <- sample (v$id, size = 10L)
 
     #expect_silent ( # fstcore produces startup messages
-    #    out <- m4ra_times_multi_modal (net_path, from = from)
+    #    out <- m4ra_times_multi_mode (net_path, from = from)
     #)
     try (file.remove (net_path))
 })
