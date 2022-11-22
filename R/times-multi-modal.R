@@ -79,14 +79,14 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     maxr <- rcpp_matrix_max (res)
     res [res == maxr] <- NA
 
-    rownames (res) <- from
-    colnames (res) <- v$id
-
     # At that stage, `res` holds the fastest values routed through the GTFS
     # network. They just then have to be compared with the previously-calculated
     # times to all vertices using "initial_mode".
 
     res <- rcpp_min_from_two_matrices (res, times)
+
+    rownames (res) <- from
+    colnames (res) <- v$id
 
     return (res)
 }
