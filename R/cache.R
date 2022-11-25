@@ -43,26 +43,26 @@ m4ra_cache_dir <- function () {
 #' particular to determine whether or not weighted versions of a given network
 #' have been previously cached.
 #'
-#' @param net A \pkg{silicate}, "SC", format object containing network data used
+#' @param graph A \pkg{silicate}, "SC", format object containing network data used
 #' to generate weighted street networks.
 #' @return Single character value with unique hash of given network.
 #' @family cache
 #' @export
-m4ra_network_hash <- function (net) {
+m4ra_network_hash <- function (graph) {
 
-    checkmate::assert_class (net, "osmdata_sc")
+    checkmate::assert_class (graph, "osmdata_sc")
 
-    full_hash <- attr (net, "hash")
+    full_hash <- attr (graph, "hash")
     if (!is.null (full_hash)) {
         return (full_hash)
     }
 
     ids <- list (
-        nodes = net$nodes$vertex_,
-        obj = net$object$object_,
-        edge = net$edge$edge_,
-        vertex = net$vertex$vertex_,
-        meta = net$meta
+        nodes = graph$nodes$vertex_,
+        obj = graph$object$object_,
+        edge = graph$edge$edge_,
+        vertex = graph$vertex$vertex_,
+        meta = graph$meta
     )
 
     full_hash <- digest::digest (ids)
@@ -77,13 +77,13 @@ m4ra_network_hash <- function (net) {
 #' This uses \pkg{fst}, which strips all attributes, so they are saved
 #' separately, and re-attached in `load_cached_network()`.
 #'
-#' @param net The full network to be cached.
+#' @param graph The full network to be cached.
 #' @param city Name of city; used to name cached network files.
 #' @param mode Mode of transport, as name of weighting profile used to weight
 #' networks in \pkg{dodgr}; used to name cached network files.
 #' @family cache
 #' @export
-m4ra_cache_network <- function (net, city, mode) {
+m4ra_cache_network <- function (graph, city, mode) {
 
     flist_out <- NULL
 
@@ -91,26 +91,26 @@ m4ra_cache_network <- function (net, city, mode) {
     city <- tolower (city)
 
     # Full graph:
-    flist_out <- c (flist_out, cache_one_graph (net, city))
+    flist_out <- c (flist_out, cache_one_graph (graph, city))
 
     # Contracted graph:
-    netc <- dodgr::dodgr_contract_graph (net)
-    netc <- netc [which (netc$component == 1), ]
-    a_netc <- attributes (netc)
+    graph_c <- dodgr::dodgr_contract_graph (graph)
+    graph_c <- graph_c [which (graph_c$component == 1), ]
+    a_graph_c <- attributes (graph_c)
 
     if (a$turn_penalty > 0) {
 
-        to_from_indices <- to_from_index_with_tp (net, from = NULL, to = NULL)
+        to_from_indices <- to_from_index_with_tp (graph, from = NULL, to = NULL)
         if (to_from_indices$compound) {
-            netc <- to_from_indices$graph_compound
-            a_netc <- a_netc [which (!names (a_netc) %in% names (attributes (netc)))]
-            for (a in seq_along (a_netc)) {
-                attr (netc, names (a_netc) [a]) <- a_netc [[a]]
+            graph_c <- to_from_indices$graph_compound
+            a_graph_c <- a_graph_c [which (!names (a_graph_c) %in% names (attributes (graph_c)))]
+            for (a in seq_along (a_graph_c)) {
+                attr (graph_c, names (a_graph_c) [a]) <- a_graph_c [[a]]
             }
         }
     }
 
-    flist_out <- c (flist_out, cache_one_graph (netc, city))
+    flist_out <- c (flist_out, cache_one_graph (graph_c, city))
 
     # Edge map and junctions:
     flist <- fs::dir_ls (fs::path_temp (), regexp = hashc, fixed = TRUE)
@@ -181,7 +181,7 @@ cache_one_graph <- function (graph, city) {
 m4ra_load_cached_network <- function (city = NULL, mode = "foot",
                                       contracted = TRUE, filename = NULL) {
 
-    ptn <- paste0 ("\\-", ifelse (contracted, "netc", "net"), "\\-")
+    ptn <- paste0 ("\\-", ifelse (contracted, "graph_c", "graph"), "\\-")
 
     if (!is.null (filename)) {
 
@@ -219,7 +219,7 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
 
     graph <- m_read_fst (f)
 
-    ptn <- gsub ("net", "attr", ptn) # retains 'attrc' for contracted
+    ptn <- gsub ("graph", "attr", ptn) # retains 'attrc' for contracted
     a <- readRDS (grep (ptn, flist, value = TRUE))
     for (i in seq_along (a)) {
         attr (graph, names (a) [i]) <- a [[i]]
