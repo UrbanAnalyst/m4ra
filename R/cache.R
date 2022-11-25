@@ -95,6 +95,7 @@ m4ra_cache_network <- function (net, city, mode) {
 
     # Contracted graph:
     netc <- dodgr::dodgr_contract_graph (net)
+    netc <- netc [which (netc$component == 1), ]
     a_netc <- attributes (netc)
 
     if (a$turn_penalty > 0) {
