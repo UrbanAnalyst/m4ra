@@ -63,7 +63,9 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
         if (w == "motorcar") {
             f <- write_wt_profile (traffic_lights = 16, turn = 1)
             f_new <- fs::path (cache_dir, "wt_profile.json")
-            fs::file_copy (f, f_new)
+            if (!fs::file_exists (f_new)) {
+                fs::file_copy (f, f_new)
+            }
             fs::file_delete (f)
 
             net_w <- dodgr::weight_streetnet (
