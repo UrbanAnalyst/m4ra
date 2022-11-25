@@ -91,19 +91,7 @@ m4ra_cache_network <- function (net, city, mode) {
     city <- tolower (city)
 
     # Full graph:
-    a <- get_graph_attributes (net)
-
-    hash <- attr (net, "hash")
-    fname <- paste0 ("m4ra-", city, "-", mode, "-attr-",
-        substring (hash, 1, 6), ".Rds")
-    fpath <- fs::path (cache_dir, fname)
-    flist_out <- c (flist_out, fpath)
-
-    saveRDS (a, fpath)
-
-    fa <- gsub ("attr", "net", fpath)
-    fst::write_fst (net, fa)
-    flist_out <- c (flist_out, fa)
+    flist_out <- c (flist_out, cache_one_graph (net, city))
 
     # Contracted graph:
     netc <- dodgr::dodgr_contract_graph (net)
@@ -122,19 +110,7 @@ m4ra_cache_network <- function (net, city, mode) {
         }
     }
 
-    a <- get_graph_attributes (netc)
-
-    hashc <- a$hashc
-    fname <- paste0 ("m4ra-", city, "-", mode, "-attrc-",
-        substring (hashc, 1, 6), ".Rds")
-    fpath <- fs::path (cache_dir, fname)
-
-    saveRDS (a, fpath)
-    flist_out <- c (flist_out, fpath)
-
-    fa <- gsub ("attrc", "netc", fpath)
-    fst::write_fst (netc, fa)
-    flist_out <- c (flist_out, fa)
+    flist_out <- c (flist_out, cache_one_graph (netc, city))
 
     # Edge map and junctions:
     flist <- fs::dir_ls (fs::path_temp (), regexp = hashc, fixed = TRUE)
@@ -159,6 +135,38 @@ get_graph_attributes <- function (graph) {
 
     return (attributes (graph) [index])
 }
+
+cache_one_graph <- function (graph, city) {
+
+    contracted <- inherits (graph, "dodgr_contracted")
+
+    which_hash <- ifelse (contracted, "hashc", "hash")
+    atag <- ifelse (contracted, "attrc", "attr")
+    gtag <- ifelse (contracted, "graphc", "graph")
+
+    a <- get_graph_attributes (graph)
+    hash <- substring (a [[which_hash]], 1, 6)
+    mode <- a$wt_profile
+
+    cache_dir <- fs::path (m4ra_cache_dir (), city)
+
+    aname <- paste0 ("m4ra-", city, "-", mode, "-",
+        atag, "-", hash, ".Rds")
+    apath <- fs::path (cache_dir, aname)
+
+    saveRDS (a, apath)
+
+    gpath <- gsub (
+        paste0 ("\\-", atag, "\\-"),
+        paste0 ("-", gtag, "-"),
+        apath
+    )
+    fst::write_fst (graph, gpath)
+
+    return (c (apath, gpath))
+}
+
+
 
 #' Load cached file for one city and mode
 #'
