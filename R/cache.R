@@ -91,10 +91,7 @@ m4ra_cache_network <- function (net, city, mode) {
     city <- tolower (city)
 
     # Full graph:
-    a <- names (attributes (net))
-    a_nms <- a [which (!a %in% c ("names", "row.names", "col.names", "px"))]
-    a <- lapply (a_nms, function (i) attr (net, i))
-    names (a) <- a_nms
+    a <- get_graph_attributes (net)
 
     hash <- attr (net, "hash")
     fname <- paste0 ("m4ra-", city, "-", mode, "-attr-",
@@ -125,10 +122,7 @@ m4ra_cache_network <- function (net, city, mode) {
         }
     }
 
-    a <- names (attributes (netc))
-    a_nms <- a [which (!a %in% c ("names", "row.names", "col.names", "px"))]
-    a <- lapply (a_nms, function (i) attr (netc, i))
-    names (a) <- a_nms
+    a <- get_graph_attributes (netc)
 
     hashc <- a$hashc
     fname <- paste0 ("m4ra-", city, "-", mode, "-attrc-",
@@ -156,6 +150,14 @@ m4ra_cache_network <- function (net, city, mode) {
     }
 
     return (flist_out)
+}
+
+get_graph_attributes <- function (graph) {
+
+    a <- names (attributes (graph))
+    index <- which (!a %in% c ("names", "row.names", "col.names", "px"))
+
+    return (attributes (graph) [index])
 }
 
 #' Load cached file for one city and mode
