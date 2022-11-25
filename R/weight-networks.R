@@ -35,12 +35,12 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
     hash <- m4ra_network_hash (net)
 
-    cache_dir <- file.path (m4ra_cache_dir (), city)
+    cache_dir <- fs::path (m4ra_cache_dir (), city)
     if (!dir.exists (cache_dir)) {
         dir.create (cache_dir, recursive = TRUE)
     }
 
-    filenames <- list.files (cache_dir, full.names = TRUE)
+    filenames <- fs::dir_ls (cache_dir, full.names = TRUE)
 
     cache_flag <- fs::path (
         cache_dir,
@@ -48,7 +48,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
     )
     filenames <- filenames [which (!filenames == cache_flag)]
 
-    if (file.exists (cache_flag)) {
+    if (fs::file_exists (cache_flag)) {
         return (filenames)
     }
 
@@ -62,10 +62,14 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
         }
         if (w == "motorcar") {
             f <- write_wt_profile (traffic_lights = 16, turn = 1)
+            f_new <- fs::path (cache_dir, "wt_profile.json")
+            fs::file_copy (f, f_new)
+            fs::file_delete (f)
+
             net_w <- dodgr::weight_streetnet (
                 net,
                 wt_profile = w,
-                wt_profile_file = f,
+                wt_profile_file = f_new,
                 turn_penalty = TRUE
             )
         } else {
