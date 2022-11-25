@@ -94,11 +94,10 @@ m4ra_cache_network <- function (graph, city, mode) {
     flist_out <- c (flist_out, cache_one_graph (graph, city))
 
     # Contracted graph:
-    graph_c <- dodgr::dodgr_contract_graph (graph)
-    graph_c <- graph_c [which (graph_c$component == 1), ]
+    graph_c <- m4ra_contract_graph (graph, city)
     a_graph_c <- attributes (graph_c)
 
-    if (a$turn_penalty > 0) {
+    if (a_graph_c$turn_penalty > 0) {
 
         to_from_indices <- to_from_index_with_tp (graph, from = NULL, to = NULL)
         if (to_from_indices$compound) {
@@ -140,12 +139,11 @@ cache_one_graph <- function (graph, city) {
 
     contracted <- inherits (graph, "dodgr_contracted")
 
-    which_hash <- ifelse (contracted, "hashc", "hash")
     atag <- ifelse (contracted, "attrc", "attr")
     gtag <- ifelse (contracted, "graphc", "graph")
 
     a <- get_graph_attributes (graph)
-    hash <- substring (a [[which_hash]], 1, 6)
+    hash <- substring (a$hash, 1, 6)
     mode <- a$wt_profile
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
