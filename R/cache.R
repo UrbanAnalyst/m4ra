@@ -84,7 +84,7 @@ m4ra_cache_network <- function (net, city, mode) {
     hash <- attr (net, "hash")
     fname <- paste0 ("m4ra-", city, "-", mode, "-attr-",
         substring (hash, 1, 6), ".Rds")
-    fpath <- file.path (cache_dir, fname)
+    fpath <- fs::path (cache_dir, fname)
     flist_out <- c (flist_out, fpath)
 
     saveRDS (a, fpath)
@@ -95,6 +95,20 @@ m4ra_cache_network <- function (net, city, mode) {
 
     # Contracted graph:
     netc <- dodgr::dodgr_contract_graph (net)
+    a_netc <- attributes (netc)
+
+    if (a$turn_penalty > 0) {
+
+        to_from_indices <- to_from_index_with_tp (net, from = NULL, to = NULL)
+        if (to_from_indices$compound) {
+            netc <- to_from_indices$graph_compound
+            a_netc <- a_netc [which (!names (a_netc) %in% names (attributes (netc)))]
+            for (a in seq_along (a_netc)) {
+                attr (netc, names (a_netc) [a]) <- a_netc [[a]]
+            }
+        }
+    }
+
     a <- names (attributes (netc))
     a_nms <- a [which (!a %in% c ("names", "row.names", "col.names", "px"))]
     a <- lapply (a_nms, function (i) attr (netc, i))
@@ -103,7 +117,7 @@ m4ra_cache_network <- function (net, city, mode) {
     hashc <- a$hashc
     fname <- paste0 ("m4ra-", city, "-", mode, "-attrc-",
         substring (hashc, 1, 6), ".Rds")
-    fpath <- file.path (cache_dir, fname)
+    fpath <- fs::path (cache_dir, fname)
 
     saveRDS (a, fpath)
     flist_out <- c (flist_out, fpath)
@@ -113,7 +127,7 @@ m4ra_cache_network <- function (net, city, mode) {
     flist_out <- c (flist_out, fa)
 
     # Edge map and junctions:
-    flist <- list.files (fs::path_temp (), pattern = hashc, full.names = TRUE)
+    flist <- fs::dir_ls (fs::path_temp (), regexp = hashc, fixed = TRUE)
     edge_map <- readRDS (grep ("edge\\_map", flist, value = TRUE))
     fe <- gsub ("attrc", "edge-map", fpath)
     fst::write_fst (edge_map, fe)
