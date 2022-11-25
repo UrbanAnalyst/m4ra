@@ -18,3 +18,13 @@ to_from_index_with_tp <- utils::getFromNamespace ("to_from_index_with_tp", "dodg
 get_turn_penalty <- utils::getFromNamespace ("get_turn_penalty", "dodgr")
 
 dodgr_contract_graph_internal <- utils::getFromNamespace ("dodgr_contract_graph_internal", "dodgr")
+
+# plus extra fns calling in contract_graph_internal:
+
+# convert_graph <- utils::getFromNamespace ("convert_graph", "dodgr")
+
+# rcpp_contract_graph <- utils::getFromNamespace ("rcpp_contract_graph", "dodgr")
+
+# find_spatial_cols <- utils::getFromNamespace ("find_spatial_cols", "dodgr")
+
+# dodgr_components <- utils::getFromNamespace ("dodgr_components", "dodgr")
