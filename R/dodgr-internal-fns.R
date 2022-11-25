@@ -16,3 +16,5 @@ is_graph_spatial <- utils::getFromNamespace ("is_graph_spatial", "dodgr")
 to_from_index_with_tp <- utils::getFromNamespace ("to_from_index_with_tp", "dodgr")
 
 get_turn_penalty <- utils::getFromNamespace ("get_turn_penalty", "dodgr")
+
+dodgr_contract_graph_internal <- utils::getFromNamespace ("dodgr_contract_graph_internal", "dodgr")
