@@ -1,4 +1,19 @@
 
+get_hash <- function (graph, contracted = FALSE, force = FALSE) {
+
+    hash <- NULL
+    if (!force) {
+        hash <- attr (graph, ifelse (contracted, "hashc", "hash"))
+    }
+
+    if (is.null (hash)) {
+        gr_cols <- dodgr_graph_cols (graph)
+        hash <- digest::digest (list (graph [[gr_cols$edge_id]], names (graph)))
+    }
+
+    return (hash)
+}
+
 #' Path to user cache directory
 #' @noRd
 m4ra_cache_dir <- function () {
