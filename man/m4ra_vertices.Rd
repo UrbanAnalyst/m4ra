@@ -28,7 +28,7 @@ graphs remain unmodified throughout.
 Values of \code{n} are 0-indexed
 }
 \examples{
-graph <- weight_streetnet (hampi)
+graph <- dodgr::weight_streetnet (dodgr::hampi)
 v <- m4ra_vertices (graph, "hampi")
 }
 \concept{misc}

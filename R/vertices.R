@@ -19,7 +19,7 @@
 #' @family misc
 #' @export
 #' @examples
-#' graph <- weight_streetnet (hampi)
+#' graph <- dodgr::weight_streetnet (dodgr::hampi)
 #' v <- m4ra_vertices (graph, "hampi")
 m4ra_vertices <- function (graph, city) {
 
