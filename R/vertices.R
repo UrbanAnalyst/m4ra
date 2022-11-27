@@ -24,6 +24,9 @@
 m4ra_vertices <- function (graph, city) {
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
+    if (!fs::dir_exists (cache_dir)) {
+        fs::dir_create (cache_dir, recurse = TRUE)
+    }
 
     hash <- substring (attr (graph, "hash"), 1, 6)
     city <- gsub ("\\s+", "-", tolower (city))
