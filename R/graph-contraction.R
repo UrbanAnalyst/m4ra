@@ -38,13 +38,13 @@ m4ra_contract_graph <- function (graph, city) {
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
 
-    v <- m4ra_vertices (graph)
+    v <- m4ra_vertices (graph, city)
 
-    hash <- get_hash (graph, contracted = FALSE, force = TRUE)
+    hash <- substring (attr (graph, "hash"), 1, 6)
     fname_c <- fs::path (
         cache_dir,
         paste0 ("m4ra-", city, "-", wt_profile, "-graphc-",
-            substring (hash, 1, 6), ".Rds")
+            hash, ".Rds")
     )
 
     if (fs::file_exists (fname_c)) {
@@ -60,7 +60,7 @@ m4ra_contract_graph <- function (graph, city) {
         fname <- fs::path (
             cache_dir,
             paste0 ("m4ra-", city, "-", wt_profile, "-graph-",
-                substring (hash, 1, 6), ".Rds")
+                hash, ".Rds")
         )
         if (!fs::file_exists (fname)) {
             flist <- cache_one_graph (graph, city)
