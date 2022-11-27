@@ -53,7 +53,7 @@ m4ra_parking <- function (bb,
     # And remove 'wt_profile_file':
     attr (graph_c, "wt_profile_file") <- NULL
 
-    v <- dodgr::dodgr_vertices (graph_c)
+    v <- m4ra_vertices (graph_c)
 
     cache_dir <- fs::path (m4ra_cache_dir (), city_name)
 
@@ -372,7 +372,7 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
     # suppress no visible binding notes:
     osm_id <- x <- y <- id <- NULL
 
-    v <- dodgr::dodgr_vertices (graph_c)
+    v <- m4ra_vertices (graph_c)
 
     from <- v$id
 
@@ -450,7 +450,7 @@ aggregate_building_data <- function (graph_c, buildings,
     # suppress no visible binding notes:
     osm_id <- x <- y <- from <- NULL
 
-    v <- dodgr::dodgr_vertices (graph_c)
+    v <- m4ra_vertices (graph_c)
 
     from <- v$id
 

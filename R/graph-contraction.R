@@ -38,7 +38,7 @@ m4ra_contract_graph <- function (graph, city) {
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
 
-    v <- dodgr::dodgr_vertices (graph)
+    v <- m4ra_vertices (graph)
 
     hash <- get_hash (graph, contracted = FALSE, force = TRUE)
     fname_c <- fs::path (

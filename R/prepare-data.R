@@ -200,7 +200,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
             cli::cli_alert_success (cli::col_green ("Contracted network graph"))
         }
 
-        v <- dodgr::dodgr_vertices (graph_c)
+        v <- m4ra_vertices (graph_c)
         n_closest <- update_n_closest (v, stops, n_closest, quiet = quiet)
 
         # NOTE that all closest_gtfs indices are 0-based for direct submission
@@ -272,7 +272,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
 #' stations. The solution is to ensure that the value of `n_closest` is greater
 #' than the maximal number of stations which map onto the same network vertex.
 #'
-#' @param v Network vertices from `dodgr_vertices()`
+#' @param v Network vertices from `m4ra_vertices()`
 #' @noRd
 update_n_closest <- function (v, stops, n_closest, quiet = FALSE) {
 
@@ -293,7 +293,7 @@ update_n_closest <- function (v, stops, n_closest, quiet = FALSE) {
 
 closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
 
-    v <- dodgr::dodgr_vertices (graph_c)
+    v <- m4ra_vertices (graph_c)
     ids <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
 
@@ -315,7 +315,7 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
 
 closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest, quiet = FALSE) {
 
-    v <- dodgr::dodgr_vertices (graph_c)
+    v <- m4ra_vertices (graph_c)
     from <- v$id
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]

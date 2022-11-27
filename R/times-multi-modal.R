@@ -40,7 +40,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         contracted = TRUE
     )
     graph_c <- graph_c [graph_c$component == 1L, ]
-    v <- dodgr::dodgr_vertices (graph_c)
+    v <- m4ra_vertices (graph_c)
     if (!all (from %in% v$id)) {
         stop (
             "Not all specified 'from' vertices are part of the ",
@@ -101,8 +101,8 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
 #'
 #' @param from Vector of OSM ID values of vertices from which ratios are to be
 #' calculated. Typically obtained by loading one weighted network, and
-#' sampling or extracting vertices from the \pkg{dodgr} function
-#' `dodgr_vertices`.
+#' sampling or extracting vertices from the function
+#' `m4ra_vertices`.
 #' @param walk_dists If `TRUE`, also calculate equivalent walking distances.
 #' @inheritParams m4ra_times_multi_mode
 #' @return A `data.frame` of destination vertices, including Open Street Map ID
@@ -118,7 +118,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
 #' \dontrun{
 #' city <- "<city_name>"
 #' net <- m4ra_load_cached_network (city = city, mode = "foot")
-#' v <- dodgr::dodgr_vertices (net)
+#' v <- m4ra_vertices (net)
 #' from <- sample (v$id, size = 10)
 #' dat <- m4ra_mm_car_ratios (city = city, from = from)
 #' }
@@ -150,14 +150,14 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     if (walk_dists) {
         graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
         graph_f <- graph_f [graph_f$component == 1, ]
-        v_f <- dodgr::dodgr_vertices (graph_f)
+        v_f <- m4ra_vertices (graph_f)
     }
     graph_b <- m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
     graph_b <- graph_b [graph_b$component == 1, ]
-    v_b <- dodgr::dodgr_vertices (graph_b)
+    v_b <- m4ra_vertices (graph_b)
     graph_c <- m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
     graph_c <- graph_c [graph_c$component == 1, ]
-    v_c <- dodgr::dodgr_vertices (graph_c)
+    v_c <- m4ra_vertices (graph_c)
 
     # Need to remove 'wt_profile_file' attribute, as turn angles are already
     # included within the graph:

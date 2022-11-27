@@ -12,8 +12,8 @@ m4ra_times_bike_car(city = NULL, from = NULL, walk_dists = TRUE)
 
 \item{from}{Vector of OSM ID values of vertices from which ratios are to be
 calculated. Typically obtained by loading one weighted network, and
-sampling or extracting vertices from the \pkg{dodgr} function
-\code{dodgr_vertices}.}
+sampling or extracting vertices from the function
+\code{m4ra_vertices}.}
 
 \item{walk_dists}{If \code{TRUE}, also calculate equivalent walking distances.}
 }
@@ -36,7 +36,7 @@ exist in the \code{m4ra} cache directory for the specified city.
 \dontrun{
 city <- "<city_name>"
 net <- m4ra_load_cached_network (city = city, mode = "foot")
-v <- dodgr::dodgr_vertices (net)
+v <- m4ra_vertices (net)
 from <- sample (v$id, size = 10)
 dat <- m4ra_bike_car_ratios (city = city, from = from)
 }
