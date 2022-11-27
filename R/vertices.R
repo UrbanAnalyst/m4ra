@@ -25,7 +25,7 @@ m4ra_vertices <- function (graph, city) {
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
 
-    hash <- attr (graph, "hash")
+    hash <- substring (attr (graph, "hash"), 1, 6)
     city <- gsub ("\\s+", "-", tolower (city))
     mode <- attr (graph, "wt_profile")
 
