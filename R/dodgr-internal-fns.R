@@ -18,3 +18,5 @@ to_from_index_with_tp <- utils::getFromNamespace ("to_from_index_with_tp", "dodg
 get_turn_penalty <- utils::getFromNamespace ("get_turn_penalty", "dodgr")
 
 dodgr_contract_graph_internal <- utils::getFromNamespace ("dodgr_contract_graph_internal", "dodgr")
+
+dodgr_vertices_internal <- utils::getFromNamespace ("dodgr_vertices_internal", "dodgr")

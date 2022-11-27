@@ -154,7 +154,7 @@ cache_one_graph <- function (graph, city) {
 m4ra_load_cached_network <- function (city = NULL, mode = "foot",
                                       contracted = TRUE, filename = NULL) {
 
-    ptn <- paste0 ("\\-", ifelse (contracted, "graph_c", "graph"), "\\-")
+    ptn <- paste0 ("\\-", ifelse (contracted, "graphc", "graph"), "\\-")
 
     if (!is.null (filename)) {
 
