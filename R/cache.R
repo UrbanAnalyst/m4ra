@@ -88,44 +88,16 @@ m4ra_cache_network <- function (graph, city, mode) {
     flist_out <- NULL
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
-    city <- gsub ("\\s*", "-", tolower (city))
+    city <- gsub ("\\s+", "-", tolower (city))
 
     # Full graph:
     flist_out <- c (flist_out, cache_one_graph (graph, city))
 
-    # Contracted graph:
+    # Contract graph return the graph, so need to manually reconstruct the new
+    # file names.
     graph_c <- m4ra_contract_graph (graph, city)
-    a_graph_c <- attributes (graph_c)
-
-    if (a_graph_c$turn_penalty > 0) {
-
-        to_from_indices <- to_from_index_with_tp (graph, from = NULL, to = NULL)
-        if (to_from_indices$compound) {
-
-            graph_c <- to_from_indices$graph_compound
-            a_graph_c <- a_graph_c [which (!names (a_graph_c) %in%
-                names (attributes (graph_c)))]
-
-            for (a in seq_along (a_graph_c)) {
-                attr (graph_c, names (a_graph_c) [a]) <- a_graph_c [[a]]
-            }
-        }
-    }
-
-    flist_out <- c (flist_out, cache_one_graph (graph_c, city))
-
-    # Edge map and junctions:
-    flist <- fs::dir_ls (fs::path_temp (), regexp = hashc, fixed = TRUE)
-    edge_map <- readRDS (grep ("edge\\_map", flist, value = TRUE))
-    fe <- gsub ("attrc", "edge-map", fpath)
-    fst::write_fst (edge_map, fe)
-    flist_out <- c (flist_out, fe)
-    junctions <- readRDS (grep ("junctions", flist, value = TRUE))
-    if (length (junctions) > 0L) {
-        fj <- gsub ("attrc", "junctions", fpath)
-        fst::write_fst (junctions, fj)
-        flist_out <- c (flist_out, fj)
-    }
+    hash <- substring (attr (graph, "hash"), 1, 6)
+    flist_out <- fs::dir_ls (cache_dir, regexp = hash, fixed = TRUE)
 
     return (flist_out)
 }
