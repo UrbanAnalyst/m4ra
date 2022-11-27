@@ -43,8 +43,8 @@ m4ra_cache_dir <- function () {
 #' particular to determine whether or not weighted versions of a given network
 #' have been previously cached.
 #'
-#' @param graph A \pkg{silicate}, "SC", format object containing network data used
-#' to generate weighted street networks.
+#' @param graph A \pkg{silicate}, "SC", format object containing network data
+#' used to generate weighted street networks.
 #' @return Single character value with unique hash of given network.
 #' @family cache
 #' @export
@@ -88,7 +88,7 @@ m4ra_cache_network <- function (graph, city, mode) {
     flist_out <- NULL
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
-    city <- tolower (city)
+    city <- gsub ("//s*", "-", tolower (city))
 
     # Full graph:
     flist_out <- c (flist_out, cache_one_graph (graph, city))
@@ -101,8 +101,11 @@ m4ra_cache_network <- function (graph, city, mode) {
 
         to_from_indices <- to_from_index_with_tp (graph, from = NULL, to = NULL)
         if (to_from_indices$compound) {
+
             graph_c <- to_from_indices$graph_compound
-            a_graph_c <- a_graph_c [which (!names (a_graph_c) %in% names (attributes (graph_c)))]
+            a_graph_c <- a_graph_c [which (!names (a_graph_c) %in%
+                names (attributes (graph_c)))]
+
             for (a in seq_along (a_graph_c)) {
                 attr (graph_c, names (a_graph_c) [a]) <- a_graph_c [[a]]
             }

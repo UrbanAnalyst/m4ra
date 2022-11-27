@@ -4,11 +4,11 @@
 \alias{m4ra_network_hash}
 \title{Return a unique hash for the input network.}
 \usage{
-m4ra_network_hash(net)
+m4ra_network_hash(graph)
 }
 \arguments{
-\item{net}{A \pkg{silicate}, "SC", format object containing network data used
-to generate weighted street networks.}
+\item{graph}{A \pkg{silicate}, "SC", format object containing network data
+used to generate weighted street networks.}
 }
 \value{
 Single character value with unique hash of given network.

@@ -5,10 +5,10 @@
 \title{Save a weighted street network in both full and contracted forms to local
 cache.}
 \usage{
-m4ra_cache_network(net, city, mode)
+m4ra_cache_network(graph, city, mode)
 }
 \arguments{
-\item{net}{The full network to be cached.}
+\item{graph}{The full network to be cached.}
 
 \item{city}{Name of city; used to name cached network files.}
 
