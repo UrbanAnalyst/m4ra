@@ -40,7 +40,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
         dir.create (cache_dir, recursive = TRUE)
     }
 
-    filenames <- fs::dir_ls (cache_dir, full.names = TRUE)
+    filenames <- fs::dir_ls (cache_dir)
 
     cache_flag <- fs::path (
         cache_dir,
