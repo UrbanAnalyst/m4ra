@@ -217,7 +217,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
             # This returns a matrix of combined distances and indices into the
             # original GTFS stops table
             closest_gtfs <-
-                closest_gtfs_to_net_fast (graph_c, stops, n_closest = n_closest)
+                closest_gtfs_to_net_fast (graph_c, stops, city, n_closest = n_closest)
 
 
             closest_gtfs [is.na (closest_gtfs)] <- -1
@@ -246,6 +246,7 @@ times_gtfs_to_net <- function (files, mode = "foot",
             closest_gtfs <- closest_gtfs_to_net_slow (
                 graph_c,
                 stops,
+                city,
                 n_closest = n_closest,
                 quiet = quiet
             )
@@ -290,7 +291,7 @@ update_n_closest <- function (v, stops, n_closest, quiet = FALSE) {
     return (n_closest)
 }
 
-closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
+closest_gtfs_to_net_fast <- function (graph_c, city, stops, n_closest) {
 
     v <- m4ra_vertices (graph_c, city)
     ids <- v$id [dodgr::match_points_to_verts (
@@ -312,7 +313,7 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
     rcpp_closest_pts (tmat, n_closest, maxt)
 }
 
-closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest, quiet = FALSE) {
+closest_gtfs_to_net_slow <- function (graph_c, stops, city, n_closest, quiet = FALSE) {
 
     v <- m4ra_vertices (graph_c, city)
     from <- v$id
