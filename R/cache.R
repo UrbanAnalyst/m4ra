@@ -88,7 +88,7 @@ m4ra_cache_network <- function (graph, city, mode) {
     flist_out <- NULL
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
-    city <- gsub ("//s*", "-", tolower (city))
+    city <- gsub ("\\s*", "-", tolower (city))
 
     # Full graph:
     flist_out <- c (flist_out, cache_one_graph (graph, city))
