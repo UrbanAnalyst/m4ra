@@ -91,6 +91,7 @@ m4ra_cache_network <- function (graph, city, mode) {
     city <- gsub ("\\s+", "-", tolower (city))
 
     # Full graph:
+    graph <- graph [graph$component == 1, ]
     flist_out <- c (flist_out, cache_one_graph (graph, city))
 
     # Contract graph return the graph, so need to manually reconstruct the new
