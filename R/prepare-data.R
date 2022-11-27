@@ -291,7 +291,7 @@ update_n_closest <- function (v, stops, n_closest, quiet = FALSE) {
     return (n_closest)
 }
 
-closest_gtfs_to_net_fast <- function (graph_c, city, stops, n_closest) {
+closest_gtfs_to_net_fast <- function (graph_c, stops, city, n_closest) {
 
     v <- m4ra_vertices (graph_c, city)
     ids <- v$id [dodgr::match_points_to_verts (
