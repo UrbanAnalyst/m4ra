@@ -50,7 +50,6 @@ m4ra_times_single_mode <- function (graph,
     }
 
     graph <- preprocess_spatial_cols (graph)
-    gr_cols <- dodgr_graph_cols (graph)
     is_spatial <- is_graph_spatial (graph)
     to_from_indices <- to_from_index_with_tp (graph, from, to)
     if (to_from_indices$compound) {
