@@ -20,7 +20,7 @@
 #' @export
 #' @examples
 #' graph <- weight_streetnet (hampi)
-#' v <- m4ra_vertices (graph)
+#' v <- m4ra_vertices (graph, "hampi")
 m4ra_vertices <- function (graph, city) {
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)

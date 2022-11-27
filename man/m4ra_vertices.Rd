@@ -29,6 +29,6 @@ Values of \code{n} are 0-indexed
 }
 \examples{
 graph <- weight_streetnet (hampi)
-v <- m4ra_vertices (graph)
+v <- m4ra_vertices (graph, "hampi")
 }
 \concept{misc}

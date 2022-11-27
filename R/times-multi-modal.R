@@ -40,7 +40,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         contracted = TRUE
     )
     graph_c <- graph_c [graph_c$component == 1L, ]
-    v <- m4ra_vertices (graph_c)
+    v <- m4ra_vertices (graph_c, city_name)
     if (!all (from %in% v$id)) {
         stop (
             "Not all specified 'from' vertices are part of the ",
@@ -118,7 +118,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
 #' \dontrun{
 #' city <- "<city_name>"
 #' net <- m4ra_load_cached_network (city = city, mode = "foot")
-#' v <- m4ra_vertices (net)
+#' v <- m4ra_vertices (net, "<city_name>")
 #' from <- sample (v$id, size = 10)
 #' dat <- m4ra_mm_car_ratios (city = city, from = from)
 #' }
@@ -150,14 +150,14 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     if (walk_dists) {
         graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
         graph_f <- graph_f [graph_f$component == 1, ]
-        v_f <- m4ra_vertices (graph_f)
+        v_f <- m4ra_vertices (graph_f, city_name)
     }
     graph_b <- m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
     graph_b <- graph_b [graph_b$component == 1, ]
-    v_b <- m4ra_vertices (graph_b)
+    v_b <- m4ra_vertices (graph_b, city_name)
     graph_c <- m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
     graph_c <- graph_c [graph_c$component == 1, ]
-    v_c <- m4ra_vertices (graph_c)
+    v_c <- m4ra_vertices (graph_c, city_name)
 
     # Need to remove 'wt_profile_file' attribute, as turn angles are already
     # included within the graph:

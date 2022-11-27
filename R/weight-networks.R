@@ -76,6 +76,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
             )
         } else {
             net_w <- dodgr::weight_streetnet (net, wt_profile = w)
+            attr (net_w, "wt_profile") <- w
         }
 
         filenames <- c (

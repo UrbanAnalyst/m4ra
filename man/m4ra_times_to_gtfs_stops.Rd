@@ -5,7 +5,7 @@
 \title{Construct a travel time matrix to or from all stops in a 'GTFS' feed from or
 to to all points in a street network.}
 \usage{
-m4ra_times_to_gtfs_stops(graph, gtfs, from = NULL, graph_to_gtfs = TRUE)
+m4ra_times_to_gtfs_stops(graph, gtfs, city, from = NULL, graph_to_gtfs = TRUE)
 }
 \arguments{
 \item{graph}{A \code{dodgr} network returned from the \link{weight_streetnet}
@@ -14,6 +14,8 @@ function.}
 
 \item{gtfs}{A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
 'extract_gtfs'.}
+
+\item{city}{Name of city being analysed; used to name and extract cache files.}
 
 \item{from}{Vector or matrix of points \strong{from} which route distances are to
 be calculated. If not given, times are calculated from all points in the

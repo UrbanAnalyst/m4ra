@@ -195,12 +195,11 @@ times_gtfs_to_net <- function (files, mode = "foot",
             cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
         }
         graph_c <- m4ra_load_cached_network (city = city, mode = mode, contracted = TRUE)
-        graph_c <- graph_c [graph_c$component == 1L, ]
         if (!quiet) {
             cli::cli_alert_success (cli::col_green ("Contracted network graph"))
         }
 
-        v <- m4ra_vertices (graph_c)
+        v <- m4ra_vertices (graph_c, city)
         n_closest <- update_n_closest (v, stops, n_closest, quiet = quiet)
 
         # NOTE that all closest_gtfs indices are 0-based for direct submission
@@ -293,7 +292,7 @@ update_n_closest <- function (v, stops, n_closest, quiet = FALSE) {
 
 closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
 
-    v <- m4ra_vertices (graph_c)
+    v <- m4ra_vertices (graph_c, city)
     ids <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
 
@@ -315,7 +314,7 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, n_closest) {
 
 closest_gtfs_to_net_slow <- function (graph_c, stops, n_closest, quiet = FALSE) {
 
-    v <- m4ra_vertices (graph_c)
+    v <- m4ra_vertices (graph_c, city)
     from <- v$id
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]

@@ -16,9 +16,9 @@ process_time <- function (pt0) {
     paste0 (hh, ":", mm, ":", ss)
 }
 
-bb_from_graph <- function (graph) {
+bb_from_graph <- function (graph, city) {
 
-    v <- m4ra_vertices (graph)
+    v <- m4ra_vertices (graph, city)
     x <- mean (range (v$x)) + c (-0.5, 0.5) * diff (range (v$x)) 
     y <- mean (range (v$y)) + c (-0.5, 0.5) * diff (range (v$y))
     bb <- rbind (x, y)

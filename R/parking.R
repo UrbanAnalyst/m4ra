@@ -53,7 +53,7 @@ m4ra_parking <- function (bb,
     # And remove 'wt_profile_file':
     attr (graph_c, "wt_profile_file") <- NULL
 
-    v <- m4ra_vertices (graph_c)
+    v <- m4ra_vertices (graph_c, city_name)
 
     cache_dir <- fs::path (m4ra_cache_dir (), city_name)
 
@@ -77,12 +77,14 @@ m4ra_parking <- function (bb,
 
         v$parking <- aggregate_parking_data (
             graph_c,
+            city_name,
             parking,
             dlim = dlim,
             k = k
         )
         v$building_volume <- aggregate_building_data (
             graph_c,
+            city_name,
             buildings,
             dlim = dlim,
             k = k
@@ -364,7 +366,7 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
 #' reduced `dodgr` street network with numbers of onstreet parking spaces
 #' calculated in `process_onstreet_lanes()`.
 #' @noRd
-aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
+aggregate_parking_data <- function (graph_c, city, parking, dlim = 5000, k = 1000) {
 
     parking_lanes <- parking$dat_l
     parking <- parking$dat_p
@@ -372,7 +374,7 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
     # suppress no visible binding notes:
     osm_id <- x <- y <- id <- NULL
 
-    v <- m4ra_vertices (graph_c)
+    v <- m4ra_vertices (graph_c, city)
 
     from <- v$id
 
@@ -444,13 +446,13 @@ aggregate_parking_data <- function (graph_c, parking, dlim = 5000, k = 1000) {
     return (capacity)
 }
 
-aggregate_building_data <- function (graph_c, buildings,
+aggregate_building_data <- function (graph_c, city, buildings,
                                      dlim = 5000, k = 1000) {
 
     # suppress no visible binding notes:
     osm_id <- x <- y <- from <- NULL
 
-    v <- m4ra_vertices (graph_c)
+    v <- m4ra_vertices (graph_c, city)
 
     from <- v$id
 

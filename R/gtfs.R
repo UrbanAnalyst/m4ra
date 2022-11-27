@@ -75,6 +75,7 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 #' function.
 #' @param gtfs A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
 #' 'extract_gtfs'.
+#' @param city Name of city being analysed; used to name and extract cache files.
 #' @param from Vector or matrix of points **from** which route distances are to
 #' be calculated. If not given, times are calculated from all points in the
 #' network. Only has any effect is `graph_to_gtfs` is `TRUE`.
@@ -88,16 +89,16 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 #' @family prep
 #' @export
 
-m4ra_times_to_gtfs_stops <- function (graph, gtfs, from = NULL, graph_to_gtfs = TRUE) {
+m4ra_times_to_gtfs_stops <- function (graph, gtfs, city, from = NULL, graph_to_gtfs = TRUE) {
 
     checkmate::assert_class (graph, "dodgr_streetnet_sc")
     checkmate::assert_class (gtfs, "gtfs")
     checkmate::assert_logical (graph_to_gtfs)
 
     if (graph_to_gtfs) {
-        tmat <- times_from_net_to_gtfs (graph, gtfs, from = from)
+        tmat <- times_from_net_to_gtfs (graph, gtfs, city, from = from)
     } else {
-        tmat <- times_from_gtfs_to_net (graph, gtfs)
+        tmat <- times_from_gtfs_to_net (graph, gtfs, city)
     }
 
     # This rounds off decimal seconds:
@@ -106,7 +107,7 @@ m4ra_times_to_gtfs_stops <- function (graph, gtfs, from = NULL, graph_to_gtfs = 
     return (tmat)
 }
 
-match_stops_to_network <- function (graph, gtfs) {
+match_stops_to_network <- function (graph, gtfs, city) {
 
     stops <- data.frame (
         stop_id = gtfs$stops$stop_id,
@@ -115,16 +116,16 @@ match_stops_to_network <- function (graph, gtfs) {
         y = gtfs$stops$stop_lat
     )
 
-    v <- m4ra_vertices (graph)
+    v <- m4ra_vertices (graph, city)
     stop_index <- dodgr::match_pts_to_verts (v, stops [, c ("x", "y")])
     stops$osm_id <- v$id [stop_index]
 
     return (stops)
 }
 
-times_from_net_to_gtfs <- function (graph, gtfs, from = NULL) {
+times_from_net_to_gtfs <- function (graph, gtfs, city, from = NULL) {
 
-    stops <- match_stops_to_network (graph, gtfs)
+    stops <- match_stops_to_network (graph, gtfs, city)
 
     stop_ids <- unique (stops$osm_id)
 
@@ -148,9 +149,9 @@ times_from_net_to_gtfs <- function (graph, gtfs, from = NULL) {
     return (tmat)
 }
 
-times_from_gtfs_to_net <- function (graph, gtfs) {
+times_from_gtfs_to_net <- function (graph, gtfs, city) {
 
-    stops <- match_stops_to_network (graph, gtfs)
+    stops <- match_stops_to_network (graph, gtfs, city)
 
     stop_ids <- unique (stops$osm_id)
 

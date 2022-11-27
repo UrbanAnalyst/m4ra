@@ -82,7 +82,7 @@ exist in the \code{m4ra} cache directory for the specified city.
 \dontrun{
 city <- "<city_name>"
 net <- m4ra_load_cached_network (city = city, mode = "foot")
-v <- m4ra_vertices (net)
+v <- m4ra_vertices (net, "<city_name>")
 from <- sample (v$id, size = 10)
 dat <- m4ra_mm_car_ratios (city = city, from = from)
 }
