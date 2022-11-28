@@ -59,6 +59,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # mode vs GTFS-routed modes at end. The times here are then reduced to times
     # to the GTFS stops by matching vertices afterward.
     times <- m4ra_times_single_mode (graph_c, from = from)
+    na_index <- which (is.na (times))
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")])]
     times_to_gtfs <- times [, match (to, colnames (times)), drop = FALSE]
@@ -87,6 +88,12 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
 
     rownames (res) <- from
     colnames (res) <- v$id
+
+    # Finally, not all nodes in network are directly reachable by any given
+    # mode, so set values in 'res' for which initial mode times were NA to NA.
+    # Not doing this can lead those those nodes ultimately being reach by *very*
+    # indirect routes which take anomalously long times.
+    res [na_index] <- NA
 
     return (res)
 }
