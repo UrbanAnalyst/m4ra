@@ -337,6 +337,11 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
     {
         for (size_t j = 0; j < n_verts; j++)
         {
+            // closest can have negative values indicating NA: these can't be
+            // cast to 'size_t'!
+            if (closest (n_closest + i, j) < 0)
+                continue;
+
             const size_t cl_ij = static_cast <size_t> (closest (n_closest + i, j));
             if (cl_ij > n_gtfs)
             {
