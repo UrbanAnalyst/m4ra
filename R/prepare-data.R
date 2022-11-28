@@ -177,7 +177,9 @@ times_gtfs_to_net <- function (files, mode = "foot",
     fname <- paste0 (
         "m4ra-",
         city,
-        "-gtfs-to-net-ncl",
+        "-gtfs-to-net-",
+        mode,
+        "-ncl",
         n_closest,
         "-",
         gtfs_hash,
@@ -218,7 +220,6 @@ times_gtfs_to_net <- function (files, mode = "foot",
             # original GTFS stops table
             closest_gtfs <-
                 closest_gtfs_to_net_fast (graph_c, stops, city, n_closest = n_closest)
-
 
             closest_gtfs [is.na (closest_gtfs)] <- -1
 
