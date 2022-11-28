@@ -42,13 +42,13 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
         dir.create (cache_dir, recursive = TRUE)
     }
 
-    filenames <- fs::dir_ls (cache_dir)
+    filenames <- fs::dir_ls (cache_dir, regexp = "\\-(foot|bicycle|motorcar)\\-")
+    filenames <- filenames [which (!grepl ("\\-gtfs\\-", filenames))]
 
     cache_flag <- fs::path (
         cache_dir,
         paste0 ("m4ra-", city, "-", hash, "-done")
     )
-    filenames <- filenames [which (!filenames == cache_flag)]
 
     if (fs::file_exists (cache_flag)) {
         return (filenames)

@@ -51,6 +51,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     f <- grep ("gtfs\\-.*[0-9]{5}\\-[0-9]{5}\\.Rds$", files, value = TRUE)
     gtfs_mat <- m_readRDS (f)
     f <- grep ("gtfs\\-to\\-net", files, value = TRUE)
+    f <- grep (paste0 ("\\-", final_mode, "\\-"), f, value = TRUE)
     gtfs_to_net <- m_readRDS (f)
 
 
