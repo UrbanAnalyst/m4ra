@@ -39,7 +39,6 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         mode = initial_mode,
         contracted = TRUE
     )
-    graph_c <- graph_c [graph_c$component == 1L, ]
     v <- m4ra_vertices (graph_c, city_name)
     if (!all (from %in% v$id)) {
         stop (
