@@ -14,7 +14,7 @@ to to all points in a street network."><!-- mathjax --><script src="https://cdnj
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.048</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.084</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ to to all points in a street network.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_times_to_gtfs_stops</span><span class="op">(</span><span class="va">graph</span>, <span class="va">gtfs</span>, from <span class="op">=</span> <span class="cn">NULL</span>, graph_to_gtfs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_times_to_gtfs_stops</span><span class="op">(</span><span class="va">graph</span>, <span class="va">gtfs</span>, <span class="va">city</span>, from <span class="op">=</span> <span class="cn">NULL</span>, graph_to_gtfs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -71,6 +71,10 @@ function.</p></dd>
 <dt>gtfs</dt>
 <dd><p>A 'GTFS' feed extracted with the <span class="pkg">gtfsrouter</span> function,
 'extract_gtfs'.</p></dd>
+
+
+<dt>city</dt>
+<dd><p>Name of city being analysed; used to name and extract cache files.</p></dd>
 
 
 <dt>from</dt>

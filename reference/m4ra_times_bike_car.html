@@ -16,7 +16,7 @@ exist in the m4ra cache directory for the specified city."><!-- mathjax --><scri
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.048</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.084</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,8 +72,8 @@ exist in the <code>m4ra</code> cache directory for the specified city.</p>
 <dt>from</dt>
 <dd><p>Vector of OSM ID values of vertices from which ratios are to be
 calculated. Typically obtained by loading one weighted network, and
-sampling or extracting vertices from the <span class="pkg">dodgr</span> function
-<code>dodgr_vertices</code>.</p></dd>
+sampling or extracting vertices from the function
+<code>m4ra_vertices</code>.</p></dd>
 
 
 <dt>walk_dists</dt>
@@ -102,7 +102,7 @@ values, and longitude and latitude values, and four variables:</p><ul><li><p>'ca
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="va">city</span> <span class="op">&lt;-</span> <span class="st">"&lt;city_name&gt;"</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="m4ra_load_cached_network.html">m4ra_load_cached_network</a></span> <span class="op">(</span>city <span class="op">=</span> <span class="va">city</span>, mode <span class="op">=</span> <span class="st">"foot"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu">dodgr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dodgr/man/dodgr_vertices.html" class="external-link">dodgr_vertices</a></span> <span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="m4ra_vertices.html">m4ra_vertices</a></span> <span class="op">(</span><span class="va">net</span>, <span class="st">"&lt;city_name&gt;"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">from</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span> <span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">id</span>, size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu">m4ra_bike_car_ratios</span> <span class="op">(</span>city <span class="op">=</span> <span class="va">city</span>, from <span class="op">=</span> <span class="va">from</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
