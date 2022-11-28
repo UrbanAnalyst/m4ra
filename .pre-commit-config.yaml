@@ -4,8 +4,11 @@ repos:
 -   repo: https://github.com/lorenzwalthert/precommit
     rev: v0.3.0
     hooks: 
-    #-   id: style-files
-    #    args: [--style_pkg=styler, --style_fun=tidyverse_style]    
+    -   id: style-files
+        args: [--style_pkg=spaceout, --style_fun=spaceout_style]    
+        additional_dependencies:
+        - ropensci-review-tools/spaceout
+        - styler
     # codemeta must be above use-tidy-description when both are used
     -   id: codemeta-description-updated
     -   id: use-tidy-description
@@ -39,6 +42,7 @@ repos:
           .*\.png|
           )$
     -   id: readme-rmd-rendered
+    -   id: parsable-R
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0
     hooks: 
