@@ -18,6 +18,8 @@ m4ra_weight_networks <- function (net, city, quiet = TRUE) {
 
     checkmate::assert_character (city)
 
+    city <- gsub ("\\s+", "-", tolower (city))
+
     attr (net, "hash") <- m4ra_network_hash (net)
 
     wt_profiles <- c ("foot", "bicycle", "motorcar")
@@ -79,9 +81,13 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
             attr (net_w, "wt_profile") <- w
         }
 
+        # Update hash from 'dodgr' value which uses random edge IDs to
+        # reproducible value based on OSM 'object_' columns:
+        attr (net_w, "hash") <- get_hash (net_w, force = TRUE)
+
         filenames <- c (
             filenames,
-            m4ra_cache_network (net_w, city = city, mode = w) 
+            m4ra_cache_network (net_w, city = city, mode = w)
         )
 
         if (!quiet) {
