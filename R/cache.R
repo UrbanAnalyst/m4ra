@@ -7,8 +7,12 @@ get_hash <- function (graph, contracted = FALSE, force = FALSE) {
     }
 
     if (is.null (hash)) {
-        gr_cols <- dodgr_graph_cols (graph)
-        hash <- digest::digest (list (graph [[gr_cols$edge_id]], names (graph)))
+        # Differently to `dodgr`, these hashes need to be reproducible, and so
+        # are hard-coded to the OSM `object_` values.
+        if (!"object_" %in% names (graph)) {
+            stop ("graph must be a 'dodgr_streetnet_sc'-class object")
+        }
+        hash <- digest::digest (list (graph$object_, names (graph)))
     }
 
     return (hash)
