@@ -153,7 +153,11 @@ times_gtfs_to_net <- function (files, mode = "foot",
     dirs <- fs::path_split (cache_files) [[1]]
     city <- dirs [length (dirs) - 1L]
 
-    graph <- m4ra_load_cached_network (city = city, mode = mode, contracted = FALSE)
+    graph <- m4ra_load_cached_network (
+        city = city,
+        mode = mode,
+        contracted = FALSE
+    )
     graph_hash <- substring (attr (graph, "hash"), 1L, 6L)
 
     f_gtfs_tmat <- grep (
@@ -203,7 +207,11 @@ times_gtfs_to_net <- function (files, mode = "foot",
         if (!quiet) {
             cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
         }
-        graph_c <- m4ra_load_cached_network (city = city, mode = mode, contracted = TRUE)
+        graph_c <- m4ra_load_cached_network (
+            city = city,
+            mode = mode,
+            contracted = TRUE
+        )
         if (!quiet) {
             cli::cli_alert_success (cli::col_green ("Contracted network graph"))
         }
@@ -226,14 +234,19 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
             # This returns a matrix of combined distances and indices into the
             # original GTFS stops table
-            closest_gtfs <-
-                closest_gtfs_to_net_fast (graph_c, stops, city, n_closest = n_closest)
+            closest_gtfs <- closest_gtfs_to_net_fast (
+                graph_c,
+                stops,
+                city,
+                n_closest = n_closest
+            )
 
             closest_gtfs [is.na (closest_gtfs)] <- -1
 
             if (!quiet) {
                 cli::cli_alert_success (cli::col_green (
-                    "Calculated times from terminal GTFS stops in ", process_time (pt0)
+                    "Calculated times from terminal GTFS stops in ",
+                    process_time (pt0)
                 ))
                 pt0 <- proc.time ()
                 cli::cli_alert_info (cli::col_blue (
@@ -248,7 +261,8 @@ times_gtfs_to_net <- function (files, mode = "foot",
 
             if (!quiet) {
                 cli::cli_alert_success (cli::col_green (
-                    "Converted times to indices at each GTFS stop in ", process_time (pt0)
+                    "Converted times to indices at each GTFS stop in ",
+                    process_time (pt0)
                 ))
             }
         } else {
@@ -331,7 +345,8 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, city, n_closest) {
     rcpp_closest_pts (tmat, n_closest, maxt)
 }
 
-closest_gtfs_to_net_slow <- function (graph_c, stops, city, n_closest, quiet = FALSE) {
+closest_gtfs_to_net_slow <- function (graph_c, stops, city,
+                                      n_closest, quiet = FALSE) {
 
     v <- m4ra_vertices (graph_c, city)
     from <- v$id
@@ -362,7 +377,8 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, city, n_closest, quiet = F
     )
     if (!quiet) {
         cli::cli_alert_success (cli::col_green (
-            "Calculated times to all terminal GTFS stops in ", process_time (pt0)
+            "Calculated times to all terminal GTFS stops in ",
+            process_time (pt0)
         ))
     }
 
@@ -393,7 +409,8 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, city, n_closest, quiet = F
     res <- rcpp_remap_verts_to_stops (dmat, index_out - 1L)
     if (!quiet) {
         cli::cli_alert_success (cli::col_green (
-            "Converted times to indices at each GTFS stop in ", process_time (pt0)
+            "Converted times to indices at each GTFS stop in ",
+            process_time (pt0)
         ))
     }
 
