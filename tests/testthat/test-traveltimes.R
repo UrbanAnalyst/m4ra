@@ -31,12 +31,7 @@ test_that ("time errors", {
     set.seed (1L)
     from <- sample (v$id, size = 10L)
 
-    expect_warning (
-        d <- m4ra_times_single_mode (net_c, from = from),
-        "graphs with turn penalties should be submitted in full, not contracted form"
-    )
-
-    # matrix is returned in spite of warning:
+    d <- m4ra_times_single_mode (net_c, from = from)
     expect_type (d, "double")
     expect_equal (nrow (d), length (from))
     expect_equal (ncol (d), nrow (v))
