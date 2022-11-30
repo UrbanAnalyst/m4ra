@@ -304,6 +304,9 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, city, n_closest) {
     ids <- ids [index_in]
 
     tmat <- m4ra_times_single_mode (graph_c, from = ids)
+    # Identify points which effectively can not be reached, and set times to NA:
+    nna <- apply (tmat, 2, function (i) length (which (!is.na (i))))
+    tmat [, which (nna < (nrow (tmat) / 2))] <- NA
 
     maxt <- rcpp_matrix_max (tmat)
     tmat [is.na (tmat)] <- maxt
