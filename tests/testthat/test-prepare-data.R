@@ -36,14 +36,15 @@ test_that ("prepare data", {
         start_time_limits = start_time_limits,
         final_mode = "foot",
         fast = FALSE,
-        n_closest = 10L)
+        n_closest = 10L
+    )
 
     expect_type (flist, "character")
     expect_true (all (file.exists (flist)))
 
     expect_length (flist, 21L)
     # 3 weighted networks:
-    expect_length (grep ("foot|bicycle|motorcar", flist), 18L)
+    expect_length (grep ("foot|bicycle|motorcar", flist), 19L)
     # 1 GTFS source:
     expect_length (grep ("berlin\\-gtfs\\.Rds$", flist), 1L)
     # plus one GTFS travel time matrix, and one GTFS-to-final network time
@@ -61,7 +62,8 @@ test_that ("prepare data", {
         start_time_limits = 8:9 * 3600,
         final_mode = "foot",
         fast = TRUE,
-        n_closest = 10L)
+        n_closest = 10L
+    )
 
     f <- grep ("\\-fast\\.Rds$", flist, value = TRUE)
     times_fast <- readRDS (f)
