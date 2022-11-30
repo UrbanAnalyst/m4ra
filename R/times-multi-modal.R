@@ -263,8 +263,15 @@ m4ra_times_mm_car <- function (net_sc = NULL,
         car_times <- p_start_mat + car_times + p_end_mat
     }
 
-    car_times <- data.frame (t (car_times))
-    car_times <- cbind (id = rownames (car_times), car_times)
+    # Then re-map car_times onto vertices of "final mode" graph:
+    if (final_mode == "foot") {
+        v_final <- v_f
+    } else {
+        v_final <- v_b
+    }
+    index <- dodgr::match_points_to_verts (v_c, v_final [, c ("x", "y")])
+    car_times <- car_times [, index]
+    colnames (car_times) <- v_final$id
 
     # match "from" points on to nearest pts in 'initial_mode' network:
     if (initial_mode == "foot") {
@@ -291,36 +298,33 @@ m4ra_times_mm_car <- function (net_sc = NULL,
         n_closest = n_closest,
         quiet = quiet
     )
-    mm_times <- data.frame (t (mm_times))
-    mm_times <- cbind (id = rownames (mm_times), mm_times)
-
-    all_ids <- c (initial_verts$id, car_times$id)
 
     if (walk_dists) {
         # Still have to re-calculate even if initial_mode = "foot", because
         # these are distances, not times.
         from_foot <- v_f$id [dodgr::match_points_to_verts (v_f, v_from [, c ("x", "y")])]
         walk_d <- dodgr::dodgr_distances (graph_f, from = from_foot)
-        walk_d <- data.frame (t (walk_d))
-        walk_d <- cbind (id = rownames (walk_d), walk_d)
-        all_ids <- c (all_ids, walk_d$id)
+        index <- dodgr::match_points_to_verts (v_f, v_final [, c ("x", "y")])
+        walk_d <- walk_d [, index]
+        colnames (walk_d) <- v_final$id
+
+        walk_d <- walk_d / 1000
     }
 
-    ids <- table (all_ids)
-    num_ids <- ifelse (walk_dists, 3L, 2L)
-    ids <- names (ids) [which (ids == num_ids)]
-    car_times <- car_times [match (ids, car_times$id), -1, drop = FALSE]
-    mm_times <- mm_times [match (ids, mm_times$id), -1, drop = FALSE]
+    # Finally, 'mm_times' auto-removes any vertices which are unreachable, so
+    # reduce all matrices to the size of this:
+    index <- match (colnames (mm_times), colnames (car_times))
+    car_times <- car_times [, index]
+    v_final <- v_final [index, ]
     if (walk_dists) {
-        walk_d <- walk_d [match (ids, walk_d$id), -1, drop = FALSE] / 1000
+        walk_d <- walk_d [, index]
     }
 
     ratio <- mm_times / car_times
-    v <- v [match (ids, v$id), , drop = FALSE]
 
     return (list (
         dist = walk_d,
         ratio = ratio,
-        verts = v
+        verts = v_final
     ))
 }
