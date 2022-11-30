@@ -127,7 +127,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # 0-indexed!
     final_mode_index <- sort (unique (unlist (gtfs_to_net$index))) + 1
 
-    res <- res [, final_mode_index]
+    res <- res [, final_mode_index, drop = FALSE]
 
     return (res)
 }
