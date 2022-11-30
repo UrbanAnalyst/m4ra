@@ -121,6 +121,14 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     rownames (res) <- from
     colnames (res) <- ids_out
 
+    # And then finally, not all points may be reachable by "final mode"; any
+    # that aren't may be re-mapped to single-mode times with "initial mode".
+    # These need to be caught and removed. 'gtfs_to_net$index' values are
+    # 0-indexed!
+    final_mode_index <- sort (unique (unlist (gtfs_to_net$index))) + 1
+
+    res <- res [, final_mode_index]
+
     return (res)
 }
 
