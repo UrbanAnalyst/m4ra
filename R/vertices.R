@@ -33,10 +33,12 @@ m4ra_vertices <- function (graph, city) {
     mode <- attr (graph, "wt_profile")
 
     contracted <- inherits (graph, "dodgr_contracted")
-    vtag <- ifelse (contracted, "verts", "vertsc")
+    vtag <- ifelse (contracted, "vertsc", "verts")
 
-    fname <- paste0 ("m4ra-", city, "-", mode,
-        "-", vtag, "-", hash, ".Rds")
+    fname <- paste0 (
+        "m4ra-", city, "-", mode,
+        "-", vtag, "-", hash, ".Rds"
+    )
     fpath <- fs::path (cache_dir, fname)
 
     if (fs::file_exists (fpath)) {
