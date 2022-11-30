@@ -47,11 +47,6 @@ m4ra_parking <- function (bb,
         mode = mode,
         contracted = TRUE
     )
-    # Have to clear cache to properly re-calculate vertex table:
-    dodgr::clear_dodgr_cache ()
-    graph_c <- graph_c [graph_c$component == 1L, ]
-    # And remove 'wt_profile_file':
-    attr (graph_c, "wt_profile_file") <- NULL
 
     v <- m4ra_vertices (graph_c, city_name)
 
