@@ -425,11 +425,8 @@ aggregate_parking_data <- function (graph_c, city, parking, dlim = 5000, k = 100
     capacity <- parking [["capacity"]]
     to <- parking$osm_id
 
-    graph_c <- preprocess_spatial_cols (graph_c)
+    attr (graph_c, "turn_penalty") <- 0
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
-    if (to_from_indices$compound) {
-        graph_c <- to_from_indices$graph_compound
-    }
 
     d <- rcpp_weighted_dists (
         graph_c,
