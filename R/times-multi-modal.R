@@ -59,13 +59,31 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # mode vs GTFS-routed modes at end. The times here are then reduced to times
     # to the GTFS stops by matching vertices afterward.
     times <- m4ra_times_single_mode (graph_c, from = from)
-    na_index <- which (is.na (times))
     to <- v$id [dodgr::match_points_to_verts (
-        v, stops [, c ("stop_lon", "stop_lat")])]
+        v, stops [, c ("stop_lon", "stop_lat")]
+    )]
     times_to_gtfs <- times [, match (to, colnames (times)), drop = FALSE]
 
     # Then convert initial times to nearest GTFS stops to times through entire
     # GTFS network to all termimal network vertices.
+    if (initial_mode == final_mode) {
+
+        v_c_final_mode <- v
+        nverts_out <- nrow (v)
+        ids_out <- v$id
+
+    } else {
+
+        graph_c_final_mode <- m4ra_load_cached_network (
+            city = city_name,
+            mode = final_mode,
+            contracted = TRUE
+        )
+        v_c_final_mode <- m4ra_vertices (graph_c_final_mode, city_name)
+        nverts_out <- nrow (v_c_final_mode)
+        ids_out <- v_c_final_mode$id
+    }
+
     times [is.na (times)] <- -1
     gtfs_mat [is.na (gtfs_mat)] <- -1
 
@@ -74,28 +92,68 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         gtfs_mat,
         gtfs_to_net$index,
         gtfs_to_net$d,
-        nrow (v)
+        nverts_out
     )
 
     maxr <- rcpp_matrix_max (res)
     res [res == maxr] <- NA
 
+    rownames (res) <- from
+    colnames (res) <- ids_out
+
     # At that stage, `res` holds the fastest values routed through the GTFS
     # network. They just then have to be compared with the previously-calculated
     # times to all vertices using "initial_mode".
 
+    if (initial_mode != final_mode) {
+
+        times <- remap_times_to_final_network (
+            res,
+            times,
+            v_c_final_mode,
+            v
+        )
+    }
+
     res <- rcpp_min_from_two_matrices (res, times)
 
+    # Then need once again to re-instate row and col names:
     rownames (res) <- from
-    colnames (res) <- v$id
-
-    # Finally, not all nodes in network are directly reachable by any given
-    # mode, so set values in 'res' for which initial mode times were NA to NA.
-    # Not doing this can lead those those nodes ultimately being reach by *very*
-    # indirect routes which take anomalously long times.
-    res [na_index] <- NA
+    colnames (res) <- ids_out
 
     return (res)
+}
+
+#' Remap single-model travel times with specified initial mode on to vertices of
+#' 'final_mode' network.
+#'
+#' @param times Initial matrix of travel times from the specified 'from' points
+#' to all points on the network corresponding to the initial travel mode.
+#' @param res Final matrix of multi-modal travel times to all terminal vertices
+#' of the network corresponding to the final travel mode.
+#' @param v_times The `m4ra_vertices` of the networks corresponding to the
+#' initial travel mode.
+#' @param v_res The `m4ra_vertices` of the networks corresponding to the final
+#' travel mode.
+#' @param A re-shaped version of 'times' with the same dimensions as 'res', and
+#' times mapped on to nearest vertices in "final mode" network where required.
+#'
+#' @noRd
+remap_times_to_final_network <- function (res, times, v_res, v_times) {
+
+    index <- match (colnames (res), colnames (times))
+    times_out <- times [, index]
+
+    # Vertices in 'res' that have are not in 'times':
+    index_no_match <- which (is.na (index))
+    no_match <- colnames (res) [index_no_match]
+    v_no_match <- v_res [match (no_match, v_res$id), ]
+    # Match those to nearest points in "initial mode" network:
+    index <- dodgr::match_points_to_verts (v_times, v_no_match [, c ("x", "y")])
+    times_out [, index_no_match] <- times [, index]
+    colnames (times_out) <- colnames (res)
+
+    return (times_out)
 }
 
 #' Calculate relative times from a specified point by multi-modal transport
