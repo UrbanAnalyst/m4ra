@@ -229,7 +229,6 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     graph_b <- graph_b [graph_b$component == 1, ]
     v_b <- m4ra_vertices (graph_b, city_name)
     graph_c <- m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
-    graph_c <- graph_c [graph_c$component == 1, ]
     v_c <- m4ra_vertices (graph_c, city_name)
 
     # Need to remove 'wt_profile_file' attribute, as turn angles are already
