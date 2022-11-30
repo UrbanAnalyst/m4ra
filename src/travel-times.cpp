@@ -361,8 +361,7 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
         for (size_t j = 0; j < n_verts; j++)
         {
             const size_t gtfs_index = static_cast <size_t> (closest (n_closest + i, j));
-            const double d = closest (i, j);
-            if (gtfs_index < 0 || d < 0.0)
+            if (gtfs_index < 0 || closest (i, j) < 0.0)
             {
                 continue;
             }
@@ -399,13 +398,15 @@ Rcpp::List rcpp_expand_closest_index (Rcpp::NumericMatrix closest)
     {
         for (size_t j = 0; j < n_verts; j++)
         {
-            const size_t gtfs_index = static_cast <size_t> (closest (n_closest + i, j));
+            const int gtfs_index_int = static_cast <int> (closest (n_closest + i, j));
             const double d = closest (i, j);
-            if (gtfs_index < 0 || d < 0.0)
+            if (gtfs_index_int < 0 || d < 0.0)
             {
                 continue;
             }
 
+            // If it's not < 0, then it can be safely cast to <size_t>:
+            const size_t gtfs_index = static_cast <size_t> (gtfs_index_int);
             const size_t gtfs_count = gtfs_counts [gtfs_index];
 
             index_list [gtfs_index] [gtfs_count] = static_cast <int> (j);
