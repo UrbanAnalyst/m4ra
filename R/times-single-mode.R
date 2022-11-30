@@ -49,12 +49,12 @@ m4ra_times_single_mode <- function (graph,
         )
     }
 
-    graph <- preprocess_spatial_cols (graph)
-    is_spatial <- is_graph_spatial (graph)
+    # Set turn_penalty = 0, because turn penalties have been calcualted in the
+    # cached versions of graphs. This enables `from_from_index_with_tp` to
+    # return full indices into the contracted + compound junction versions of
+    # the graphs stored in cache.
+    attr (graph, "turn_penalty") <- 0
     to_from_indices <- to_from_index_with_tp (graph, from, to)
-    if (to_from_indices$compound) {
-        graph <- to_from_indices$graph_compound
-    }
 
     graph [[gr_cols$d]] <- graph [[gr_cols$time]]
     graph [[gr_cols$d_weighted]] <- graph [[gr_cols$time_weighted]]
