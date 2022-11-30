@@ -87,7 +87,7 @@ m4ra_parking <- function (bb,
 
         # The final ratio is then number of parking spaces divided by the cubic
         # root of the building volume.
-        v$ratio <- v$parking / as.numeric (v$building_volume) ^ (1 / 3)
+        v$ratio <- v$parking / as.numeric (v$building_volume)^(1 / 3)
 
         # And that is then converted to penalties at start and end, as
         # documented at top of this file.
@@ -130,7 +130,7 @@ get_parking_data <- function (bb,
             )) |>
             osmdata::osmdata_sf (doc = f_a, quiet = quiet)
 
-            # key = "parking:lane:<side>"
+        # key = "parking:lane:<side>"
         f_l <- grep ("lane", osm_files, value = TRUE)
         dat_l <- osmdata::opq (bb) |>
             osmdata::add_osm_features (features = c (
@@ -167,8 +167,10 @@ get_parking_data <- function (bb,
 
     combine_pts_and_polys <- function (dat) {
 
-        cols0 <- c ("osm_id", "amenity", "building",
-            "parking", "capacity", "geometry")
+        cols0 <- c (
+            "osm_id", "amenity", "building",
+            "parking", "capacity", "geometry"
+        )
         cols <- cols0 [which (cols0 %in% names (dat$osm_points))]
         dat_pts <-
             dat$osm_points [grep ("parking", dat$osm_points$amenity), cols]
@@ -202,8 +204,10 @@ get_parking_data <- function (bb,
     # Process "capacity" values first by taking mean of any ranges:
     index <- grep ("\\-", dat_p$capacity)
     if (length (index) > 0) {
-        cap <- sapply (strsplit (dat_p$capacity [index], "-"),
-                       function (i) mean (as.integer (i)))
+        cap <- sapply (
+            strsplit (dat_p$capacity [index], "-"),
+            function (i) mean (as.integer (i))
+        )
         dat_p$capacity [index] <- round (cap)
 
     }
@@ -213,8 +217,8 @@ get_parking_data <- function (bb,
     # Then replace all NA "capacity" values by mean values for each pair of
     # "amenity" and "parking" key-values:
     dat_p <- dplyr::group_by (dat_p, amenity, parking) |>
-        dplyr::mutate_at("capacity", function(x) {
-            replace(x, is.na(x), mean(x, na.rm = TRUE))
+        dplyr::mutate_at ("capacity", function (x) {
+            replace (x, is.na (x), mean (x, na.rm = TRUE))
         })
 
     # Finally add any on-street parking denoted with "parking:lane:<side>" keys.
@@ -233,12 +237,16 @@ get_parking_data <- function (bb,
 process_onstreet_lanes <- function (dat_l) {
 
     keep_cols <- grep ("^parking\\.lane", names (dat_l$osm_lines), value = TRUE)
-    net <- dodgr::weight_streetnet (dat_l$osm_lines, wt_profile = 1,
-        keep_cols = keep_cols)
+    net <- dodgr::weight_streetnet (dat_l$osm_lines,
+        wt_profile = 1,
+        keep_cols = keep_cols
+    )
 
     # All possible combinations of parking lane tags:
-    cols <- expand.grid (c ("both", "left", "right"),
-                         c ("", "parallel", "diagonal", "perpendicular"))
+    cols <- expand.grid (
+        c ("both", "left", "right"),
+        c ("", "parallel", "diagonal", "perpendicular")
+    )
     cols <- paste0 ("parking.lane.", paste0 (cols [, 1], ".", cols [, 2]))
     cols <- gsub ("\\.$", "", cols)
     cols <- cols [which (cols %in% keep_cols)]
@@ -300,8 +308,10 @@ process_onstreet_lanes <- function (dat_l) {
 
     net$street_parking <- apply (net [, cols], 1, sum)
 
-    net <- net [, c ("from_id", "from_lon", "from_lat",
-        "to_id", "to_lon", "to_lat", "way_id", "street_parking")]
+    net <- net [, c (
+        "from_id", "from_lon", "from_lat",
+        "to_id", "to_lon", "to_lat", "way_id", "street_parking"
+    )]
 
     return (net)
 }
@@ -341,8 +351,8 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
     p$height <- as.numeric (p$height)
 
     p <- dplyr::group_by (p, building) |>
-        dplyr::mutate_at ("height", function(x) {
-            replace(x, is.na(x), mean(x, na.rm = TRUE))
+        dplyr::mutate_at ("height", function (x) {
+            replace (x, is.na (x), mean (x, na.rm = TRUE))
         })
     p$area <- sf::st_area (p)
     p$volume <- p$area * p$height
