@@ -371,7 +371,8 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
 #' reduced `dodgr` street network with numbers of onstreet parking spaces
 #' calculated in `process_onstreet_lanes()`.
 #' @noRd
-aggregate_parking_data <- function (graph_c, city, parking, dlim = 5000, k = 1000) {
+aggregate_parking_data <- function (graph_c, city, parking,
+                                    dlim = 5000, k = 1000) {
 
     parking_lanes <- parking$dat_l
     parking <- parking$dat_p
@@ -379,6 +380,7 @@ aggregate_parking_data <- function (graph_c, city, parking, dlim = 5000, k = 100
     # suppress no visible binding notes:
     osm_id <- x <- y <- id <- NULL
 
+    cli::cli_alert_info (cli::col_blue ("Aggregating parking data"))
     v <- m4ra_vertices (graph_c, city)
 
     from <- v$id
@@ -421,6 +423,7 @@ aggregate_parking_data <- function (graph_c, city, parking, dlim = 5000, k = 100
             capacity = sum (capacity)
         )
     parking$capacity <- as.integer (round (parking$capacity))
+    cli::cli_alert_success (cli::col_green ("Aggregated parking data"))
 
     capacity <- parking [["capacity"]]
     to <- parking$osm_id
@@ -428,6 +431,9 @@ aggregate_parking_data <- function (graph_c, city, parking, dlim = 5000, k = 100
     attr (graph_c, "turn_penalty") <- 0
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
+    cli::cli_alert_info (cli::col_blue (
+        "Weighting parking by distances to all vertices"
+    ))
     d <- rcpp_weighted_dists (
         graph_c,
         to_from_indices$vert_map,
@@ -437,6 +443,9 @@ aggregate_parking_data <- function (graph_c, city, parking, dlim = 5000, k = 100
         dlim = dlim,
         k = k
     )
+    cli::cli_alert_success (cli::col_green (
+        "Weighted parking by distances to all vertices"
+    ))
 
     capacity <- d [, 2] / d [, 1]
     # Then re-scale to total actual capacity times relative difference in
@@ -468,12 +477,14 @@ aggregate_building_data <- function (graph_c, city, buildings,
         which (is.finite (buildings$volume) & !is.na (buildings$volume)),
     ]
 
+    cli::cli_alert_info (cli::col_blue ("Aggregating building volumes"))
     buildings <- dplyr::group_by (buildings, osm_id) |>
         dplyr::summarise (
             x = x [1],
             y = y [1],
             volume = sum (volume)
         )
+    cli::cli_alert_success (cli::col_green ("Aggregated building volumes"))
 
     volume <- buildings [["volume"]]
     to <- buildings$osm_id
@@ -481,6 +492,9 @@ aggregate_building_data <- function (graph_c, city, buildings,
     attr (graph_c, "turn_penalty") <- 0
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
+    cli::cli_alert_info (cli::col_blue (
+        "Weighting buildings by distances to all vertices"
+    ))
     vol_wt <- rcpp_weighted_dists (
         graph_c,
         to_from_indices$vert_map,
@@ -490,6 +504,10 @@ aggregate_building_data <- function (graph_c, city, buildings,
         dlim = dlim,
         k = k
     )
+    cli::cli_alert_success (cli::col_green (
+        "Weighted buildings by distances to all vertices"
+    ))
+
     volume <- vol_wt [, 2] / vol_wt [, 1]
     rel_nodes <- nrow (v) / nrow (buildings)
     volume <- volume * rel_nodes * sum (buildings$volume, na.rm = TRUE) /
