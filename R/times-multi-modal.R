@@ -270,7 +270,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
         v_final <- v_b
     }
     index <- dodgr::match_points_to_verts (v_c, v_final [, c ("x", "y")])
-    car_times <- car_times [, index]
+    car_times <- car_times [, index, drop = FALSE]
     colnames (car_times) <- v_final$id
 
     # match "from" points on to nearest pts in 'initial_mode' network:
@@ -305,7 +305,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
         from_foot <- v_f$id [dodgr::match_points_to_verts (v_f, v_from [, c ("x", "y")])]
         walk_d <- dodgr::dodgr_distances (graph_f, from = from_foot)
         index <- dodgr::match_points_to_verts (v_f, v_final [, c ("x", "y")])
-        walk_d <- walk_d [, index]
+        walk_d <- walk_d [, index, drop = FALSE]
         colnames (walk_d) <- v_final$id
 
         walk_d <- walk_d / 1000
@@ -314,10 +314,10 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     # Finally, 'mm_times' auto-removes any vertices which are unreachable, so
     # reduce all matrices to the size of this:
     index <- match (colnames (mm_times), colnames (car_times))
-    car_times <- car_times [, index]
+    car_times <- car_times [, index, drop = FALSE]
     v_final <- v_final [index, ]
     if (walk_dists) {
-        walk_d <- walk_d [, index]
+        walk_d <- walk_d [, index, drop = FALSE]
     }
 
     ratio <- mm_times / car_times
