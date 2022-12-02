@@ -222,11 +222,9 @@ m4ra_times_mm_car <- function (net_sc = NULL,
 
     if (walk_dists) {
         graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
-        graph_f <- graph_f [graph_f$component == 1, ]
         v_f <- m4ra_vertices (graph_f, city_name)
     }
     graph_b <- m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
-    graph_b <- graph_b [graph_b$component == 1, ]
     v_b <- m4ra_vertices (graph_b, city_name)
     graph_c <- m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
     v_c <- m4ra_vertices (graph_c, city_name)
