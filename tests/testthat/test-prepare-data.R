@@ -42,9 +42,9 @@ test_that ("prepare data", {
     expect_type (flist, "character")
     expect_true (all (file.exists (flist)))
 
-    expect_length (flist, 21L)
+    expect_length (flist, 27L)
     # 3 weighted networks:
-    expect_length (grep ("foot|bicycle|motorcar", flist), 19L)
+    expect_length (grep ("foot|bicycle|motorcar", flist), 25L)
     # 1 GTFS source:
     expect_length (grep ("berlin\\-gtfs\\.Rds$", flist), 1L)
     # plus one GTFS travel time matrix, and one GTFS-to-final network time
