@@ -111,13 +111,13 @@ cache_vertex_indices <- function (city) {
     # Then cache the indices needed to match vertices between the different
     # networks:
     graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
-    v_f <- m4ra_vertices (graph_f, city_name)
+    v_f <- m4ra_vertices (graph_f, city)
     hash_f <- substring (get_hash (graph_f), 1, 6)
     graph_b <- m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
-    v_b <- m4ra_vertices (graph_b, city_name)
+    v_b <- m4ra_vertices (graph_b, city)
     hash_b <- substring (get_hash (graph_b), 1, 6)
     graph_m <- m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
-    v_m <- m4ra_vertices (graph_m, city_name)
+    v_m <- m4ra_vertices (graph_m, city)
     hash_m <- substring (get_hash (graph_m), 1, 6)
 
     modes <- c ("foot", "bicycle", "motorcar")
