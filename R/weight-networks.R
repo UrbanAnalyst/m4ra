@@ -161,7 +161,8 @@ load_vert_index <- function (city, mode1, mode2) {
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
     flist <- fs::dir_ls (cache_dir, regexp = "\\-vert\\-index\\-")
-    grep (paste0 ("\\-", mode1, "\\-", mode2, "\\-"), flist, value = TRUE)
+    f <- grep (paste0 ("\\-", mode1, "\\-", mode2, "\\-"), flist, value = TRUE)
+    readRDS (f)
 }
 
 write_wt_profile <- function (traffic_lights = 1, turn = 2) {
