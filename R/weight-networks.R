@@ -28,7 +28,8 @@ m4ra_weight_networks <- function (net, city, quiet = TRUE) {
         net,
         city = city,
         wt_profiles = wt_profiles,
-        quiet = quiet)
+        quiet = quiet
+    )
 
     filenames <- c (filenames, cache_vertex_indices (city))
 
@@ -62,7 +63,8 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
         if (!quiet) {
             cli::cli_alert_info (cli::col_blue (
-                "Weighting network with '{w}' profile"))
+                "Weighting network with '{w}' profile"
+            ))
         }
         if (w == "motorcar") {
             f <- write_wt_profile (traffic_lights = 16, turn = 1)
@@ -94,7 +96,8 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (
-                "Weighted network with '{w}' profile"))
+                "Weighted network with '{w}' profile"
+            ))
         }
     }
 
@@ -139,7 +142,8 @@ cache_vertex_indices <- function (city) {
                     "-",
                     hash2,
                     ".Rds"
-            ))
+                )
+            )
             if (!file.exists (fname)) {
                 index <- dodgr::match_points_to_verts (v1, v2 [, c ("x", "y")])
                 saveRDS (index, fname)
@@ -204,7 +208,7 @@ write_wt_profile <- function (traffic_lights = 1, turn = 2) {
 m4ra_batch_weight_networks <- function (net_dir, remove_these = NULL) {
 
     flist <- fs::dir_ls (net_dir, regexp = "\\.Rds")
-    cities <- gsub ("\\-sc.*$", "", flist ) # nolint
+    cities <- gsub ("\\-sc.*$", "", flist) # nolint
     cities <- cities [which (!cities %in% remove_these)]
 
     out <- NULL
@@ -219,7 +223,8 @@ m4ra_batch_weight_networks <- function (net_dir, remove_these = NULL) {
         )
 
         cli::cli_h2 (paste0 (
-            cli::col_green (ci), " [", count, " / ", length (cities), "]"))
+            cli::col_green (ci), " [", count, " / ", length (cities), "]"
+        ))
         count <- count + 1
 
         f <- grep (city, flist, value = TRUE, fixed = TRUE)
