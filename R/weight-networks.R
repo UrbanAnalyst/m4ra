@@ -157,6 +157,13 @@ cache_vertex_indices <- function (city) {
     return (flist)
 }
 
+load_vert_index <- function (city, mode1, mode2) {
+
+    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    flist <- fs::dir_ls (cache_dir, regexp = "\\-vert\\-index\\-")
+    grep (paste0 ("\\-", mode1, "\\-", mode2, "\\-"), flist, value = TRUE)
+}
+
 write_wt_profile <- function (traffic_lights = 1, turn = 2) {
 
     f <- file.path (fs::path_temp (), "wt_profile.json")
