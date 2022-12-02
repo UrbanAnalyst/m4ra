@@ -328,6 +328,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     return (list (
         dist = walk_d,
         ratio = ratio,
-        verts = v_final
+        verts = v_final,
+        v_from = v [match (from, v$id), ]
     ))
 }
