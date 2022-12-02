@@ -239,7 +239,10 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     ids <- unique (v$id)
     v <- v [match (ids, v$id), ]
 
-    # match "from" points on to nearest pts in car network:
+    # match "from" points on to nearest pts in car network. This uses
+    # 'match_points_to_verts', because don't know at this stage the network from
+    # which those points are drawn, plus there'll generally be relatively few of
+    # them.
     v_from <- v [match (from, v$id), ]
     from_car <- v_c$id [dodgr::match_points_to_verts (v_c, v_from [, c ("x", "y")])]
     car_times <- m4ra_times_single_mode (graph_c, from = from_car) # dim: (nfrom, nverts)
@@ -264,10 +267,13 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     # Then re-map car_times onto vertices of "final mode" graph:
     if (final_mode == "foot") {
         v_final <- v_f
+        index <- load_vert_index (city, mode1 = "motorcar", mode2 = "foot")
+        index_walk <- seq_len (v_final)
     } else {
         v_final <- v_b
+        index <- load_vert_index (city, mode1 = "motorcar", mode2 = "bicycle")
+        index_walk <- load_vert_index (city, mode1 = "foot", mode2 = "bicycle")
     }
-    index <- dodgr::match_points_to_verts (v_c, v_final [, c ("x", "y")])
     car_times <- car_times [, index, drop = FALSE]
     colnames (car_times) <- v_final$id
 
@@ -302,8 +308,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
         # these are distances, not times.
         from_foot <- v_f$id [dodgr::match_points_to_verts (v_f, v_from [, c ("x", "y")])]
         walk_d <- dodgr::dodgr_distances (graph_f, from = from_foot)
-        index <- dodgr::match_points_to_verts (v_f, v_final [, c ("x", "y")])
-        walk_d <- walk_d [, index, drop = FALSE]
+        walk_d <- walk_d [, index_walk, drop = FALSE]
         colnames (walk_d) <- v_final$id
 
         walk_d <- walk_d / 1000
