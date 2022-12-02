@@ -30,6 +30,8 @@ m4ra_weight_networks <- function (net, city, quiet = TRUE) {
         wt_profiles = wt_profiles,
         quiet = quiet)
 
+    filenames <- c (filenames, cache_vertex_indices (city))
+
     return (filenames)
 }
 
@@ -97,6 +99,56 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
     }
 
     return (filenames)
+}
+
+cache_vertex_indices <- function (city) {
+
+    # Then cache the indices needed to match vertices between the different
+    # networks:
+    graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
+    v_f <- m4ra_vertices (graph_f, city_name)
+    hash_f <- substring (get_hash (graph_f), 1, 6)
+    graph_b <- m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
+    v_b <- m4ra_vertices (graph_b, city_name)
+    hash_b <- substring (get_hash (graph_b), 1, 6)
+    graph_m <- m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
+    v_m <- m4ra_vertices (graph_m, city_name)
+    hash_m <- substring (get_hash (graph_m), 1, 6)
+
+    modes <- c ("foot", "bicycle", "motorcar")
+
+    flist <- NULL
+
+    for (m in modes) {
+        v1 <- get (paste0 ("v_", substring (m, 1, 1)))
+        hash1 <- get (paste0 ("hash_", substring (m, 1, 1)))
+        for (n in modes [which (!modes == m)]) {
+            v2 <- get (paste0 ("v_", substring (n, 1, 1)))
+            hash2 <- get (paste0 ("hash_", substring (n, 1, 1)))
+            fname <- fs::path (
+                m4ra_cache_dir (),
+                paste0 (
+                    "m4ra-",
+                    city,
+                    "-vert-index-",
+                    m,
+                    "-",
+                    n,
+                    "-",
+                    hash1,
+                    "-",
+                    hash2,
+                    ".Rds"
+            ))
+            if (!file.exists (fname)) {
+                index <- dodgr::match_points_to_verts (v1, v2 [, c ("x", "y")])
+                saveRDS (index, fname)
+            }
+            flist <- c (flist, fname)
+        }
+    }
+
+    return (flist)
 }
 
 write_wt_profile <- function (traffic_lights = 1, turn = 2) {
