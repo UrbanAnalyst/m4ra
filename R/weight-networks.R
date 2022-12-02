@@ -106,6 +106,8 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
 cache_vertex_indices <- function (city) {
 
+    cache_dir <- fs::path (m4ra_cache_dir (), city)
+
     # Then cache the indices needed to match vertices between the different
     # networks:
     graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
@@ -129,7 +131,7 @@ cache_vertex_indices <- function (city) {
             v2 <- get (paste0 ("v_", substring (n, 1, 1)))
             hash2 <- get (paste0 ("hash_", substring (n, 1, 1)))
             fname <- fs::path (
-                m4ra_cache_dir (),
+                cache_dir,
                 paste0 (
                     "m4ra-",
                     city,
