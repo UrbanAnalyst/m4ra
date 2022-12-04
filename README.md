@@ -6,4 +6,4 @@ Concept](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repo
 
 # m4ra: Many-to-Many Multi-Modal Routing Aggregator
 
-Status October 2022: Almost usable
+Status December 2022: All works; nothing documented.
