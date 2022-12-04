@@ -43,6 +43,8 @@ repos:
           )$
     -   id: readme-rmd-rendered
     -   id: parsable-R
+        additional_dependencies:
+          - R.cache
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0
     hooks: 
