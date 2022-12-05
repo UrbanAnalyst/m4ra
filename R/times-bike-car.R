@@ -149,9 +149,11 @@ m4ra_bike_car_ratio_areas <- function (bike_car_dat,
 
     nverts <- ncol (bike_car_dat$ratio)
     areas <- lapply (seq_len (nverts), function (i) {
-        vapply (ratio_lims, function (r) {
-            ratio_area (bike_car_dat$ratio [, i], bike_car_dat$verts, r) },
-            numeric (1L))
+        vapply (
+            ratio_lims, function (r) {
+                ratio_area (bike_car_dat$ratio [, i], bike_car_dat$verts, r) },
+            numeric (1L)
+        )
     })
     areas <- do.call (rbind, areas)
 
