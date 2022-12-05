@@ -28,7 +28,7 @@
     
     <a class="navbar-brand me-2" href="index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.124</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.125</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,31 @@
 <div class="section level1">
 <div class="page-header"><h1 id="m4ra-many-to-many-multi-modal-routing-aggregator">m4ra: Many-to-Many Multi-Modal Routing Aggregator<a class="anchor" aria-label="anchor" href="#m4ra-many-to-many-multi-modal-routing-aggregator"></a>
 </h1></div>
-<p>Status December 2022: All works; nothing documented.</p>
+<ul>
+<li>Travel times using any combination of three transport modes: foot, bicycle, and public transport.</li>
+<li>Ratios of multi-modal times to equivalent travel times in private automobile, including local infrastructure-specific estimates of time delays due to parking.</li>
+</ul>
+<div class="section level2">
+<h2 id="data-needs">Data Needs<a class="anchor" aria-label="anchor" href="#data-needs"></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li>A representation of the local street network, in <a href="https://docs.ropensci.org/osmdata/reference/osmdata_sc.html" class="external-link"><code>osmdata_sc</code> format</a>, potentially including elevation data to accommodate effects of incline on pedestrian and bicycle travel times.</li>
+<li>A GTFS (General Transit Feed Specification)-format data file of public transport data for the study city or location.</li>
+</ol>
+</div>
+<div class="section level2">
+<h2 id="how">How?<a class="anchor" aria-label="anchor" href="#how"></a>
+</h2>
+<p>The following parameters need to be specified:</p>
+<ol style="list-style-type: decimal">
+<li>Name of city - used to name locally-cached files formed during pre-processing.</li>
+<li>Day of the week for which public transport is to be analysed.</li>
+<li>Starting time limits defining the public transport component of the journey, from which the fastest single journey to every destination will be calculated.</li>
+<li>Initial and final modes of transport, as either pedestrian or bicycle.</li>
+<li>A selection of starting points from which to calculate either multi-modal travel times, or durations of those times to equivalent automobile times.</li>
+</ol>
+<p>Travel times are always calculated to every destination point in a given network, with a single query returning matrices of times, one row for each origin point, and columns holding travel times to all possible destination points.</p>
+</div>
 </div>
 
   </main><aside class="col-md-3"><div class="links">
