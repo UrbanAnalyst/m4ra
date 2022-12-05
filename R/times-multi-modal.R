@@ -247,22 +247,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     from_car <- v_c$id [dodgr::match_points_to_verts (v_c, v_from [, c ("x", "y")])]
     car_times <- m4ra_times_single_mode (graph_c, from = from_car) # dim: (nfrom, nverts)
 
-    # Add start and end time penalties for parking, only reading directly from
-    # cached parking file if it exists
-    cache_dir <- fs::path (m4ra_cache_dir (), city)
-    f_parking <- list.files (cache_dir, full.names = TRUE, pattern = "parking")
-    if (length (f_parking) > 0) {
-        f_parking_hash <- substring (digest::digest (v_c$id), 1, 6)
-        f_parking <- grep (f_parking_hash, f_parking, value = TRUE)
-    }
-    if (length (f_parking == 1L)) {
-        parking <- m_readRDS (f_parking)
-        index <- match (rownames (car_times), parking$id)
-        p_start_mat <- array (parking$penalty_start [index], dim = dim (car_times))
-        index <- match (colnames (car_times), parking$id)
-        p_end_mat <- t (array (parking$penalty_start [index], dim = rev (dim (car_times))))
-        car_times <- p_start_mat + car_times + p_end_mat
-    }
+    car_times <- add_parking_times (car_times, v_c, city)
 
     # Then re-map car_times onto vertices of "final mode" graph:
     if (final_mode == "foot") {
@@ -331,4 +316,30 @@ m4ra_times_mm_car <- function (net_sc = NULL,
         verts = v_final,
         v_from = v [match (from, v$id), ]
     ))
+}
+
+#' Add start and end time penalties for parking, only reading directly from
+#' cached parking file if it exists
+#' @noRd
+add_parking_times <- function (car_times, verts_car, city) {
+
+    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    f_parking <- list.files (cache_dir, full.names = TRUE, pattern = "parking")
+
+    if (length (f_parking) > 0) {
+        f_parking_hash <- substring (digest::digest (verts_car$id), 1, 6)
+        f_parking <- grep (f_parking_hash, f_parking, value = TRUE)
+    }
+
+    if (length (f_parking == 1L)) {
+
+        parking <- m_readRDS (f_parking)
+        index <- match (rownames (car_times), parking$id)
+        p_start_mat <- array (parking$penalty_start [index], dim = dim (car_times))
+        index <- match (colnames (car_times), parking$id)
+        p_end_mat <- t (array (parking$penalty_start [index], dim = rev (dim (car_times))))
+        car_times <- p_start_mat + car_times + p_end_mat
+    }
+
+    return (car_times)
 }
