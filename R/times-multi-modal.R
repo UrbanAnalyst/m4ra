@@ -220,6 +220,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     checkmate::assert_character (city_name, max.len = 1L)
     city <- gsub ("\\s+", "-", tolower (city_name))
 
+    v_f <- NULL
     if (walk_dists) {
         graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
         v_f <- m4ra_vertices (graph_f, city_name)
