@@ -191,6 +191,19 @@ times_gtfs_to_gtfs <- function (gtfs,
     fname_gtfs <- file.path (cache_dir, fname_gtfs)
 
     if (!file.exists (fname_gtfs)) {
+        ptn <- paste0 ("m4ra\\-", city_name, "\\-gtfs\\-.*[0-9]{4,5}\\-[0-9]{4,5}\\.Rds")
+        fname_gtfs <- fs::dir_ls (cache_dir, regexp = ptn)
+        if (!is.null (start_time_limits)) {
+            ptn <- paste0 ("\\-", start_time_limits [1], "\\-", start_time_limits [2], "\\.Rds$")
+            fname_gtfs <- grep (ptn, fname_gtfs, value = TRUE)
+        }
+        if (!is.null (day)) {
+            ptn <- paste0 ("\\-", day, "\\-")
+            fname_gtfs <- grep (ptn, fname_gtfs, value = TRUE)
+        }
+    }
+
+    if (!file.exists (fname_gtfs)) {
 
         if (!quiet) {
             pt0 <- proc.time ()
