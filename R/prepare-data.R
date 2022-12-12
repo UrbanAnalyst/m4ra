@@ -74,14 +74,28 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         net_files <- m4ra_weight_networks (net, city = city_name, quiet = quiet)
     } else {
         # Just read weighted network files from cache_dir contents
-        ptn <- paste0 ("m4ra\\-", city_name, "\\-(bicycle|foot|motorcar|vert\\-index)\\-")
+        ptn <- paste0 (
+            "m4ra\\-",
+            city_name,
+            "\\-(bicycle|foot|motorcar|vert\\-index)\\-"
+        )
         net_files <- fs::dir_ls (cache_dir, regexp = ptn)
     }
 
     if (!is.null (gtfs)) {
+
         # (Re-)generate GTFS travel time matrix
-        fname_gtfs <- times_gtfs_to_gtfs (gtfs, city_name, cache_dir, day, start_time_limits, quiet)
+        fname_gtfs <- times_gtfs_to_gtfs (
+            gtfs,
+            city_name,
+            cache_dir,
+            day,
+            start_time_limits,
+            quiet
+        )
+
     } else {
+
         ptn <- paste0 (city_name, "\\-gtfs\\-.*[0-9]{4,5}\\-[0-9]{4,5}\\.Rds$")
         fname_gtfs <- fs::dir_ls (cache_dir, regexp = ptn)
         if (length (fname_gtfs) > 1L) {
@@ -93,8 +107,16 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                 )
             }
             start_time_limits <- convert_start_time_limits (start_time_limits)
-            fname_gtfs <- grep (paste0 (start_time_limits, collapse = "-"), fname_gtfs, value = TRUE)
-            fname_gtfs <- grep (paste0 ("\\-", day, "\\-"), fname_gtfs, value = TRUE)
+            fname_gtfs <- grep (
+                paste0 (start_time_limits, collapse = "-"),
+                fname_gtfs,
+                value = TRUE
+            )
+            fname_gtfs <- grep (
+                paste0 ("\\-", day, "\\-"),
+                fname_gtfs,
+                value = TRUE
+            )
             if (length (fname_gtfs) > 1L) {
                 warning (
                     "Multiple pre-processed GTFS timetables found ",
@@ -146,7 +168,12 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 
 #' Generate GTFS transport time matrix bewtween all station pairs
 #' @noRd
-times_gtfs_to_gtfs <- function (gtfs, city_name, cache_dir, day, start_time_limits, quiet) {
+times_gtfs_to_gtfs <- function (gtfs,
+                                city_name,
+                                cache_dir,
+                                day,
+                                start_time_limits,
+                                quiet) {
 
     gtfs_data <- m_readRDS (gtfs)
     gtfs_hash <- substring (digest::digest (gtfs_data), 1, 6)
