@@ -68,8 +68,15 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 
     cache_dir <- fs::path (m4ra_cache_dir (), city_name)
 
-    net <- m_readRDS (net_sc)
-    net_files <- m4ra_weight_networks (net, city = city_name, quiet = quiet)
+    if (!is.null (net_sc)) {
+        # (Re-)generate weighted networks
+        net <- m_readRDS (net_sc)
+        net_files <- m4ra_weight_networks (net, city = city_name, quiet = quiet)
+    } else {
+        # Just read weighted network files from cache_dir contents
+        ptn <- paste0 ("m4ra\\-", city_name, "\\-(bicycle|foot|motorcar|vert\\-index)\\-")
+        net_files <- fs::dir_ls (cache_dir, regexp = ptn)
+    }
 
     gtfs_data <- m_readRDS (gtfs)
     gtfs_hash <- substring (digest::digest (gtfs_data), 1, 6)
