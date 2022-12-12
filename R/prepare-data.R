@@ -52,18 +52,25 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 
     pt0_whole <- proc.time ()
 
-    checkmate::assert_character (net_sc, max.len = 1L)
-    checkmate::assert_character (gtfs, max.len = 1L)
+    if (!is.null (net_sc)) {
+        checkmate::assert_character (net_sc, max.len = 1L)
+        checkmate::assert_file_exists (net_sc)
+    }
+    if (!is.null (gtfs)) {
+        checkmate::assert_character (gtfs, max.len = 1L)
+        checkmate::assert_file_exists (gtfs)
+    }
     checkmate::assert_character (city_name, max.len = 1L)
-    checkmate::assert_character (day, max.len = 1L)
-    checkmate::assert_file_exists (net_sc)
-    checkmate::assert_file_exists (gtfs)
+    if (!is.null (day)) {
+        checkmate::assert_character (day, max.len = 1L)
+        days <- c ("mo", "tu", "we", "th", "fr", "sa", "so")
+        day <- match.arg (substring (tolower (day), 1, 2), days)
+    }
+    if (!is.null (start_time_limits)) {
+        # gtfsrouter internal fn:
+        start_time_limits <- convert_start_time_limits (start_time_limits)
+    }
 
-    # gtfsrouter internal fn:
-    start_time_limits <- convert_start_time_limits (start_time_limits)
-
-    days <- c ("mo", "tu", "we", "th", "fr", "sa", "so")
-    day <- match.arg (substring (tolower (day), 1, 2), days)
     city_name <- gsub ("\\s+", "-", tolower (city_name))
 
     cache_dir <- fs::path (m4ra_cache_dir (), city_name)
@@ -212,8 +219,11 @@ times_gtfs_to_gtfs <- function (gtfs,
 
 #' Identify closest GTFS stops to every network point.
 #' @noRd
-times_gtfs_to_net <- function (files, mode = "foot",
-                               fast = FALSE, n_closest = 10L, quiet = FALSE) {
+times_gtfs_to_net <- function (files,
+                               mode = "foot",
+                               fast = FALSE,
+                               n_closest = 10L,
+                               quiet = FALSE) {
 
     checkmate::assert_character (mode, len = 1L)
     mode <- match.arg (mode, c ("foot", "bicycle"))
@@ -221,6 +231,21 @@ times_gtfs_to_net <- function (files, mode = "foot",
     cache_files <- grep (m4ra_cache_dir (), files, fixed = TRUE, value = TRUE)
     dirs <- fs::path_split (cache_files) [[1]]
     city <- dirs [length (dirs) - 1L]
+
+    f_gtfs_to_net <- grep (
+        paste0 (city, "\\-gtfs\\-to\\-net\\-"),
+        fs::dir_ls (fs::path (m4ra_cache_dir (), city)),
+        value = TRUE
+    )
+    f_gtfs_to_net <- grep (
+        paste0 ("\\-", mode, "\\-"),
+        f_gtfs_to_net,
+        value = TRUE
+    )
+    if (length (f_gtfs_to_net) == 1L) {
+        return (f_gtfs_to_net)
+    }
+    # Otherwise extract hashes to check whether times need to be re-calculated:
 
     graph <- m4ra_load_cached_network (
         city = city,
