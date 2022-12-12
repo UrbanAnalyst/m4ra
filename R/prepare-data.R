@@ -242,6 +242,12 @@ times_gtfs_to_net <- function (files,
         f_gtfs_to_net,
         value = TRUE
     )
+    f_gtfs_to_net <- grep (
+        paste0 ("\\-", ifelse (fast, "fast", "slow"), "\\.Rds"),
+        f_gtfs_to_net,
+        value = TRUE
+    )
+
     if (length (f_gtfs_to_net) == 1L) {
         return (f_gtfs_to_net)
     }
