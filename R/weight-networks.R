@@ -47,6 +47,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
     filenames <- fs::dir_ls (cache_dir, regexp = "\\-(foot|bicycle|motorcar)\\-")
     filenames <- filenames [which (!grepl ("\\-gtfs\\-", filenames))]
+    filenames <- filenames [which (!grepl ("\\-vert\\-index\\-", filenames))]
 
     cache_flag <- fs::path (
         cache_dir,
