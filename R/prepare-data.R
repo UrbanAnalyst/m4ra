@@ -78,7 +78,33 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         net_files <- fs::dir_ls (cache_dir, regexp = ptn)
     }
 
-    fname_gtfs <- times_gtfs_to_gtfs (gtfs, city_name, cache_dir, day, start_time_limits)
+    if (!is.null (gtfs)) {
+        # (Re-)generate GTFS travel time matrix
+        fname_gtfs <- times_gtfs_to_gtfs (gtfs, city_name, cache_dir, day, start_time_limits)
+    } else {
+        ptn <- paste0 (city_name, "\\-gtfs\\-.*[0-9]{4,5}\\-[0-9]{4,5}\\.Rds$")
+        fname_gtfs <- fs::dir_ls (cache_dir, regexp = ptn)
+        if (length (fname_gtfs) > 1L) {
+            if (is.null (start_time_limits)) {
+                stop (
+                    "Multiple pre-processed GTFS timetables found; ",
+                    "please specify 'start_time_limits'",
+                    call. = FALSE
+                )
+            }
+            start_time_limits <- convert_start_time_limits (start_time_limits)
+            fname_gtfs <- grep (paste0 (start_time_limits, collapse = "-"), fname_gtfs, value = TRUE)
+            fname_gtfs <- grep (paste0 ("\\-", day, "\\-"), fname_gtfs, value = TRUE)
+            if (length (fname_gtfs) > 1L) {
+                warning (
+                    "Multiple pre-processed GTFS timetables found ",
+                    "for specified 'start_time_limits' and 'day'; ",
+                    "the first will be selected."
+                )
+                fname_gtfs <- fname_gtfs [1L]
+            }
+        }
+    }
 
     files <- c (net_files, gtfs, fname_gtfs)
 
