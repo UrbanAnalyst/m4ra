@@ -234,7 +234,9 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     # included within the graph:
     attr (graph_c, "wt_profile_file") <- NULL
 
-    message ("Calculating times from [", length (from), "] vertices")
+    if (!quiet) {
+        message ("Calculating times from [", length (from), "] vertices")
+    }
 
     v <- rbind (v_f, v_b, v_c)
     ids <- unique (v$id)
