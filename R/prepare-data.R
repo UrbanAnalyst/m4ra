@@ -78,6 +78,50 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         net_files <- fs::dir_ls (cache_dir, regexp = ptn)
     }
 
+    fname_gtfs <- times_gtfs_to_gtfs (gtfs, city_name, cache_dir, day, start_time_limits)
+
+    files <- c (net_files, gtfs, fname_gtfs)
+
+    f_closest_gtfs <- times_gtfs_to_net (
+        files,
+        mode = final_mode,
+        fast = fast,
+        n_closest = n_closest,
+        quiet = quiet
+    )
+    files <- unique (c (files, f_closest_gtfs))
+
+    f_parking <- NULL
+    if (parking) {
+
+        x <- net$vertex$x_
+        x <- mean (range (x)) + c (-0.5, 0.5) * diff (range (x))
+        y <- net$vertex$y_
+        y <- mean (range (y)) + c (-0.5, 0.5) * diff (range (y))
+        bb <- rbind (x, y)
+        colnames (bb) <- c ("min", "max")
+
+        dat_p <- m4ra_parking (bb, city_name,
+            mode = "motorcar",
+            planet_file = planet_file, dlim = 5000, k = 1000, quiet = quiet
+        )
+        f <- list.files (cache_dir, pattern = city_name)
+        f_parking <- grep ("parking", f, value = TRUE)
+    }
+
+    if (!quiet) {
+        cli::cli_alert_success (cli::col_green (
+            "Total time for data preparation: ", process_time (pt0_whole)
+        ))
+    }
+
+    return (c (files, f_parking))
+}
+
+#' Generate GTFS transport time matrix bewtween all station pairs
+#' @noRd
+times_gtfs_to_gtfs <- function (gtfs, city_name, cache_dir, day, start_time_limits) {
+
     gtfs_data <- m_readRDS (gtfs)
     gtfs_hash <- substring (digest::digest (gtfs_data), 1, 6)
     fname_gtfs <- paste0 (
@@ -110,42 +154,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
         }
     }
 
-    files <- c (net_files, gtfs)
-
-    f_closest_gtfs <- times_gtfs_to_net (
-        files,
-        mode = final_mode,
-        fast = fast,
-        n_closest = n_closest,
-        quiet = quiet
-    )
-    files <- unique (c (files, fname_gtfs, f_closest_gtfs))
-
-    f_parking <- NULL
-    if (parking) {
-
-        x <- net$vertex$x_
-        x <- mean (range (x)) + c (-0.5, 0.5) * diff (range (x))
-        y <- net$vertex$y_
-        y <- mean (range (y)) + c (-0.5, 0.5) * diff (range (y))
-        bb <- rbind (x, y)
-        colnames (bb) <- c ("min", "max")
-
-        dat_p <- m4ra_parking (bb, city_name,
-            mode = "motorcar",
-            planet_file = planet_file, dlim = 5000, k = 1000, quiet = quiet
-        )
-        f <- list.files (cache_dir, pattern = city_name)
-        f_parking <- grep ("parking", f, value = TRUE)
-    }
-
-    if (!quiet) {
-        cli::cli_alert_success (cli::col_green (
-            "Total time for data preparation: ", process_time (pt0_whole)
-        ))
-    }
-
-    return (c (files, f_parking))
+    return (fname_gtfs)
 }
 
 #' Identify closest GTFS stops to every network point.
