@@ -256,7 +256,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     if (final_mode == "foot") {
         v_final <- v_f
         index <- load_vert_index (city, mode1 = "motorcar", mode2 = "foot")
-        index_walk <- seq_len (v_final)
+        index_walk <- seq_len (nrow (v_final))
     } else {
         v_final <- v_b
         index <- load_vert_index (city, mode1 = "motorcar", mode2 = "bicycle")
