@@ -223,12 +223,12 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     v_f <- NULL
     if (walk_dists) {
         graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
-        v_f <- m4ra_vertices (graph_f, city_name)
+        v_f <- m4ra_vertices (graph_f, city)
     }
     graph_b <- m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
-    v_b <- m4ra_vertices (graph_b, city_name)
+    v_b <- m4ra_vertices (graph_b, city)
     graph_c <- m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
-    v_c <- m4ra_vertices (graph_c, city_name)
+    v_c <- m4ra_vertices (graph_c, city)
 
     # Need to remove 'wt_profile_file' attribute, as turn angles are already
     # included within the graph:
