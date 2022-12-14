@@ -26,7 +26,7 @@ test_that ("prepare data", {
     saveRDS (net_sc, net_sc_path)
 
     day <- "monday"
-    start_time_limits <- 12:13 * 3500
+    start_time_limits <- 12:13 * 3600
 
     flist <- m4ra_prepare_data (
         net_sc = net_sc_path,
