@@ -33,8 +33,8 @@ m4ra_cache_dir <- function () {
             "m4ra"
         ))
 
-        if (!dir.exists (cache_dir)) {
-            dir.create (cache_dir, recursive = TRUE)
+        if (!fs::dir_exists (cache_dir)) {
+            fs::dir_create (cache_dir, recursive = TRUE)
         }
     }
 
@@ -128,8 +128,10 @@ cache_one_graph <- function (graph, city) {
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
 
-    aname <- paste0 ("m4ra-", city, "-", mode, "-",
-        atag, "-", hash, ".Rds")
+    aname <- paste0 (
+        "m4ra-", city, "-", mode, "-",
+        atag, "-", hash, ".Rds"
+    )
     apath <- fs::path (cache_dir, aname)
 
     saveRDS (a, apath)
