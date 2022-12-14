@@ -10,7 +10,6 @@ fake_network_data <- function (gtfs, npts = 1e3) {
     ylim <- range (stops$stop_lon)
 
     set.seed (1)
-    npts <- 1e3
     xy <- data.frame (
         x = runif (npts, min = xlim [1], max = xlim [2]),
         y = runif (npts, min = ylim [1], max = ylim [2])
@@ -27,8 +26,8 @@ fake_network_data <- function (gtfs, npts = 1e3) {
     graph$.vx1_x <- xy$x [graph$.vx1]
     graph$.vx1_y <- xy$y [graph$.vx1]
 
-    graph$d <- sqrt ((graph$.vx1_x - graph$.vx0_x) ^ 2 +
-        (graph$.vx1_y - graph$.vx0_y) ^ 2)
+    graph$d <- sqrt ((graph$.vx1_x - graph$.vx0_x)^2 +
+        (graph$.vx1_y - graph$.vx0_y)^2)
     graph$d_weighted <- graph$time <- graph$time_weighted <- graph$d
 
     graph_rev <- data.frame (
@@ -83,7 +82,7 @@ test_that ("gtfs to graph fns", {
     gtfs <- gtfsrouter::gtfs_timetable (gtfs, day = "Monday")
 
     npts <- 1e3L
-    graph <- fake_network_data (gtfs, npts = npts) 
+    graph <- fake_network_data (gtfs, npts = npts)
 
     Sys.setenv ("M4RA_NUM_CORES" = 1L)
     start_time_limits <- 12:13 * 3500
