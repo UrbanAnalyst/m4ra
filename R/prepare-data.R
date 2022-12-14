@@ -160,7 +160,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
             mode = "motorcar",
             planet_file = planet_file, dlim = 5000, k = 1000, quiet = quiet
         )
-        f <- list.files (cache_dir, pattern = city_name)
+        f <- fs::dir_ls (cache_dir, regexp = city_name, fixed = TRUE)
         f_parking <- grep ("parking", f, value = TRUE)
     }
 
@@ -188,7 +188,7 @@ times_gtfs_to_gtfs <- function (gtfs,
         "m4ra-", city_name, "-gtfs-", gtfs_hash,
         "-", day, "-", paste0 (start_time_limits, collapse = "-"), ".Rds"
     )
-    fname_gtfs <- file.path (cache_dir, fname_gtfs)
+    fname_gtfs <- fs::path (cache_dir, fname_gtfs)
 
     if (!fs::file_exists (fname_gtfs)) {
 
@@ -319,7 +319,7 @@ times_gtfs_to_net <- function (files,
     )
     fname <- fs::path (m4ra_cache_dir (), city, fname)
 
-    if (!file.exists (fname)) {
+    if (!fs::file_exists (fname)) {
 
         if (!quiet) {
             cli::cli_alert_info (cli::col_blue ("Contracting network graph"))
