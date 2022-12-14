@@ -10,7 +10,7 @@ m4ra_vertices(graph, city)
 \item{graph}{A flat table of graph edges. Must contain columns labelled
 \code{from} and \code{to}, or \code{start} and \code{stop}. May also contain
 similarly labelled columns of spatial coordinates (for example
-\code{from_x}) or \code{stop_lon}).}
+\code{from_x} or \code{stop_lon}).}
 
 \item{city}{Name of city; used to name cached network files.}
 }

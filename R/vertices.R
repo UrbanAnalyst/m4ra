@@ -10,7 +10,7 @@
 #' @param graph A flat table of graph edges. Must contain columns labelled
 #' `from` and `to`, or `start` and `stop`. May also contain
 #' similarly labelled columns of spatial coordinates (for example
-#' `from_x`) or `stop_lon`).
+#' `from_x` or `stop_lon`).
 #' @param city Name of city; used to name cached network files.
 #' @return A `data.frame` of vertices with unique numbers (`n`).
 #'
