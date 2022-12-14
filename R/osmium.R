@@ -1,23 +1,27 @@
-# Extrac data for parking function from a local planet file with osmium
+# Extract data for parking function from a local planet file with osmium
 
 osmium_cut <- function (planet_file, bb, city_name, quiet = FALSE) {
 
     if (!nzchar (Sys.which ("osmium"))) {
         stop ("osmium must be installed to use local pbf/bz2 files.",
-            call. = FALSE)
+            call. = FALSE
+        )
     }
-    if (!file.exists (planet_file)) {
+    if (!fs::file_exists (planet_file)) {
         stop ("planet_file '", planet_file, "' not found.",
-            call. = FALSE)
+            call. = FALSE
+        )
     }
 
     planet_dir <- dirname (planet_file)
-    f <- file.path (planet_dir, paste0 (city_name, ".osm.pbf"))
+    f <- fs::path (planet_dir, paste0 (city_name, ".osm.pbf"))
 
-    cmd <- paste ("osmium extract -b", paste0 (bb, collapse = ","),
-        planet_file, "-o", f)
+    cmd <- paste (
+        "osmium extract -b", paste0 (bb, collapse = ","),
+        planet_file, "-o", f
+    )
 
-    if (file.exists (f)) {
+    if (fs::file_exists (f)) {
         if (!quiet) {
             cli::cli_alert_info (cli::col_green (f, " already exists"))
         }
@@ -26,14 +30,16 @@ osmium_cut <- function (planet_file, bb, city_name, quiet = FALSE) {
 
     if (!quiet) {
         cli::cli_alert_info (cli::col_blue (
-            "Extracting data within bounding box from planet file"))
+            "Extracting data within bounding box from planet file"
+        ))
     }
 
     system (cmd)
 
     if (!quiet) {
         cli::cli_alert_success (cli::col_green (
-            "Extracted data within bounding box from planet file  "))
+            "Extracted data within bounding box from planet file  "
+        ))
     }
 
     return (f)
@@ -56,7 +62,7 @@ osmium_tags_filter <- function (f, tags, quiet = FALSE) {
     f_tag <- paste0 (gsub ("\\.osm\\.pbf$", "", f), "-", tag1, ".osm.pbf")
     fosm <- tools::file_path_sans_ext (f_tag) # removes ".pbf"
 
-    if (file.exists (fosm)) {
+    if (fs::file_exists (fosm)) {
         if (!quiet) {
             cli::cli_alert_info (cli::col_green (fosm, " already exists"))
         }
@@ -70,7 +76,7 @@ osmium_tags_filter <- function (f, tags, quiet = FALSE) {
     cmd <- paste ("osmium cat --no-progress", f_tag, "-o", fosm)
     system (cmd)
 
-    file.remove (f_tag)
+    fs::file_delete (f_tag)
 
     return (fosm)
 }
