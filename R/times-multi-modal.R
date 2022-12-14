@@ -328,7 +328,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
 add_parking_times <- function (car_times, verts_car, city) {
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
-    f_parking <- list.files (cache_dir, full.names = TRUE, pattern = "parking")
+    f_parking <- fs::dir_ls (cache_dir, regexp = "parking", fixed = TRUE)
 
     if (length (f_parking) > 0) {
         f_parking_hash <- substring (digest::digest (verts_car$id), 1, 6)
