@@ -147,7 +147,7 @@ cache_vertex_indices <- function (city) {
                     ".Rds"
                 )
             )
-            if (!file.exists (fname)) {
+            if (!fs::file_exists (fname)) {
                 index <- dodgr::match_points_to_verts (v1, v2 [, c ("x", "y")])
                 saveRDS (index, fname)
             }
@@ -168,7 +168,7 @@ load_vert_index <- function (city, mode1, mode2) {
 
 write_wt_profile <- function (traffic_lights = 1, turn = 2) {
 
-    f <- file.path (fs::path_temp (), "wt_profile.json")
+    f <- fs::path (fs::path_temp (), "wt_profile.json")
     dodgr::write_dodgr_wt_profile (f)
 
     w <- readLines (f)
