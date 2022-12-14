@@ -55,9 +55,9 @@ m4ra_parking <- function (bb,
     v_hash <- substring (digest::digest (v$id), 1, 6)
 
     f_parking <- paste0 ("m4ra-", city, "-parking-", v_hash, ".Rds")
-    f_parking <- file.path (cache_dir, f_parking)
+    f_parking <- fs::path (cache_dir, f_parking)
 
-    if (file.exists (f_parking)) {
+    if (fs::file_exists (f_parking)) {
 
         v <- readRDS (f_parking)
 
