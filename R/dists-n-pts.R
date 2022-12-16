@@ -19,10 +19,6 @@ m4ra_dists_n_pts <- function (graph,
     if (!methods::is (graph, "dodgr_streetnet_sc")) {
         stop ("'graph' must be a 'dodgr_streetnet_sc' object")
     }
-    if (!is.null (path)) {
-        checkmate::assert_character (path)
-        checkmate::assert_directory_exists (path)
-    }
 
     graph <- tbl_to_df (graph)
 
@@ -58,12 +54,8 @@ m4ra_dists_n_pts <- function (graph,
     index <- seq_len (npts) + npts
     imat <- dmat [, index]
     storage.mode (imat) <- "integer"
-    # match - 1 to convert to 0-based C++ indices:
-    to_index <- to_from_indices$to$index
-    imat <- array (match (imat, to_index) - 1L, dim = dim (imat))
-    dmat [, index] <- imat
 
-    dmat [is.na (dmat)] <- -1
+    dmat <- dmat [, seq_len (npts)]
 
-    return (d)
+    return (list (dist_mat = dmat, index_mat = imat))
 }
