@@ -54,6 +54,7 @@ m4ra_dists_n_pts <- function (graph,
     index <- seq_len (npts) + npts
     imat <- dmat [, index]
     storage.mode (imat) <- "integer"
+    imat <- imat + 1L # convert 0-based C++ to 1-based R
 
     dmat <- dmat [, seq_len (npts)]
 
