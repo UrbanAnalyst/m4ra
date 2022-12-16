@@ -225,6 +225,11 @@ struct OneDistNTargets : public RcppParallel::Worker
 
         for (std::size_t i = begin; i < end; i++)
         {
+            std::fill (d.begin (), d.end (), INFINITE_DOUBLE);
+            std::fill (w.begin (), w.end (), INFINITE_DOUBLE);
+            std::fill (heuristic.begin (), heuristic.end (), 0.0);
+            std::fill (prev.begin (), prev.end (), INFINITE_INT);
+
             size_t from_i = static_cast <size_t> (dp_fromi [i]);
 
             for (size_t j = 0; j < nverts; j++)
@@ -233,8 +238,7 @@ struct OneDistNTargets : public RcppParallel::Worker
                 dy = vy [j] - vy [from_i];
                 heuristic [j] = sqrt (dx * dx + dy * dy);
             }
-            pathfinder->AStarNTargets (d, w, prev, heuristic, from_i, toi,
-                    n_targets);
+            pathfinder->DijkstraNTargets (d, w, prev, from_i, toi, n_targets);
 
             // The "NTargets" scanner only accumulates distances up to the
             // closest "n_targets" values, but still includes the full "toi"
@@ -243,7 +247,7 @@ struct OneDistNTargets : public RcppParallel::Worker
             size_t count = 0;
             for (size_t j = 0; j < toi.size (); j++)
             {
-                if (w [toi [j]] < INFINITE_DOUBLE)
+                if (d [toi [j]] < INFINITE_DOUBLE)
                 {
                     dout (i, count) = d [toi [j]];
                     dout (i, n_targets + count) = static_cast <double> (toi [j]);
@@ -486,13 +490,14 @@ Rcpp::NumericMatrix rcpp_dists_to_n_targets (const Rcpp::DataFrame graph,
             static_cast <int> (2 * n_targets), na_vec.begin ());
 
     // Create parallel worker
-    OneDistNTargets one_dist (RcppParallel::RVector <int> (fromi), toi,
+    OneDistNTargets one_dist_n_targets (RcppParallel::RVector <int> (fromi), toi,
             nverts, static_cast <size_t> (n_targets),
             vx, vy, g,
             RcppParallel::RMatrix <double> (dout));
 
-    size_t chunk_size = run_sp::get_chunk_size (nfrom);
-    RcppParallel::parallelFor (0, nfrom, one_dist, chunk_size);
+    const size_t chunk_size = run_sp::get_chunk_size (nfrom);
+
+    RcppParallel::parallelFor (0, nfrom, one_dist_n_targets, chunk_size);
     
     return (dout);
 }

@@ -3,6 +3,7 @@
 export(m4ra_batch_weight_networks)
 export(m4ra_bike_car_ratio_areas)
 export(m4ra_cache_network)
+export(m4ra_dists_n_pts)
 export(m4ra_gtfs_traveltimes)
 export(m4ra_load_cached_network)
 export(m4ra_network_hash)

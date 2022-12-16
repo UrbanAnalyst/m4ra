@@ -94,6 +94,14 @@ class PathFinder {
                 const size_t v0,
                 const double &dlim);
 
+        void DijkstraNTargets (
+                std::vector<double>& d,
+                std::vector<double>& w,
+                std::vector<long int>& prev,
+                const size_t v0,
+                const std::vector <size_t> &to_index,
+                const size_t n_targets);
+
         void AStar (std::vector<double>& d,
                 std::vector<double>& w,
                 std::vector<long int>& prev,
