@@ -9,7 +9,7 @@ test_that ("prepare data", {
 
     z <- gtfsrouter::berlin_gtfs_to_zip ()
     gtfs <- gtfsrouter::extract_gtfs (z)
-    gtfs_path <- file.path (tempdir (), "berlin-gtfs.Rds")
+    gtfs_path <- fs::path (fs::path_temp (), "berlin-gtfs.Rds")
     saveRDS (gtfs, gtfs_path)
 
     # modify coordinates of hampi data to match GTFS coordinates:
@@ -22,7 +22,7 @@ test_that ("prepare data", {
         diff (range (net_sc$vertex$x_)) * diff (xlim) + x0
     net_sc$vertex$y_ <- (net_sc$vertex$y_ - min (net_sc$vertex$y_)) /
         diff (range (net_sc$vertex$y_)) * diff (ylim) + y0
-    net_sc_path <- file.path (tempdir (), "berlin-sc.Rds")
+    net_sc_path <- fs::path (fs::path_temp (), "berlin-sc.Rds")
     saveRDS (net_sc, net_sc_path)
 
     day <- "monday"
@@ -40,7 +40,7 @@ test_that ("prepare data", {
     )
 
     expect_type (flist, "character")
-    expect_true (all (file.exists (flist)))
+    expect_true (all (fs::file_exists (flist)))
 
     expect_length (flist, 27L)
     # 3 weighted networks:

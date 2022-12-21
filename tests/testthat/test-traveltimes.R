@@ -97,16 +97,16 @@ test_that ("save times to local cache", {
     set.seed (1L)
     from <- sample (v$id, size = 10)
 
-    path <- file.path (tempdir (), "m4ra")
-    if (dir.exists (path)) {
-        unlink (path, recursive = TRUE)
+    path <- fs::path (fs::path_temp (), "m4ra")
+    if (fs::dir_exists (path)) {
+        fs::dir_delete (path)
     }
-    dir.create (path, recursive = TRUE)
+    fs::dir_create (path, recurse = TRUE)
     fnames <- m4ra_times_single_mode (net, from = from, path = path)
 
     expect_type (fnames, "character")
     expect_equal (length (fnames), length (from))
-    expect_true (all (file.exists (fnames)))
+    expect_true (all (fs::file_exists (fnames)))
     expect_true (all (grepl ("m4ra\\_from\\_", fnames)))
     fnames_from_id <- gsub ("^m4ra\\_from\\_", "", basename (fnames))
     expect_identical (fnames_from_id, from) # order is the same!!

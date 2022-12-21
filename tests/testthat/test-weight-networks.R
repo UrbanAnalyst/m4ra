@@ -2,19 +2,18 @@
 test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
     identical (Sys.getenv ("GITHUB_WORKFLOW"), "test-coverage"))
 
-Sys.setenv ("M4RA_CACHE_DIR" = tempdir ())
+Sys.setenv ("M4RA_CACHE_DIR" = fs::path_temp ())
 
 test_that ("weight networks", {
 
-    flist <- list.files (
-        tempdir (),
-        pattern = "^m4ra\\-",
-        full.names = TRUE
+    flist <- fs::dir_ls (
+        fs::path_temp (),
+        regexp = "^m4ra\\-"
     )
     chks <- "not null"
     if (length (flist) > 0L) {
         chks <- tryCatch (
-            file.remove (flist),
+            fs::file_delete (flist),
             error = function (e) NULL
         )
     }
@@ -28,5 +27,5 @@ test_that ("weight networks", {
 
     expect_type (f, "character")
     expect_length (f, 24L)
-    expect_true (all (file.exists (f)))
+    expect_true (all (fs::file_exists (f)))
 })
