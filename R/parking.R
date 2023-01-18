@@ -178,6 +178,8 @@ get_parking_data <- function (bb,
         cols <- cols0 [which (cols0 %in% names (dat$osm_polygons))]
         dat_poly <-
             dat$osm_polygons [grep ("parking", dat$osm_polygons$amenity), cols]
+        # Only retain valid polygons:
+        dat_poly <- dat_poly [which (sf::st_is_valid (dat_poly)), ]
 
         # Rm any nodes that are part of those polygons
         ids <- length (unique (names (unlist (dat_poly$geometry))))
