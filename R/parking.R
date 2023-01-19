@@ -351,6 +351,8 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
     # suppress no visible binding notes:
     building <- NULL
 
+    cols <- c ("building", "height")
+
     if (!is.null (planet_file)) {
 
         if (!quiet) {
@@ -359,9 +361,13 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
         osm_files <- osmium_process (planet_file, bb, city_name, quiet = quiet)
 
         f_b <- grep ("building", osm_files, value = TRUE)
-        dat_b <- osmdata::opq (bb) |>
-            osmdata::add_osm_feature (key = "building") |>
-            osmdata::osmdata_sf (doc = f_b, quiet = quiet)
+        dat_b <- osmextract::oe_read (
+            f_b,
+            layer = "multipolygons",
+            extra_tags = cols,
+            quiet = TRUE
+        ) |> sf::st_cast ("POLYGON")
+        dat_b <- list (osm_polygons = dat_b)
 
     } else {
 
@@ -370,7 +376,6 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
             osmdata::osmdata_sf (quiet = quiet)
     }
 
-    cols <- c ("building", "height")
     p <- dat_b$osm_polygons [, c (cols, "geometry")]
     index <- grep ("ft$|feet$", p$height)
     p$height [index] <-
