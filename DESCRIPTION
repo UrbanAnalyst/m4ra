@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.1.0.157
+Version: 0.1.0.158
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
@@ -33,6 +33,7 @@ Suggests:
     geosphere,
     hms,
     osmdata,
+    osmextract,
     sf,
     testthat (>= 3.0.0)
 Remotes:

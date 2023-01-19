@@ -45,7 +45,15 @@ osmium_cut <- function (planet_file, bb, city_name, quiet = FALSE) {
     return (f)
 }
 
-osmium_tags_filter <- function (f, tags, quiet = FALSE) {
+#' Filter an OSM file by specified tags
+#'
+#' @param f Path to full '.osm.pbf' file
+#' @param tags Character vector of tags to use for filtering
+#' @param pbf If `TRUE`, create a (binary) `.osm.pbf` file, otherwise create a
+#' (text) `.osm` file.
+#' @param quiet Loud or quiet?
+#' @noRd
+osmium_tags_filter <- function (f, tags, pbf = TRUE, quiet = FALSE) {
 
     if (!nzchar (f)) {
         stop ("f must be specified", call. = FALSE)
@@ -60,7 +68,11 @@ osmium_tags_filter <- function (f, tags, quiet = FALSE) {
         cli::cli_h3 (tag1)
     }
     f_tag <- paste0 (gsub ("\\.osm\\.pbf$", "", f), "-", tag1, ".osm.pbf")
-    fosm <- tools::file_path_sans_ext (f_tag) # removes ".pbf"
+    fosm <- ifelse (
+        pbf,
+        f_tag,
+        tools::file_path_sans_ext (f_tag) # removes ".pbf" only, leaves '.osm'
+    )
 
     if (fs::file_exists (fosm)) {
         if (!quiet) {
@@ -69,14 +81,8 @@ osmium_tags_filter <- function (f, tags, quiet = FALSE) {
         return (fosm)
     }
 
-    cmd <- paste ("osmium tags-filter --no-progress", f, tags, "-o", f_tag)
+    cmd <- paste ("osmium tags-filter --no-progress", f, tags, "-o", fosm)
     system (cmd)
-
-    # Then 'osmium cat' to convert to .osm/.xml format:
-    cmd <- paste ("osmium cat --no-progress", f_tag, "-o", fosm)
-    system (cmd)
-
-    fs::file_delete (f_tag)
 
     return (fosm)
 }

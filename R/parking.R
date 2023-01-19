@@ -112,33 +112,54 @@ get_parking_data <- function (bb,
 
     if (!is.null (planet_file)) {
 
+        if (!quiet) {
+            cli::cli_h3 (cli::col_green ("Extracting data on parking spaces:"))
+        }
+
         osm_files <- osmium_process (planet_file, bb, city_name, quiet = quiet)
 
+        use_osmextract <- function (f, extra_tags = "capacity") {
+            list (
+                osm_polygons = osmextract::oe_read (
+                    f,
+                    layer = "multipolygons",
+                    extra_tags = extra_tags,
+                    quiet = TRUE
+                ) |> sf::st_cast ("POLYGON"),
+                osm_points = osmextract::oe_read (
+                    f,
+                    layer = "points",
+                    extra_tags = extra_tags,
+                    quiet = TRUE
+                )
+            )
+        }
+
         # key = "parking":
+        tags <- c ("amenity", "building", "capacity", "parking")
         f_p <- grep ("parking\\.", osm_files, value = TRUE)
-        dat_p <- osmdata::opq (bb) |>
-            osmdata::add_osm_feature (key = "parking") |>
-            osmdata::osmdata_sf (doc = f_p, quiet = quiet)
+        dat_p <- use_osmextract (f_p, extra_tags = tags)
 
         # key = "amenity" or "building":
         f_a <- grep ("amenity", osm_files, value = TRUE)
-        dat_a <- osmdata::opq (bb) |>
-            osmdata::add_osm_features (features = c (
-                "\"amentiy\"=\"parking\"",
-                "\"building\"=\"garage\"",
-                "\"building\"=\"garages\""
-            )) |>
-            osmdata::osmdata_sf (doc = f_a, quiet = quiet)
+        dat_a <- use_osmextract (f_a, extra_tags = tags)
 
         # key = "parking:lane:<side>"
+        tags <- c (
+            "parking",
+            paste0 (
+                "parking:lane:",
+                c ("", "both", "left", "right", "parallel", "diagonal", "perpendicular")
+            )
+        )
         f_l <- grep ("lane", osm_files, value = TRUE)
-        dat_l <- osmdata::opq (bb) |>
-            osmdata::add_osm_features (features = c (
-                "\"parking:lane:left\"",
-                "\"parking:lane:right\"",
-                "\"parking:lane:both\""
-            )) |>
-            osmdata::osmdata_sf (doc = f_l, quiet = quiet)
+        dat_l <- osmextract::oe_read (
+            f_l,
+            layer = "lines",
+            extra_tags = tags,
+            quiet = TRUE
+        )
+        dat_l <- list (osm_lines = dat_l)
 
     } else {
 
@@ -238,8 +259,11 @@ get_parking_data <- function (bb,
 #' @noRd
 process_onstreet_lanes <- function (dat_l) {
 
+    # osmextract inserts underscores instead of ".":
+    names (dat_l$osm_lines) <- gsub ("\\_", ".", names (dat_l$osm_lines))
     keep_cols <- grep ("^parking\\.lane", names (dat_l$osm_lines), value = TRUE)
-    net <- dodgr::weight_streetnet (dat_l$osm_lines,
+    net <- dodgr::weight_streetnet (
+        dat_l$osm_lines,
         wt_profile = 1,
         keep_cols = keep_cols
     )
@@ -329,6 +353,9 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
 
     if (!is.null (planet_file)) {
 
+        if (!quiet) {
+            cli::cli_h3 (cli::col_green ("Extracting data on buildings:"))
+        }
         osm_files <- osmium_process (planet_file, bb, city_name, quiet = quiet)
 
         f_b <- grep ("building", osm_files, value = TRUE)
