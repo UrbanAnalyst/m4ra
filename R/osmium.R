@@ -16,11 +16,6 @@ osmium_cut <- function (planet_file, bb, city_name, quiet = FALSE) {
     planet_dir <- dirname (planet_file)
     f <- fs::path (planet_dir, paste0 (city_name, ".osm.pbf"))
 
-    cmd <- paste (
-        "osmium extract -b", paste0 (bb, collapse = ","),
-        planet_file, "-o", f
-    )
-
     if (fs::file_exists (f)) {
         if (!quiet) {
             cli::cli_alert_info (cli::col_green (f, " already exists"))
@@ -33,6 +28,11 @@ osmium_cut <- function (planet_file, bb, city_name, quiet = FALSE) {
             "Extracting data within bounding box from planet file"
         ))
     }
+
+    cmd <- paste (
+        "osmium extract -b", paste0 (bb, collapse = ","),
+        planet_file, "-o", f
+    )
 
     system (cmd)
 
