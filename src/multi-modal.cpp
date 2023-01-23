@@ -56,6 +56,65 @@ struct OneTimesToEndStops : public RcppParallel::Worker
     }
 };
 
+struct AddTwoMatricesWorker : public RcppParallel::Worker
+{
+    const RcppParallel::RMatrix <double> times_to_end_stops;
+    const std::vector <std::vector <size_t> > gtfs_to_net_index_vec;
+    const std::vector <std::vector <double> > gtfs_to_net_dist_vec;
+    const size_t nfrom;
+
+    RcppParallel::RMatrix <double> tout;
+
+    // constructor
+    AddTwoMatricesWorker (
+            const RcppParallel::RMatrix <double> times_to_end_stops_in,
+            std::vector <std::vector <size_t> > gtfs_to_net_index_vec_in,
+            std::vector <std::vector <double> > gtfs_to_net_dist_vec_in,
+            const size_t nfrom_in,
+            RcppParallel::RMatrix <double> tout_in) :
+        times_to_end_stops (times_to_end_stops_in),
+        gtfs_to_net_index_vec (gtfs_to_net_index_vec_in),
+        gtfs_to_net_dist_vec (gtfs_to_net_dist_vec_in),
+        nfrom (nfrom_in),
+        tout (tout_in)
+    {
+    }
+
+    // Parallel function operator
+    void operator() (std::size_t begin, std::size_t end)
+    {
+        // i over all vertices in the input distance matrix
+        for (std::size_t i = begin; i < end; i++)
+        {
+            for (size_t j = 0; j < gtfs_to_net_index_vec.size (); j++)
+            {
+                if (times_to_end_stops (i, j) == INFINITE_DBL)
+                {
+                    continue;
+                }
+
+                const size_t n_j = gtfs_to_net_index_vec [j].size ();
+
+                for (size_t k = 0; k < n_j; k++)
+                {
+                    if (gtfs_to_net_dist_vec [j] [k] < 0)
+                    {
+                        continue;
+                    }
+
+                    const double time_i_to_k = times_to_end_stops (i, j) + gtfs_to_net_dist_vec [j] [k];
+                    const size_t index_k = gtfs_to_net_index_vec [j] [k];
+
+                    if (time_i_to_k < tout (i, index_k))
+                    {
+                        tout (i, index_k) = time_i_to_k;
+                    }
+                }
+            }
+        }
+    }
+};
+
 //' rcpp_add_net_to_gtfs
 //'
 //' Add times from selected start points to all GTFS stations to total GTFS '
@@ -106,37 +165,12 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
         gtfs_to_net_dist_vec [i] = Rcpp::as <std::vector <double> > (d_i);
     }
 
-    for (size_t i = 0; i < nfrom; i++)
-    {
+    AddTwoMatricesWorker combine_two_mats (
+            RcppParallel::RMatrix <double> (times_to_end_stops),
+            gtfs_to_net_index_vec, gtfs_to_net_dist_vec, nfrom,
+            RcppParallel::RMatrix <double> (res));
 
-        Rcpp::checkUserInterrupt ();
-
-        for (size_t j = 0; j < gtfs_to_net_index_vec.size (); j++)
-        {
-            if (times_to_end_stops (i, j) == INFINITE_DBL)
-            {
-                continue;
-            }
-
-            const size_t n_j = gtfs_to_net_index_vec [j].size ();
-
-            for (size_t k = 0; k < n_j; k++)
-            {
-                if (gtfs_to_net_dist_vec [j] [k] < 0)
-                {
-                    continue;
-                }
-
-                const double time_i_to_k = times_to_end_stops (i, j) + gtfs_to_net_dist_vec [j] [k];
-                const size_t index_k = gtfs_to_net_index_vec [j] [k];
-
-                if (time_i_to_k < res (i, index_k))
-                {
-                    res (i, index_k) = time_i_to_k;
-                }
-            }
-        }
-    }
+    RcppParallel::parallelFor (0, nfrom, combine_two_mats);
 
     return res;
 }
