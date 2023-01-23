@@ -58,11 +58,21 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # need times to all vertices to extract overall minimal time from initial
     # mode vs GTFS-routed modes at end. The times here are then reduced to times
     # to the GTFS stops by matching vertices afterward.
+    if (!quiet) {
+        cli::cli_alert_info (cli::col_blue (
+            "Calculating single-mode travel times for {initial_mode}"
+        ))
+    }
     times <- m4ra_times_single_mode (graph_c, from = from)
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")]
     )]
     times_to_gtfs <- times [, match (to, colnames (times)), drop = FALSE]
+    if (!quiet) {
+        cli::cli_alert_success (cli::col_blue (
+            "Calculated single-mode travel times for {initial_mode}"
+        ))
+    }
 
     # Then convert initial times to nearest GTFS stops to times through entire
     # GTFS network to all termimal network vertices.
@@ -87,6 +97,11 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     times [is.na (times)] <- -1
     gtfs_mat [is.na (gtfs_mat)] <- -1
 
+    if (!quiet) {
+        cli::cli_alert_info (cli::col_blue (
+            "Calculating multi-mode travel times"
+        ))
+    }
     res <- rcpp_add_net_to_gtfs (
         times_to_gtfs,
         gtfs_mat,
@@ -94,6 +109,11 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         gtfs_to_net$d,
         nverts_out
     )
+    if (!quiet) {
+        cli::cli_alert_success (cli::col_blue (
+            "Calculated multi-mode travel times"
+        ))
+    }
 
     maxr <- rcpp_matrix_max (res)
     res [res == maxr] <- NA
