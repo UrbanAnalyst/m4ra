@@ -27,6 +27,8 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
     // GTFS stops:
     for (size_t i = 0; i < nfrom; i++) {
 
+        Rcpp::checkUserInterrupt ();
+
         for (size_t j = 0; j < n_gtfs; j++) {
 
             const double time_i_to_j = net_times (i, j);
@@ -61,6 +63,9 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
 
     for (size_t i = 0; i < nfrom; i++)
     {
+
+        Rcpp::checkUserInterrupt ();
+
         for (size_t j = 0; j < gtfs_to_net_index.size (); j++)
         {
             if (times_to_end_stops (i, j) == INFINITE_DBL)
