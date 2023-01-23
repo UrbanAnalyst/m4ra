@@ -1,6 +1,61 @@
 
 #include "multi-modal.h"
 
+struct OneTimesToEndStops : public RcppParallel::Worker
+{
+    const RcppParallel::RMatrix <double> net_times;
+    const Rcpp::NumericMatrix gtfs_times;
+    const size_t nfrom;
+    const size_t n_gtfs;
+
+    RcppParallel::RMatrix <double> tout;
+
+    // constructor
+    OneTimesToEndStops (
+            const RcppParallel::RMatrix <double> net_times_in,
+            const Rcpp::NumericMatrix gtfs_times_in,
+            const size_t nfrom_in,
+            const size_t n_gtfs_in,
+            RcppParallel::RMatrix <double> tout_in) :
+        net_times (net_times_in), gtfs_times (gtfs_times_in),
+        nfrom (nfrom_in), n_gtfs (n_gtfs_in), tout (tout_in)
+    {
+    }
+
+    // Parallel function operator
+    void operator() (std::size_t begin, std::size_t end)
+    {
+        // i over all vertices in the input distance matrix
+        for (std::size_t i = begin; i < end; i++)
+        {
+            for (size_t j = 0; j < n_gtfs; j++)
+            {
+                const double time_i_to_j = net_times (i, j);
+                if (time_i_to_j < 0) // NA's have been replaced with -ve
+                {
+                    continue;
+                }
+
+                for (size_t k = 0; k < n_gtfs; k++)
+                {
+                    double time_j_to_k = gtfs_times (j, k);
+                    if (time_j_to_k < 0)
+                    {
+                        continue;
+                    }
+
+                    const double time_i_to_k = std::min (net_times (i, k), time_i_to_j + time_j_to_k);
+
+                    if (time_i_to_k < tout (i, k))
+                    {
+                        tout (i, k) = time_i_to_k;
+                    }
+                }
+            }
+        }
+    }
+};
+
 //' rcpp_add_net_to_gtfs
 //'
 //' Add times from selected start points to all GTFS stations to total GTFS '
@@ -25,34 +80,11 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
 
     // Add initial times to all closest GTFS stops to the times to all terminal
     // GTFS stops:
-    for (size_t i = 0; i < nfrom; i++) {
+    OneTimesToEndStops one_times (RcppParallel::RMatrix <double> (net_times),
+            gtfs_times, nfrom, n_gtfs,
+            RcppParallel::RMatrix <double> (times_to_end_stops));
 
-        Rcpp::checkUserInterrupt ();
-
-        for (size_t j = 0; j < n_gtfs; j++) {
-
-            const double time_i_to_j = net_times (i, j);
-            if (time_i_to_j < 0) // NA's have been replaced with -ve
-            {
-                continue;
-            }
-
-            for (size_t k = 0; k < n_gtfs; k++) {
-
-                const double time_j_to_k = gtfs_times (j, k);
-                if (time_j_to_k < 0) // NA's have been replaced with -ve
-                {
-                    continue;
-                }
-                const double time_i_to_k = std::min (net_times (i, k), time_i_to_j + time_j_to_k);
-
-                if (time_i_to_k < times_to_end_stops (i, k))
-                {
-                    times_to_end_stops (i, k) = time_i_to_k;
-                }
-            }
-        }
-    }
+    RcppParallel::parallelFor (0, nfrom, one_times);
 
     // Those are then the fastest times to each terminal GTFS stop. Then use the
     // lists of closest stops to each network point to calculate final fastest
