@@ -1,4 +1,3 @@
-
 #' Calculate matrix of pair-wise travel times between points using multiple
 #' modes of transport.
 #'
@@ -336,6 +335,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     return (list (
         dist = walk_d,
         car_times = car_times,
+        mm_times = mm_times,
         ratio = ratio,
         verts = v_final,
         v_from = v [match (from, v$id), ]
