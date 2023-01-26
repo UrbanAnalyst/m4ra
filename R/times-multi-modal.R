@@ -241,12 +241,15 @@ m4ra_times_mm_car <- function (net_sc = NULL,
 
     v_f <- NULL
     if (walk_dists) {
-        graph_f <- m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
+        graph_f <-
+            m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
         v_f <- m4ra_vertices (graph_f, city)
     }
-    graph_b <- m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
+    graph_b <-
+        m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
     v_b <- m4ra_vertices (graph_b, city)
-    graph_c <- m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
+    graph_c <-
+        m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
     v_c <- m4ra_vertices (graph_c, city)
 
     # Need to remove 'wt_profile_file' attribute, as turn angles are already
@@ -266,8 +269,10 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     # which those points are drawn, plus there'll generally be relatively few of
     # them.
     v_from <- v [match (from, v$id), ]
-    from_car <- v_c$id [dodgr::match_points_to_verts (v_c, v_from [, c ("x", "y")])]
-    car_times <- m4ra_times_single_mode (graph_c, from = from_car) # dim: (nfrom, nverts)
+    from_car <-
+        v_c$id [dodgr::match_points_to_verts (v_c, v_from [, c ("x", "y")])]
+    car_times <- m4ra_times_single_mode (graph_c, from = from_car)
+    # dim: (nfrom, nverts)
 
     car_times <- add_parking_times (car_times, v_c, city)
 
@@ -287,10 +292,8 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     # match "from" points on to nearest pts in 'initial_mode' network:
     if (initial_mode == "foot") {
         initial_verts <- v_f
-        initial_graph <- graph_f
     } else if (initial_mode == "bicycle") {
         initial_verts <- v_b
-        initial_graph <- graph_b
     }
 
     from_initial <- initial_verts$id [
@@ -313,7 +316,8 @@ m4ra_times_mm_car <- function (net_sc = NULL,
     if (walk_dists) {
         # Still have to re-calculate even if initial_mode = "foot", because
         # these are distances, not times.
-        from_foot <- v_f$id [dodgr::match_points_to_verts (v_f, v_from [, c ("x", "y")])]
+        from_foot <-
+            v_f$id [dodgr::match_points_to_verts (v_f, v_from [, c ("x", "y")])]
         walk_d <- dodgr::dodgr_distances (graph_f, from = from_foot)
         walk_d <- walk_d [, index_walk, drop = FALSE]
         colnames (walk_d) <- v_final$id
@@ -359,9 +363,15 @@ add_parking_times <- function (car_times, verts_car, city) {
 
         parking <- m_readRDS (f_parking)
         index <- match (rownames (car_times), parking$id)
-        p_start_mat <- array (parking$penalty_start [index], dim = dim (car_times))
+        p_start_mat <- array (
+            parking$penalty_start [index],
+            dim = dim (car_times)
+        )
         index <- match (colnames (car_times), parking$id)
-        p_end_mat <- t (array (parking$penalty_start [index], dim = rev (dim (car_times))))
+        p_end_mat <- t (array (
+            parking$penalty_start [index],
+            dim = rev (dim (car_times))
+        ))
         car_times <- p_start_mat + car_times + p_end_mat
     }
 
