@@ -148,7 +148,10 @@ get_parking_data <- function (bb,
             "parking",
             paste0 (
                 "parking:lane:",
-                c ("", "both", "left", "right", "parallel", "diagonal", "perpendicular")
+                c (
+                    "", "both", "left", "right",
+                    "parallel", "diagonal", "perpendicular"
+                )
             )
         )
         f_l <- grep ("lane", osm_files, value = TRUE)
