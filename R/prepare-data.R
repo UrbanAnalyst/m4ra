@@ -1,4 +1,3 @@
-
 #' Prepare network and GTFS components for 'm4ra' queries.
 #'
 #' This is a meta-function that calls the following functions:
@@ -148,6 +147,13 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
 
     f_parking <- NULL
     if (parking) {
+
+        if (is.null (net_sc)) {
+            stop (
+                "Parking requires specification of 'net_sc' parameter",
+                call. = FALSE
+            )
+        }
 
         x <- net$vertex$x_
         x <- mean (range (x)) + c (-0.5, 0.5) * diff (range (x))
