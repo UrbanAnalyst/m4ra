@@ -214,8 +214,10 @@ times_gtfs_to_gtfs <- function (gtfs,
 
         if (!quiet) {
             pt0 <- proc.time ()
+            n_stns <- format (nrow (gtfs_data$stops), big.mark = ",")
             cli::cli_alert_info (cli::col_blue (
-                "Calculating GTFS travel time matrix"
+                "Calculating GTFS travel time matrix between ",
+                n_stns, " stops."
             ))
         }
         gtfs_data <- gtfsrouter::gtfs_timetable (gtfs_data, day = day)
