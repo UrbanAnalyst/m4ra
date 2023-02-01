@@ -1,4 +1,3 @@
-
 # Global variables defining time penalties for parking a car at the start and
 # end of journeys. These are multiplied by the internal scale of the ratio of
 # nearby parking capacity divided by the cubic root of nearby building volume.
@@ -367,7 +366,8 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
             extra_tags = cols,
             quiet = TRUE
         ) |> sf::st_cast ("POLYGON")
-        dat_b <- list (osm_polygons = dat_b)
+        index <- which (sf::st_is_valid (dat_b))
+        dat_b <- list (osm_polygons = dat_b [index, ])
 
     } else {
 
