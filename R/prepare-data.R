@@ -155,16 +155,13 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
             )
         }
 
-        x <- net$vertex$x_
-        x <- mean (range (x)) + c (-0.5, 0.5) * diff (range (x))
-        y <- net$vertex$y_
-        y <- mean (range (y)) + c (-0.5, 0.5) * diff (range (y))
-        bb <- rbind (x, y)
-        colnames (bb) <- c ("min", "max")
-
-        dat_p <- m4ra_parking (bb, city_name,
+        dat_p <- m4ra_parking (
+            city_name = city_name,
             mode = "motorcar",
-            planet_file = planet_file, dlim = 5000, k = 1000, quiet = quiet
+            planet_file = planet_file,
+            dlim = 5000,
+            k = 1000,
+            quiet = quiet
         )
         f <- fs::dir_ls (cache_dir, regexp = city_name, fixed = TRUE)
         f_parking <- grep ("parking", f, value = TRUE)
