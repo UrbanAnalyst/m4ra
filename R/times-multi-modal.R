@@ -63,6 +63,10 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         ))
     }
     times <- m4ra_times_single_mode (graph_c, from = from)
+    # Convert to integer storage (#16):
+    times <- round (times)
+    storage.mode (times) <- "integer"
+
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")]
     )]
@@ -93,8 +97,10 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         ids_out <- v_c_final_mode$id
     }
 
-    times [is.na (times)] <- -1
-    gtfs_mat [is.na (gtfs_mat)] <- -1
+    # times is numeric, as small so okay to leave as is, but gtfs_mat is
+    # potentially huge, and must stay as integer!
+    times [is.na (times)] <- -1L
+    gtfs_mat [is.na (gtfs_mat)] <- -1L
 
     if (!quiet) {
         cli::cli_alert_info (cli::col_blue (
@@ -245,9 +251,12 @@ m4ra_times_mm_car <- function (net_sc = NULL,
             m4ra_load_cached_network (city, mode = "foot", contracted = TRUE)
         v_f <- m4ra_vertices (graph_f, city)
     }
+
     graph_b <-
         m4ra_load_cached_network (city, mode = "bicycle", contracted = TRUE)
     v_b <- m4ra_vertices (graph_b, city)
+    rm (graph_b)
+
     graph_c <-
         m4ra_load_cached_network (city, mode = "motorcar", contracted = TRUE)
     v_c <- m4ra_vertices (graph_c, city)
@@ -273,6 +282,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
         v_c$id [dodgr::match_points_to_verts (v_c, v_from [, c ("x", "y")])]
     car_times <- m4ra_times_single_mode (graph_c, from = from_car)
     # dim: (nfrom, nverts)
+    rm (graph_c)
 
     car_times <- add_parking_times (car_times, v_c, city)
 
@@ -321,6 +331,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
         walk_d <- dodgr::dodgr_distances (graph_f, from = from_foot)
         walk_d <- walk_d [, index_walk, drop = FALSE]
         colnames (walk_d) <- v_final$id
+        rm (graph_f)
 
         walk_d <- walk_d / 1000
     }
