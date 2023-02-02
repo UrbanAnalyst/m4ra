@@ -12,13 +12,13 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rcpp_add_net_to_gtfs
-Rcpp::NumericMatrix rcpp_add_net_to_gtfs(Rcpp::NumericMatrix net_times, Rcpp::NumericMatrix gtfs_times, Rcpp::List gtfs_to_net_index, Rcpp::List gtfs_to_net_dist, const int nverts);
+Rcpp::IntegerMatrix rcpp_add_net_to_gtfs(Rcpp::IntegerMatrix net_times, Rcpp::IntegerMatrix gtfs_times, Rcpp::List gtfs_to_net_index, Rcpp::List gtfs_to_net_dist, const int nverts);
 RcppExport SEXP _m4ra_rcpp_add_net_to_gtfs(SEXP net_timesSEXP, SEXP gtfs_timesSEXP, SEXP gtfs_to_net_indexSEXP, SEXP gtfs_to_net_distSEXP, SEXP nvertsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type net_times(net_timesSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type gtfs_times(gtfs_timesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type net_times(net_timesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type gtfs_times(gtfs_timesSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type gtfs_to_net_index(gtfs_to_net_indexSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type gtfs_to_net_dist(gtfs_to_net_distSEXP);
     Rcpp::traits::input_parameter< const int >::type nverts(nvertsSEXP);
@@ -27,13 +27,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_min_from_two_matrices
-Rcpp::NumericMatrix rcpp_min_from_two_matrices(Rcpp::NumericMatrix mat1, Rcpp::NumericMatrix mat2);
+Rcpp::IntegerMatrix rcpp_min_from_two_matrices(Rcpp::IntegerMatrix mat1, Rcpp::IntegerMatrix mat2);
 RcppExport SEXP _m4ra_rcpp_min_from_two_matrices(SEXP mat1SEXP, SEXP mat2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat1(mat1SEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat2(mat2SEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type mat1(mat1SEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type mat2(mat2SEXP);
     rcpp_result_gen = Rcpp::wrap(rcpp_min_from_two_matrices(mat1, mat2));
     return rcpp_result_gen;
 END_RCPP

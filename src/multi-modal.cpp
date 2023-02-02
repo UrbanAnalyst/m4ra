@@ -3,20 +3,20 @@
 
 struct OneTimesToEndStops : public RcppParallel::Worker
 {
-    const RcppParallel::RMatrix <double> net_times;
-    const Rcpp::NumericMatrix gtfs_times;
+    const RcppParallel::RMatrix <int> net_times;
+    const Rcpp::IntegerMatrix gtfs_times;
     const size_t nfrom;
     const size_t n_gtfs;
 
-    RcppParallel::RMatrix <double> tout;
+    RcppParallel::RMatrix <int> tout;
 
     // constructor
     OneTimesToEndStops (
-            const RcppParallel::RMatrix <double> net_times_in,
-            const Rcpp::NumericMatrix gtfs_times_in,
+            const RcppParallel::RMatrix <int> net_times_in,
+            const Rcpp::IntegerMatrix gtfs_times_in,
             const size_t nfrom_in,
             const size_t n_gtfs_in,
-            RcppParallel::RMatrix <double> tout_in) :
+            RcppParallel::RMatrix <int> tout_in) :
         net_times (net_times_in), gtfs_times (gtfs_times_in),
         nfrom (nfrom_in), n_gtfs (n_gtfs_in), tout (tout_in)
     {
@@ -30,7 +30,7 @@ struct OneTimesToEndStops : public RcppParallel::Worker
         {
             for (size_t j = 0; j < n_gtfs; j++)
             {
-                const double time_i_to_j = net_times (i, j);
+                const int time_i_to_j = net_times (i, j);
                 if (time_i_to_j < 0) // NA's have been replaced with -ve
                 {
                     continue;
@@ -38,13 +38,13 @@ struct OneTimesToEndStops : public RcppParallel::Worker
 
                 for (size_t k = 0; k < n_gtfs; k++)
                 {
-                    double time_j_to_k = gtfs_times (j, k);
+                    const int time_j_to_k = gtfs_times (j, k);
                     if (time_j_to_k < 0)
                     {
                         continue;
                     }
 
-                    const double time_i_to_k = std::min (net_times (i, k), time_i_to_j + time_j_to_k);
+                    const int time_i_to_k = std::min (net_times (i, k), time_i_to_j + time_j_to_k);
 
                     if (time_i_to_k < tout (i, k))
                     {
@@ -58,20 +58,20 @@ struct OneTimesToEndStops : public RcppParallel::Worker
 
 struct AddTwoMatricesWorker : public RcppParallel::Worker
 {
-    const RcppParallel::RMatrix <double> times_to_end_stops;
+    const RcppParallel::RMatrix <int> times_to_end_stops;
     const std::vector <std::vector <size_t> > gtfs_to_net_index_vec;
     const std::vector <std::vector <double> > gtfs_to_net_dist_vec;
     const size_t nfrom;
 
-    RcppParallel::RMatrix <double> tout;
+    RcppParallel::RMatrix <int> tout;
 
     // constructor
     AddTwoMatricesWorker (
-            const RcppParallel::RMatrix <double> times_to_end_stops_in,
+            const RcppParallel::RMatrix <int> times_to_end_stops_in,
             std::vector <std::vector <size_t> > gtfs_to_net_index_vec_in,
             std::vector <std::vector <double> > gtfs_to_net_dist_vec_in,
             const size_t nfrom_in,
-            RcppParallel::RMatrix <double> tout_in) :
+            RcppParallel::RMatrix <int> tout_in) :
         times_to_end_stops (times_to_end_stops_in),
         gtfs_to_net_index_vec (gtfs_to_net_index_vec_in),
         gtfs_to_net_dist_vec (gtfs_to_net_dist_vec_in),
@@ -88,7 +88,7 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
         {
             for (size_t j = 0; j < gtfs_to_net_index_vec.size (); j++)
             {
-                if (times_to_end_stops (i, j) == INFINITE_DBL)
+                if (times_to_end_stops (i, j) == INFINITE_INT)
                 {
                     continue;
                 }
@@ -102,7 +102,9 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
                         continue;
                     }
 
-                    const double time_i_to_k = times_to_end_stops (i, j) + gtfs_to_net_dist_vec [j] [k];
+                    //const double time_i_to_k = static_cast <double> (times_to_end_stops (i, j)) + gtfs_to_net_dist_vec [j] [k];
+                    const int dist_j_k = static_cast <int> (round (gtfs_to_net_dist_vec [j] [k]));
+                    const int time_i_to_k = times_to_end_stops (i, j) + dist_j_k;
                     const size_t index_k = gtfs_to_net_index_vec [j] [k];
 
                     if (time_i_to_k < tout (i, index_k))
@@ -121,8 +123,8 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
 //' travel time matrix to generate fastest travel times to all GTFS end points.
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
-        Rcpp::NumericMatrix gtfs_times, Rcpp::List gtfs_to_net_index,
+Rcpp::IntegerMatrix rcpp_add_net_to_gtfs (Rcpp::IntegerMatrix net_times,
+        Rcpp::IntegerMatrix gtfs_times, Rcpp::List gtfs_to_net_index,
         Rcpp::List gtfs_to_net_dist, const int nverts)
 {
     const size_t nfrom = static_cast <size_t> (net_times.nrow ());
@@ -134,14 +136,14 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
         Rcpp::stop ("GTFS and travel time matrices are not compatible");
     }
 
-    Rcpp::NumericMatrix times_to_end_stops (static_cast <int> (nfrom), static_cast <int> (n_gtfs));
-    std::fill (times_to_end_stops.begin (), times_to_end_stops.end (), INFINITE_DBL);
+    Rcpp::IntegerMatrix times_to_end_stops (static_cast <int> (nfrom), static_cast <int> (n_gtfs));
+    std::fill (times_to_end_stops.begin (), times_to_end_stops.end (), INFINITE_INT);
 
     // Add initial times to all closest GTFS stops to the times to all terminal
     // GTFS stops:
-    OneTimesToEndStops one_times (RcppParallel::RMatrix <double> (net_times),
+    OneTimesToEndStops one_times (RcppParallel::RMatrix <int> (net_times),
             gtfs_times, nfrom, n_gtfs,
-            RcppParallel::RMatrix <double> (times_to_end_stops));
+            RcppParallel::RMatrix <int> (times_to_end_stops));
 
     RcppParallel::parallelFor (0, nfrom, one_times);
 
@@ -149,8 +151,8 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
     // lists of closest stops to each network point to calculate final fastest
     // times to each terminal network point.
 
-    Rcpp::NumericMatrix res (static_cast <int> (nfrom), nverts);
-    std::fill (res.begin (), res.end (), INFINITE_DBL);
+    Rcpp::IntegerMatrix res (static_cast <int> (nfrom), nverts);
+    std::fill (res.begin (), res.end (), INFINITE_INT);
 
     // convert the Rcpp::Lists into std::vecs:
     std::vector <std::vector <size_t> > gtfs_to_net_index_vec (gtfs_to_net_index.size ());
@@ -166,9 +168,9 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
     }
 
     AddTwoMatricesWorker combine_two_mats (
-            RcppParallel::RMatrix <double> (times_to_end_stops),
+            RcppParallel::RMatrix <int> (times_to_end_stops),
             gtfs_to_net_index_vec, gtfs_to_net_dist_vec, nfrom,
-            RcppParallel::RMatrix <double> (res));
+            RcppParallel::RMatrix <int> (res));
 
     RcppParallel::parallelFor (0, nfrom, combine_two_mats);
 
@@ -181,15 +183,15 @@ Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
 //' minimal values from same indices in both.
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::NumericMatrix rcpp_min_from_two_matrices (Rcpp::NumericMatrix mat1,
-        Rcpp::NumericMatrix mat2)
+Rcpp::IntegerMatrix rcpp_min_from_two_matrices (Rcpp::IntegerMatrix mat1,
+        Rcpp::IntegerMatrix mat2)
 {
     if (mat1.ncol () != mat2.ncol () || mat1.nrow () != mat2.nrow ())
     {
         Rcpp::stop ("Matrices must have identical dimensions.");
     }
 
-    Rcpp::NumericMatrix res (mat1.nrow (), mat1.ncol ());
+    Rcpp::IntegerMatrix res (mat1.nrow (), mat1.ncol ());
 
     for (size_t i = 0; i < mat1.nrow (); i++)
     {

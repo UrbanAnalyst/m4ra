@@ -12,9 +12,9 @@
 constexpr int INFINITE_INT =  std::numeric_limits <int>::max ();
 constexpr double INFINITE_DBL =  std::numeric_limits <double>::max ();
 
-Rcpp::NumericMatrix rcpp_add_net_to_gtfs (Rcpp::NumericMatrix net_times,
-        Rcpp::NumericMatrix gtfs_times, Rcpp::List gtfs_to_net_index,
+Rcpp::IntegerMatrix rcpp_add_net_to_gtfs (Rcpp::IntegerMatrix net_times,
+        Rcpp::IntegerMatrix gtfs_times, Rcpp::List gtfs_to_net_index,
         Rcpp::List gtfs_to_net_dist, const int nverts);
 
-Rcpp::NumericMatrix rcpp_min_from_two_matrices (Rcpp::NumericMatrix mat1,
-        Rcpp::NumericMatrix mat2);
+Rcpp::IntegerMatrix rcpp_min_from_two_matrices (Rcpp::IntegerMatrix mat1,
+        Rcpp::IntegerMatrix mat2);

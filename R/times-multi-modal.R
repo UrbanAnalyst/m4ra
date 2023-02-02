@@ -121,7 +121,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     }
 
     maxr <- rcpp_matrix_max (res)
-    res [res == maxr] <- NA
+    res [res == maxr] <- NA_integer_
 
     rownames (res) <- from
     colnames (res) <- ids_out
