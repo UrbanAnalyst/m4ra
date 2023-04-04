@@ -1,4 +1,3 @@
-
 #' Construct a travel time matrix between all pairs of stops in a 'GTFS' feed.
 #'
 #' @param gtfs A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
@@ -138,7 +137,7 @@ times_from_net_to_gtfs <- function (graph, gtfs, city, from = NULL) {
 
     to <- NULL
     if (!is.null (from)) {
-        to = from
+        to <- from
     }
 
     tmat <- t (m4ra_times_single_mode (graph, from = stop_ids, to = to))
