@@ -16,7 +16,7 @@
 m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 
     if (!"timetable" %in% names (gtfs)) {
-        gtfs <- gtfsrouter::gtfs_timetable (gtfs)
+        gtfs <- gtfsrouter::gtfs_timetable (gtfs, day = day)
     }
 
     # gtfsrouter internal fn:
