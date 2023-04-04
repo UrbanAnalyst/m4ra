@@ -123,6 +123,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                 fname_gtfs,
                 value = TRUE
             )
+            fname_gtfs <- grep ("\\-times\\-", fname_gtfs, value = TRUE)
             if (length (fname_gtfs) > 1L) {
                 warning (
                     "Multiple pre-processed GTFS timetables found ",
