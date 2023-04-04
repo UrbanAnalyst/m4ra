@@ -1,4 +1,3 @@
-
 test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
     identical (Sys.getenv ("GITHUB_WORKFLOW"), "test-coverage"))
 
@@ -65,12 +64,19 @@ test_that ("gtfs travel times", {
 
     Sys.setenv ("M4RA_NUM_CORES" = 1L)
     start_time_limits <- 12:13 * 3500
-    tt <- m4ra_gtfs_traveltimes (gtfs, start_time_limits = start_time_limits)
+    res <- m4ra_gtfs_traveltimes (gtfs, start_time_limits = start_time_limits)
 
+    expect_type (res, "list")
+    expect_length (res, 2L)
+    expect_identical (names (res), c ("duration", "ntransfers"))
+
+    tt <- res$duration
     expect_type (tt, "integer")
     expect_equal (nrow (tt), ncol (tt))
     expect_true (length (which (is.na (tt))) > 0)
     expect_true (length (which (!is.na (tt))) > 0)
+
+    expect_identical (dim (tt), dim (res$ntransfers))
 
     file.remove (z)
 })
@@ -86,7 +92,8 @@ test_that ("gtfs to graph fns", {
 
     Sys.setenv ("M4RA_NUM_CORES" = 1L)
     start_time_limits <- 12:13 * 3500
-    tmat_gtfs_intern <- m4ra_gtfs_traveltimes (gtfs, start_time_limits = start_time_limits)
+    res <- m4ra_gtfs_traveltimes (gtfs, start_time_limits = start_time_limits)
+    tmat_gtfs_intern <- res$duration
 
     tmat_gtfs_net <- m4ra_times_to_gtfs_stops (graph, gtfs = gtfs, city = "berlin", graph_to_gtfs = FALSE)
     tmat_net_gtfs <- m4ra_times_to_gtfs_stops (graph, gtfs = gtfs, city = "berlin", graph_to_gtfs = TRUE)
