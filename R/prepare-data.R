@@ -189,7 +189,8 @@ times_gtfs_to_gtfs <- function (gtfs,
     gtfs_hash <- substring (digest::digest (gtfs_data), 1, 6)
     fname_gtfs <- paste0 (
         "m4ra-", city_name, "-gtfs-", gtfs_hash,
-        "-", day, "-", paste0 (start_time_limits, collapse = "-"), ".Rds"
+        "-times-", substring (tolower (day), 1, 2),
+        "-", paste0 (start_time_limits, collapse = "-"), ".Rds"
     )
     fname_gtfs <- fs::path (cache_dir, fname_gtfs)
 
@@ -222,13 +223,22 @@ times_gtfs_to_gtfs <- function (gtfs,
         }
         gtfs_data <- gtfsrouter::gtfs_timetable (gtfs_data, day = day)
 
-        tmat_gtfs_gtfs <- m4ra_gtfs_traveltimes (
+        res_gtfs_gtfs <- m4ra_gtfs_traveltimes (
             gtfs_data,
             start_time_limits = start_time_limits
         )
+
+        tmat_gtfs_gtfs <- res_gtfs_gtfs$duration
         attr (tmat_gtfs_gtfs, "day") <- day
         attr (tmat_gtfs_gtfs, "start_time_limits") <- start_time_limits
         saveRDS (tmat_gtfs_gtfs, fname_gtfs)
+
+        ntr_gtfs_gtfs <- res_gtfs_gtfs$ntransfers
+        attr (ntr_gtfs_gtfs, "day") <- day
+        attr (ntr_gtfs_gtfs, "start_time_limits") <- start_time_limits
+        fname_gtfs <- gsub ("\\-times\\-", "-transfers-", fname_gtfs)
+        saveRDS (ntr_gtfs_gtfs, fname_gtfs)
+
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (
                 "Calculated GTFS travel time matrix in ", process_time (pt0)

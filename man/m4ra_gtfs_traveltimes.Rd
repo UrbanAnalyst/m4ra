@@ -18,8 +18,12 @@ departure times from each station.}
 day for which the matrix is to be calculated.}
 }
 \value{
-An integer matrix of fastest travel times between all stops for the
-specified 'start_time_limits'
+A list of two integer matrices:
+\itemize{
+\item The fastest travel times between all pairs of stops for the specified
+'start_time_limits'; and
+\item The corresponding numbers of transfers.
+}
 }
 \description{
 Construct a travel time matrix between all pairs of stops in a 'GTFS' feed.

@@ -7,8 +7,12 @@
 #' departure times from each station.
 #' @param day As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 #' day for which the matrix is to be calculated.
-#' @return An integer matrix of fastest travel times between all stops for the
-#' specified 'start_time_limits'
+#' @return A list of two integer matrices:
+#' \itemize{
+#' \item The fastest travel times between all pairs of stops for the specified
+#' 'start_time_limits'; and
+#' \item The corresponding numbers of transfers.
+#' }
 #' @family main
 #' @export
 
@@ -34,7 +38,7 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
     minimise_transfers <- FALSE
     max_traveltime <- 60 * 60
 
-    dur <- parallel::mclapply (stops, function (s) {
+    res <- parallel::mclapply (stops, function (s) {
 
         from_is_id <- TRUE
         grep_fixed <- FALSE
@@ -53,17 +57,27 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
             max_traveltime
         )
 
-        return (stns [-1, 2])
+        return (stns [-1, 2:3]) # duration, ntransfers
     }, mc.cores = num_cores)
 
-    dur <- do.call (rbind, dur)
-    dur [dur == .Machine$integer.max] <- NA_integer_
+    # Convert to 2 square matrices of (duration, ntransfers):
+    res <- lapply (1:2, function (i) {
 
-    rownames (dur) <- colnames (dur) <- stops
+        res_i <- lapply (res, function (j) as.vector (j [, i]))
 
-    diag (dur) <- 0L
+        res_i <- do.call (rbind, res_i)
+        res_i [res_i == .Machine$integer.max] <- NA_integer_
 
-    return (dur)
+        rownames (res_i) <- colnames (res_i) <- stops
+
+        diag (res_i) <- 0L
+
+        return (res_i)
+    })
+
+    names (res) <- c ("duration", "ntransfers")
+
+    return (res)
 }
 
 #' Construct a travel time matrix to or from all stops in a 'GTFS' feed from or
