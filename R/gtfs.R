@@ -57,11 +57,12 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
             max_traveltime
         )
 
-        return (stns [-1, 2:3]) # duration, ntransfers
+        return (stns [-1, ]) # 3 cols: start_time, duration, ntransfers
     }, mc.cores = num_cores)
 
+
     # Convert to 2 square matrices of (duration, ntransfers):
-    res <- lapply (1:2, function (i) {
+    res <- lapply (2:3, function (i) {
 
         res_i <- lapply (res, function (j) as.vector (j [, i]))
 
@@ -78,6 +79,89 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
     names (res) <- c ("duration", "ntransfers")
 
     return (res)
+}
+
+gtfs_next_intervals <- function (gtfs, stops,
+                                 start_times, start_time_limits, res) {
+
+    # get initial start_times for each stop:
+    start_times <- vapply (res, function (i) {
+        index <- which (i [, 1] < (24L * 3600L))
+        res <- NA_integer_
+        if (length (index) > 0L) {
+            res <- min (i [index, 1]) + 1L
+        }
+        return (res)
+    }, integer (1L))
+
+    # call next_start_times fn to get times of next services:
+    next_starts <- gtfs_next_start_times (
+        gtfs,
+        stops,
+        start_times,
+        diff (start_time_limits)
+    )
+
+    first_starts <- lapply (res, function (i) as.vector (i [, 1]))
+    first_starts <- do.call (rbind, first_starts)
+    first_starts [first_starts == .Machine$integer.max] <- NA_integer_
+    next_interval <- next_starts - first_starts
+    diag (next_interval) <- NA_integer_
+    rownames (next_interval) <- colnames (next_interval) <- stops
+
+    return (next_interval)
+}
+
+gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
+
+    stop_names <- stops
+    stops <- lapply (seq_along (stops), function (i) {
+        c (stops [i], start_times [i] + c (0, start_interval))
+    })
+
+    # gtfsrouter::traveltimes default params:
+    minimise_transfers <- FALSE
+    max_traveltime <- 60 * 60
+
+    res <- parallel::mclapply (stops, function (s) {
+
+        from_is_id <- TRUE
+        grep_fixed <- FALSE
+        # gtfsrouter internal fn:
+        start_stn <- station_name_to_ids (s [1], gtfs, from_is_id, grep_fixed)
+
+        start_time_limits <- as.integer (s [2:3])
+
+        if (!is.na (start_time_limits [1])) {
+
+            # gtfsrouter internal fn:
+            stns <- rcpp_traveltimes (
+                gtfs$timetable,
+                gtfs$transfers,
+                nrow (gtfs$stop_ids),
+                start_stn,
+                start_time_limits [1],
+                start_time_limits [2],
+                minimise_transfers,
+                max_traveltime
+            )
+        } else {
+            stns <- array (NA_integer_, dim = c (length (stops) + 1L, 3L))
+        }
+
+        return (stns [-1, ]) # 3 cols: start_time, duration, ntransfers
+    }, mc.cores = num_cores)
+
+    start_times <- lapply (res, function (i) as.vector (i [, 1]))
+
+    start_times <- do.call (rbind, start_times)
+    start_times [start_times == .Machine$integer.max] <- NA_integer_
+
+    rownames (start_times) <- colnames (start_times) <- stop_names
+
+    diag (start_times) <- 0L
+
+    return (start_times)
 }
 
 #' Construct a travel time matrix to or from all stops in a 'GTFS' feed from or
