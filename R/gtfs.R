@@ -11,11 +11,13 @@
 #' after identified fastest trips. These subsequent trips may not necessarily be
 #' as fast as the initial trips, and so this requires a second calculation of
 #' all travel times. Setting this parameter to `TRUE` will therefore generally
-#' double the calculation time.
+#' double the calculation time. Note that intervals to subsequent trips may be
+#' negative where alternative connections with greater numbers of transfers
+#' leave earlier than initial, minimal-transfer trips.
 #' @return A list of two or three integer matrices:
 #' \itemize{
-#' \item "duration": The fastest travel times between all pairs of stops for the specified
-#' 'start_time_limits'; and
+#' \item "duration": The fastest travel times between all pairs of stops for the
+#' specified 'start_time_limits'; and
 #' \item "ntransfers": The corresponding numbers of transfers.
 #' \item (Only if 'next_interval = TRUE') "intervals": a matrix of intervals (in
 #' seconds) until the next fastest service after that corresponding to the times
@@ -134,11 +136,6 @@ gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
     first_starts [first_starts == .Machine$integer.max] <- NA_integer_
     next_interval <- next_starts - first_starts
     diag (next_interval) <- NA_integer_
-
-    # Updated durations can be < original; these negative values are excluded
-    # here until resolution of:
-    # https://github.com/ATFutures/gtfs-router/issues/104
-    next_interval [next_interval <= 0L] <- NA_integer_
 
     rownames (next_interval) <- colnames (next_interval) <- stops
 

@@ -21,13 +21,15 @@ day for which the matrix is to be calculated.}
 after identified fastest trips. These subsequent trips may not necessarily be
 as fast as the initial trips, and so this requires a second calculation of
 all travel times. Setting this parameter to \code{TRUE} will therefore generally
-double the calculation time.}
+double the calculation time. Note that intervals to subsequent trips may be
+negative where alternative connections with greater numbers of transfers
+leave earlier than initial, minimal-transfer trips.}
 }
 \value{
 A list of two or three integer matrices:
 \itemize{
-\item "duration": The fastest travel times between all pairs of stops for the specified
-'start_time_limits'; and
+\item "duration": The fastest travel times between all pairs of stops for the
+specified 'start_time_limits'; and
 \item "ntransfers": The corresponding numbers of transfers.
 \item (Only if 'next_interval = TRUE') "intervals": a matrix of intervals (in
 seconds) until the next fastest service after that corresponding to the times
