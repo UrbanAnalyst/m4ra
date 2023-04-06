@@ -4,7 +4,7 @@
 \alias{m4ra_gtfs_traveltimes}
 \title{Construct a travel time matrix between all pairs of stops in a 'GTFS' feed.}
 \usage{
-m4ra_gtfs_traveltimes(gtfs, start_time_limits, day)
+m4ra_gtfs_traveltimes(gtfs, start_time_limits, day, next_interval = FALSE)
 }
 \arguments{
 \item{gtfs}{A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
@@ -16,13 +16,22 @@ departure times from each station.}
 
 \item{day}{As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 day for which the matrix is to be calculated.}
+
+\item{next_interval}{If \code{TRUE}, calculate time intervals to subsequent trips
+after identified fastest trips. These subsequent trips may not necessarily be
+as fast as the initial trips, and so this requires a second calculation of
+all travel times. Setting this parameter to \code{TRUE} will therefore generally
+double the calculation time.}
 }
 \value{
-A list of two integer matrices:
+A list of two or three integer matrices:
 \itemize{
-\item The fastest travel times between all pairs of stops for the specified
+\item "duration": The fastest travel times between all pairs of stops for the specified
 'start_time_limits'; and
-\item The corresponding numbers of transfers.
+\item "ntransfers": The corresponding numbers of transfers.
+\item (Only if 'next_interval = TRUE') "intervals": a matrix of intervals (in
+seconds) until the next fastest service after that corresponding to the times
+in the 'duration' item.
 }
 }
 \description{

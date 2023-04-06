@@ -7,16 +7,25 @@
 #' departure times from each station.
 #' @param day As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 #' day for which the matrix is to be calculated.
-#' @return A list of two integer matrices:
+#' @param next_interval If `TRUE`, calculate time intervals to subsequent trips
+#' after identified fastest trips. These subsequent trips may not necessarily be
+#' as fast as the initial trips, and so this requires a second calculation of
+#' all travel times. Setting this parameter to `TRUE` will therefore generally
+#' double the calculation time.
+#' @return A list of two or three integer matrices:
 #' \itemize{
-#' \item The fastest travel times between all pairs of stops for the specified
+#' \item "duration": The fastest travel times between all pairs of stops for the specified
 #' 'start_time_limits'; and
-#' \item The corresponding numbers of transfers.
+#' \item "ntransfers": The corresponding numbers of transfers.
+#' \item (Only if 'next_interval = TRUE') "intervals": a matrix of intervals (in
+#' seconds) until the next fastest service after that corresponding to the times
+#' in the 'duration' item.
 #' }
 #' @family main
 #' @export
 
-m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
+m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day,
+                                   next_interval = FALSE) {
 
     if (!"timetable" %in% names (gtfs)) {
         gtfs <- gtfsrouter::gtfs_timetable (gtfs, day = day)
@@ -60,8 +69,11 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
         return (stns [-1, ]) # 3 cols: start_time, duration, ntransfers
     }, mc.cores = num_cores)
 
+    if (next_interval) {
+        intervals <- gtfs_next_intervals (gtfs, stops, res, start_time_limits)
+    }
 
-    # Convert to 2 square matrices of (duration, ntransfers):
+    # Convert main result to 2 square matrices of (duration, ntransfers):
     res <- lapply (2:3, function (i) {
 
         res_i <- lapply (res, function (j) as.vector (j [, i]))
@@ -78,20 +90,35 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day) {
 
     names (res) <- c ("duration", "ntransfers")
 
+    if (next_interval) {
+        res$intervals <- intervals
+    }
+
     return (res)
 }
 
-gtfs_next_intervals <- function (gtfs, stops,
-                                 start_times, start_time_limits, res) {
+#' Main function to calculate intervals to next fastest connection, called from
+#' `m4ra_gtfs_traveltimes()` if `next_interval = TRUE`.
+#' @noRd
+gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
 
-    # get initial start_times for each stop:
+    # Get initial start_times for each stop. Start times for different end-stops
+    # may differ, but generally almost all connections leave on same service,
+    # the start time of which is then accurately captured by the modal value.
     start_times <- vapply (res, function (i) {
         index <- which (i [, 1] < (24L * 3600L))
-        res <- NA_integer_
+        out <- NA_integer_
         if (length (index) > 0L) {
-            res <- min (i [index, 1]) + 1L
+            vals <- sort (i [index, 1])
+            if (length (vals) == 1L) {
+                out <- vals + 1L
+            } else if (length (vals) == 2L) {
+                out <- vals [1] + 1L
+            } else {
+                out <- vals [floor (length (vals) / 2)] + 1L
+            }
         }
-        return (res)
+        return (out)
     }, integer (1L))
 
     # call next_start_times fn to get times of next services:
@@ -107,6 +134,12 @@ gtfs_next_intervals <- function (gtfs, stops,
     first_starts [first_starts == .Machine$integer.max] <- NA_integer_
     next_interval <- next_starts - first_starts
     diag (next_interval) <- NA_integer_
+
+    # Updated durations can be < original; these negative values are excluded
+    # here until resolution of:
+    # https://github.com/ATFutures/gtfs-router/issues/104
+    next_interval [next_interval <= 0L] <- NA_integer_
+
     rownames (next_interval) <- colnames (next_interval) <- stops
 
     return (next_interval)
