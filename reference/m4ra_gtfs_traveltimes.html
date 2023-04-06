@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.182</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.183</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,15 +77,17 @@ day for which the matrix is to be calculated.</p></dd>
 after identified fastest trips. These subsequent trips may not necessarily be
 as fast as the initial trips, and so this requires a second calculation of
 all travel times. Setting this parameter to <code>TRUE</code> will therefore generally
-double the calculation time.</p></dd>
+double the calculation time. Note that intervals to subsequent trips may be
+negative where alternative connections with greater numbers of transfers
+leave earlier than initial, minimal-transfer trips.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A list of two or three integer matrices:</p><ul><li><p>"duration": The fastest travel times between all pairs of stops for the specified
-'start_time_limits'; and</p></li>
+<p>A list of two or three integer matrices:</p><ul><li><p>"duration": The fastest travel times between all pairs of stops for the
+specified 'start_time_limits'; and</p></li>
 <li><p>"ntransfers": The corresponding numbers of transfers.</p></li>
 <li><p>(Only if 'next_interval = TRUE') "intervals": a matrix of intervals (in
 seconds) until the next fastest service after that corresponding to the times
