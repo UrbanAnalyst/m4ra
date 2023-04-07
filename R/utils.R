@@ -26,3 +26,15 @@ bb_from_graph <- function (graph, city) {
 
     return (bb)
 }
+
+get_num_cores <- function () {
+
+    nc <- Sys.getenv ("M4RA_NUM_CORES")
+    if (nzchar (nc)) {
+        num_cores <- as.integer (nc)
+    } else {
+        num_cores <- parallel::detectCores ()
+    }
+
+    return (num_cores)
+}
