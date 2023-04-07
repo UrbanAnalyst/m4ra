@@ -226,7 +226,8 @@ times_gtfs_to_gtfs <- function (gtfs,
 
         res_gtfs_gtfs <- m4ra_gtfs_traveltimes (
             gtfs_data,
-            start_time_limits = start_time_limits
+            start_time_limits = start_time_limits,
+            next_interval = TRUE
         )
 
         tmat_gtfs_gtfs <- res_gtfs_gtfs$duration
@@ -240,9 +241,15 @@ times_gtfs_to_gtfs <- function (gtfs,
         fname_gtfs <- gsub ("\\-times\\-", "-transfers-", fname_gtfs)
         saveRDS (ntr_gtfs_gtfs, fname_gtfs)
 
+        interval_gtfs_gtfs <- res_gtfs_gtfs$ntransfers
+        attr (interval_gtfs_gtfs, "day") <- day
+        attr (interval_gtfs_gtfs, "start_time_limits") <- start_time_limits
+        fname_gtfs <- gsub ("\\-transfers\\-", "-intervals-", fname_gtfs)
+        saveRDS (interval_gtfs_gtfs, fname_gtfs)
+
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (
-                "Calculated GTFS travel time matrix in ", process_time (pt0)
+                "Calculated GTFS travel time matrices in ", process_time (pt0)
             ))
         }
     }

@@ -14,6 +14,7 @@
 #' double the calculation time. Note that intervals to subsequent trips may be
 #' negative where alternative connections with greater numbers of transfers
 #' leave earlier than initial, minimal-transfer trips.
+#' @param quiet If `FALSE`, display progress information on screen.
 #' @return A list of two or three integer matrices:
 #' \itemize{
 #' \item "duration": The fastest travel times between all pairs of stops for the
@@ -27,7 +28,7 @@
 #' @export
 
 m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day,
-                                   next_interval = FALSE) {
+                                   next_interval = TRUE, quiet = FALSE) {
 
     if (!"timetable" %in% names (gtfs)) {
         gtfs <- gtfsrouter::gtfs_timetable (gtfs, day = day)
@@ -67,6 +68,11 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day,
     }, mc.cores = num_cores)
 
     if (next_interval) {
+        if (!quiet) {
+            cli::cli_alert_info (cli::col_blue (
+                "Calculating second GTFS travel time interval matrix."
+            ))
+        }
         intervals <- gtfs_next_intervals (gtfs, stops, res, start_time_limits)
     }
 
