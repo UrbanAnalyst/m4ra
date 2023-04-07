@@ -49,7 +49,15 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     stops <- m_readRDS (gtfs)$stops
     f <- grep ("gtfs\\-.*[0-9]{5}\\-[0-9]{5}\\.Rds$", files, value = TRUE)
     f_times <- grep ("\\-times\\-", f, value = TRUE)
-    gtfs_mat <- m_readRDS (f_times)
+    gtfs_times_mat <- m_readRDS (f_times)
+    # Expand matrix out to include transfers and intervals to next service:
+    f_transfers <- grep ("\\-transfers\\-", f, value = TRUE)
+    gtfs_transfers_mat <- m_readRDS (f_transfers)
+    f_intervals <- grep ("\\-intervals\\-", f, value = TRUE)
+    gtfs_intervals_mat <- m_readRDS (f_intervals)
+
+    gtfs_mat <- cbind (gtfs_times_mat, gtfs_transfers_mat, gtfs_intervals_mat)
+
     f <- grep ("gtfs\\-to\\-net", files, value = TRUE)
     f <- grep (paste0 ("\\-", final_mode, "\\-"), f, value = TRUE)
     gtfs_to_net <- m_readRDS (f)
@@ -121,31 +129,43 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         ))
     }
 
-    maxr <- rcpp_matrix_max (res)
-    res [res == maxr] <- NA_integer_
+    # res is then 3 matrices of (times, transfers, intervals)
+    index <- seq_len (nverts_out)
+    res_times <- res [, index]
+    res_transfers <- res [, index + nverts_out]
+    res_intervals <- res [, index + 2 * nverts_out]
 
-    rownames (res) <- from
-    colnames (res) <- ids_out
+    maxr <- rcpp_matrix_max (res_times)
+    res_times [res_times == maxr] <- NA_integer_
+    res_transfers [res_transfers == maxr] <- NA_integer_
+    res_intervals [res_intervals == maxr] <- NA_integer_
 
-    # At that stage, `res` holds the fastest values routed through the GTFS
-    # network. They just then have to be compared with the previously-calculated
-    # times to all vertices using "initial_mode".
+    rownames (res_times) <- from
+    colnames (res_times) <- ids_out
+    rownames (res_transfers) <- from
+    colnames (res_transfers) <- ids_out
+    rownames (res_intervals) <- from
+    colnames (res_intervals) <- ids_out
+
+    # At that stage, `res_times` holds the fastest values routed through the
+    # GTFS network. They just then have to be compared with the
+    # previously-calculated times to all vertices using "initial_mode".
 
     if (initial_mode != final_mode) {
 
         times <- remap_times_to_final_network (
-            res,
+            res_times,
             times,
             v_c_final_mode,
             v
         )
     }
 
-    res <- rcpp_min_from_two_matrices (res, times)
+    res_times <- rcpp_min_from_two_matrices (res_times, times)
 
     # Then need once again to re-instate row and col names:
-    rownames (res) <- from
-    colnames (res) <- ids_out
+    rownames (res_times) <- from
+    colnames (res_times) <- ids_out
 
     # And then finally, not all points may be reachable by "final mode"; any
     # that aren't may be re-mapped to single-mode times with "initial mode".
@@ -153,9 +173,9 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # 0-indexed!
     final_mode_index <- sort (unique (unlist (gtfs_to_net$index))) + 1
 
-    res <- res [, final_mode_index, drop = FALSE]
+    res_times <- res_times [, final_mode_index, drop = FALSE]
 
-    return (res)
+    return (res_times)
 }
 
 #' Remap single-model travel times with specified initial mode on to vertices of

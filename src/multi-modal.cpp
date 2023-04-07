@@ -7,6 +7,8 @@ struct OneTimesToEndStops : public RcppParallel::Worker
     const Rcpp::IntegerMatrix gtfs_times;
     const size_t nfrom;
     const size_t n_gtfs;
+    // gtfs_times is actually 3 matrices of (times, transfers, intervals)
+    // dim (n_gtfs, 3 * n_gtfs)
 
     RcppParallel::RMatrix <int> tout;
 
@@ -49,6 +51,8 @@ struct OneTimesToEndStops : public RcppParallel::Worker
                     if (time_i_to_k < tout (i, k))
                     {
                         tout (i, k) = time_i_to_k;
+                        tout (i, k + n_gtfs) = gtfs_times (j, k + n_gtfs); // ntransfers
+                        tout (i, k + 2 * n_gtfs) = gtfs_times (j, k + 2 * n_gtfs); // interval
                     }
                 }
             }
@@ -56,6 +60,12 @@ struct OneTimesToEndStops : public RcppParallel::Worker
     }
 };
 
+/* Both 'times_to_end_stops' and 'tout' are tripe-matrices, with successive
+ * thirds stored in columns for:
+ * 1. times;
+ * 2. transfers;
+ * 3. intervals
+ */
 struct AddTwoMatricesWorker : public RcppParallel::Worker
 {
     const RcppParallel::RMatrix <int> times_to_end_stops;
@@ -83,10 +93,11 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
     // Parallel function operator
     void operator() (std::size_t begin, std::size_t end)
     {
+        const size_t n_gtfs = gtfs_to_net_dist_vec.size ();
         // i over all vertices in the input distance matrix
         for (std::size_t i = begin; i < end; i++)
         {
-            for (size_t j = 0; j < gtfs_to_net_index_vec.size (); j++)
+            for (size_t j = 0; j < n_gtfs; j++)
             {
                 if (times_to_end_stops (i, j) == INFINITE_INT)
                 {
@@ -110,6 +121,8 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
                     if (time_i_to_k < tout (i, index_k))
                     {
                         tout (i, index_k) = time_i_to_k;
+                        tout (i, n_gtfs + index_k) = times_to_end_stops (i, j + n_gtfs); // transfers
+                        tout (i, 2 * n_gtfs + index_k) = times_to_end_stops (i, j + 2 * n_gtfs); // interval
                     }
                 }
             }
@@ -136,7 +149,11 @@ Rcpp::IntegerMatrix rcpp_add_net_to_gtfs (Rcpp::IntegerMatrix net_times,
         Rcpp::stop ("GTFS and travel time matrices are not compatible");
     }
 
-    Rcpp::IntegerMatrix times_to_end_stops (static_cast <int> (nfrom), static_cast <int> (n_gtfs));
+    // times_to_end_stops holds 3 matrices of:
+    // 1. Actual times;
+    // 2. Numbers of transfers;
+    // 3. Effective intervals to next service.
+    Rcpp::IntegerMatrix times_to_end_stops (static_cast <int> (nfrom), static_cast <int> (3 * n_gtfs));
     std::fill (times_to_end_stops.begin (), times_to_end_stops.end (), INFINITE_INT);
 
     // Add initial times to all closest GTFS stops to the times to all terminal
@@ -151,7 +168,7 @@ Rcpp::IntegerMatrix rcpp_add_net_to_gtfs (Rcpp::IntegerMatrix net_times,
     // lists of closest stops to each network point to calculate final fastest
     // times to each terminal network point.
 
-    Rcpp::IntegerMatrix res (static_cast <int> (nfrom), nverts);
+    Rcpp::IntegerMatrix res (static_cast <int> (nfrom), 3 * nverts);
     std::fill (res.begin (), res.end (), INFINITE_INT);
 
     // convert the Rcpp::Lists into std::vecs:
