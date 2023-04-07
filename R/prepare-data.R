@@ -91,7 +91,7 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     if (!is.null (gtfs)) {
 
         # (Re-)generate GTFS travel time matrix
-        fname_gtfs <- times_gtfs_to_gtfs (
+        fnames_gtfs <- times_gtfs_to_gtfs (
             gtfs,
             city_name,
             cache_dir,
@@ -103,8 +103,8 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
     } else {
 
         ptn <- paste0 (city_name, "\\-gtfs\\-.*[0-9]{4,5}\\-[0-9]{4,5}\\.Rds$")
-        fname_gtfs <- fs::dir_ls (cache_dir, regexp = ptn)
-        if (length (fname_gtfs) > 1L) {
+        fnames_gtfs <- fs::dir_ls (cache_dir, regexp = ptn)
+        if (length (fnames_gtfs) > 1L) {
             if (is.null (start_time_limits)) {
                 stop (
                     "Multiple pre-processed GTFS timetables found; ",
@@ -113,29 +113,33 @@ m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
                 )
             }
             start_time_limits <- convert_start_time_limits (start_time_limits)
-            fname_gtfs <- grep (
+            fnames_gtfs <- grep (
                 paste0 (start_time_limits, collapse = "-"),
-                fname_gtfs,
+                fnames_gtfs,
                 value = TRUE
             )
-            fname_gtfs <- grep (
+            fnames_gtfs <- grep (
                 paste0 ("\\-", day, "\\-"),
-                fname_gtfs,
+                fnames_gtfs,
                 value = TRUE
             )
-            fname_gtfs <- grep ("\\-times\\-", fname_gtfs, value = TRUE)
-            if (length (fname_gtfs) > 1L) {
+            fnames_gtfs <- grep (
+                "\\-(times|transfers|intervals)\\-",
+                fnames_gtfs,
+                value = TRUE
+            )
+            if (length (fnames_gtfs) > 3L) {
                 warning (
                     "Multiple pre-processed GTFS timetables found ",
                     "for specified 'start_time_limits' and 'day'; ",
                     "the first will be selected."
                 )
-                fname_gtfs <- fname_gtfs [1L]
+                fnames_gtfs <- fnames_gtfs [1:3]
             }
         }
     }
 
-    files <- c (net_files, gtfs, fname_gtfs)
+    files <- c (net_files, gtfs, fnames_gtfs)
 
     f_closest_gtfs <- times_gtfs_to_net (
         files,
@@ -188,16 +192,20 @@ times_gtfs_to_gtfs <- function (gtfs,
 
     gtfs_data <- m_readRDS (gtfs)
     gtfs_hash <- substring (digest::digest (gtfs_data), 1, 6)
-    fname_gtfs <- paste0 (
+    fname_gtfs_times <- paste0 (
         "m4ra-", city_name, "-gtfs-", gtfs_hash,
         "-times-", substring (tolower (day), 1, 2),
         "-", paste0 (start_time_limits, collapse = "-"), ".Rds"
     )
-    fname_gtfs <- fs::path (cache_dir, fname_gtfs)
+    fname_gtfs_times <- fs::path (cache_dir, fname_gtfs_times)
 
-    if (!fs::file_exists (fname_gtfs)) {
+    if (!fs::file_exists (fname_gtfs_times)) {
 
-        ptn <- paste0 ("m4ra\\-", city_name, "\\-gtfs\\-.*[0-9]{4,5}\\-[0-9]{4,5}\\.Rds")
+        ptn <- paste0 (
+            "m4ra\\-",
+            city_name,
+            "\\-gtfs\\-.*[0-9]{4,5}\\-[0-9]{4,5}\\.Rds"
+        )
         fname_gtfs_pre <- fs::dir_ls (cache_dir, regexp = ptn)
         if (!is.null (start_time_limits)) {
             ptn <- paste0 ("\\-", start_time_limits [1], "\\-", start_time_limits [2], "\\.Rds$")
@@ -208,11 +216,13 @@ times_gtfs_to_gtfs <- function (gtfs,
             fname_gtfs_pre <- grep (ptn, fname_gtfs_pre, value = TRUE)
         }
         if (length (fname_gtfs_pre) > 0) {
-            fname_gtfs <- fname_gtfs_pre [1]
+            fname_gtfs_times <- fname_gtfs_pre [1]
         }
     }
+    fname_gtfs_transfers <- gsub ("\\-times\\-", "-transfers-", fname_gtfs_times)
+    fname_gtfs_intervals <- gsub ("\\-times\\-", "-intervals-", fname_gtfs_times)
 
-    if (!fs::file_exists (fname_gtfs)) {
+    if (!fs::file_exists (fname_gtfs_times)) {
 
         if (!quiet) {
             pt0 <- proc.time ()
@@ -227,25 +237,24 @@ times_gtfs_to_gtfs <- function (gtfs,
         res_gtfs_gtfs <- m4ra_gtfs_traveltimes (
             gtfs_data,
             start_time_limits = start_time_limits,
-            next_interval = TRUE
+            next_interval = TRUE,
+            quiet = quiet
         )
 
         tmat_gtfs_gtfs <- res_gtfs_gtfs$duration
         attr (tmat_gtfs_gtfs, "day") <- day
         attr (tmat_gtfs_gtfs, "start_time_limits") <- start_time_limits
-        saveRDS (tmat_gtfs_gtfs, fname_gtfs)
+        saveRDS (tmat_gtfs_gtfs, fname_gtfs_times)
 
         ntr_gtfs_gtfs <- res_gtfs_gtfs$ntransfers
         attr (ntr_gtfs_gtfs, "day") <- day
         attr (ntr_gtfs_gtfs, "start_time_limits") <- start_time_limits
-        fname_gtfs <- gsub ("\\-times\\-", "-transfers-", fname_gtfs)
-        saveRDS (ntr_gtfs_gtfs, fname_gtfs)
+        saveRDS (ntr_gtfs_gtfs, fname_gtfs_transfers)
 
         interval_gtfs_gtfs <- res_gtfs_gtfs$ntransfers
         attr (interval_gtfs_gtfs, "day") <- day
         attr (interval_gtfs_gtfs, "start_time_limits") <- start_time_limits
-        fname_gtfs <- gsub ("\\-transfers\\-", "-intervals-", fname_gtfs)
-        saveRDS (interval_gtfs_gtfs, fname_gtfs)
+        saveRDS (interval_gtfs_gtfs, fname_gtfs_intervals)
 
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (
@@ -254,7 +263,7 @@ times_gtfs_to_gtfs <- function (gtfs,
         }
     }
 
-    return (fname_gtfs)
+    return (c (fname_gtfs_times, fname_gtfs_transfers, fname_gtfs_intervals))
 }
 
 #' Identify closest GTFS stops to every network point.
