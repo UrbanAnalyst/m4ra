@@ -1,4 +1,3 @@
-
 process_time <- function (pt0) {
 
     pt1 <- proc.time () [3] - pt0 [3]
@@ -19,7 +18,7 @@ process_time <- function (pt0) {
 bb_from_graph <- function (graph, city) {
 
     v <- m4ra_vertices (graph, city)
-    x <- mean (range (v$x)) + c (-0.5, 0.5) * diff (range (v$x)) 
+    x <- mean (range (v$x)) + c (-0.5, 0.5) * diff (range (v$x))
     y <- mean (range (v$y)) + c (-0.5, 0.5) * diff (range (v$y))
     bb <- rbind (x, y)
     colnames (bb) <- c ("min", "max")
