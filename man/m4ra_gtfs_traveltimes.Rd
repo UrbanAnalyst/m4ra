@@ -4,7 +4,13 @@
 \alias{m4ra_gtfs_traveltimes}
 \title{Construct a travel time matrix between all pairs of stops in a 'GTFS' feed.}
 \usage{
-m4ra_gtfs_traveltimes(gtfs, start_time_limits, day, next_interval = FALSE)
+m4ra_gtfs_traveltimes(
+  gtfs,
+  start_time_limits,
+  day,
+  next_interval = TRUE,
+  quiet = FALSE
+)
 }
 \arguments{
 \item{gtfs}{A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
@@ -24,6 +30,8 @@ all travel times. Setting this parameter to \code{TRUE} will therefore generally
 double the calculation time. Note that intervals to subsequent trips may be
 negative where alternative connections with greater numbers of transfers
 leave earlier than initial, minimal-transfer trips.}
+
+\item{quiet}{If \code{FALSE}, display progress information on screen.}
 }
 \value{
 A list of two or three integer matrices:

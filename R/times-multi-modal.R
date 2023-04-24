@@ -6,6 +6,11 @@
 #' @param from List of OSM vertex IDs from which to calculate total multi-modal
 #' travel times. These must be vertices from the largest connected component of
 #' the contracted graph.
+#' @param duration_max If specified, only calculate times from each point to the
+#' nearest GTFS stops out to specified maximal duration. Values may be provided
+#' if overall travel times are only of interest out to some defined range or
+#' maximal value. Specifying values for this parameter can can considerably
+#' reduce calculation times.
 #' @inheritParams m4ra_prepare_data
 #' @family main
 #' @export
@@ -18,8 +23,13 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
                                    final_mode = "foot",
                                    from = NULL,
                                    fast = FALSE,
+                                   duration_max = NULL,
                                    n_closest = 10L,
                                    quiet = FALSE) {
+
+    if (!is.null (duration_max)) {
+        checkmate::assert_numeric (duration_max, len = 1L)
+    }
 
     files <- m4ra_prepare_data (
         net_sc = net_sc,
@@ -110,6 +120,26 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # potentially huge, and must stay as integer!
     times [is.na (times)] <- -1L
     gtfs_mat [is.na (gtfs_mat)] <- -1L
+
+    if (!is.null (duration_max)) {
+        # Reduce sizes of all inputs to only those GTFS stops within maximal
+        # time limit:
+        index <- apply (
+            times_to_gtfs, 1,
+            function (i) which (i <= duration_max)
+        )
+        index <- sort (unique (unlist (index)))
+
+        times_to_gtfs <- times_to_gtfs [, index]
+        index2 <- c (
+            index,
+            nrow (gtfs_mat) + index,
+            2 * nrow (gtfs_mat) + index
+        )
+        gtfs_mat <- gtfs_mat [index, index2]
+        gtfs_to_net$index <- gtfs_to_net$index [index]
+        gtfs_to_net$d <- gtfs_to_net$d [index]
+    }
 
     if (!quiet) {
         cli::cli_alert_info (cli::col_blue (
