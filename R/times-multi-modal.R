@@ -204,8 +204,14 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     final_mode_index <- sort (unique (unlist (gtfs_to_net$index))) + 1
 
     res_times <- res_times [, final_mode_index, drop = FALSE]
+    res_transfers <- res_transfers [, final_mode_index, drop = FALSE]
+    res_intervals <- res_intervals [, final_mode_index, drop = FALSE]
 
-    return (res_times)
+    return (list (
+        times = res_times,
+        transfers = res_transfers,
+        intervals = res_intervals
+    ))
 }
 
 #' Remap single-model travel times with specified initial mode on to vertices of
@@ -391,19 +397,21 @@ m4ra_times_mm_car <- function (net_sc = NULL,
 
     # Finally, 'mm_times' auto-removes any vertices which are unreachable, so
     # reduce all matrices to the size of this:
-    index <- match (colnames (mm_times), colnames (car_times))
+    index <- match (colnames (mm_times$times), colnames (car_times))
     car_times <- car_times [, index, drop = FALSE]
     v_final <- v_final [index, ]
     if (walk_dists) {
         walk_d <- walk_d [, index, drop = FALSE]
     }
 
-    ratio <- mm_times / car_times
+    ratio <- mm_times$times / car_times
 
     return (list (
         dist = walk_d,
         car_times = car_times,
-        mm_times = mm_times,
+        mm_times = mm_times$times,
+        mm_transfers = mm_times$transfers,
+        mm_intervals = mm_times$intervals,
         ratio = ratio,
         verts = v_final,
         v_from = v [match (from, v$id), ]
