@@ -323,7 +323,7 @@ times_gtfs_to_net <- function (files,
     # the other 'files' entry with "gtfs":
     f_gtfs <- grep ("gtfs", files, value = TRUE)
     if (length (f_gtfs_tmat) > 0) {
-        f_gtfs <- f_gtfs [which (!f_gtfs == f_gtfs_tmat)]
+        f_gtfs <- f_gtfs [which (!f_gtfs %in% f_gtfs_tmat)]
     }
     if (length (f_gtfs) > 1L) {
         f_gtfs <- f_gtfs [which (!grepl ("\\-to\\-net\\-", f_gtfs))]
