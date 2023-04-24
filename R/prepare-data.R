@@ -216,7 +216,7 @@ times_gtfs_to_gtfs <- function (gtfs,
             fname_gtfs_pre <- grep (ptn, fname_gtfs_pre, value = TRUE)
         }
         if (length (fname_gtfs_pre) > 0) {
-            fname_gtfs_times <- fname_gtfs_pre [1]
+            fname_gtfs_times <- grep ("\\-times\\-", fname_gtfs_pre, value = TRUE)
         }
     }
     fname_gtfs_transfers <- gsub ("\\-times\\-", "-transfers-", fname_gtfs_times)
@@ -263,7 +263,11 @@ times_gtfs_to_gtfs <- function (gtfs,
         }
     }
 
-    return (c (fname_gtfs_times, fname_gtfs_transfers, fname_gtfs_intervals))
+    return (unname (c (
+        fname_gtfs_times,
+        fname_gtfs_transfers,
+        fname_gtfs_intervals
+    )))
 }
 
 #' Identify closest GTFS stops to every network point.
