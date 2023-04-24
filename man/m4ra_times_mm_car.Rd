@@ -15,6 +15,7 @@ m4ra_times_mm_car(
   initial_mode = "foot",
   final_mode = "foot",
   from = NULL,
+  duration_max = NULL,
   fast = FALSE,
   n_closest = 10L,
   walk_dists = TRUE,
@@ -50,6 +51,12 @@ stops to destination points.}
 calculated. Typically obtained by loading one weighted network, and
 sampling or extracting vertices from the function
 \code{m4ra_vertices}.}
+
+\item{duration_max}{If specified, only calculate times from each point to the
+nearest GTFS stops out to specified maximal duration. Values may be provided
+if overall travel times are only of interest out to some defined range or
+maximal value. Specifying values for this parameter can can considerably
+reduce calculation times.}
 
 \item{fast}{Values of \code{TRUE} generate potentially enormous matrices which may
 not fit in local memory. The default value of \code{FALSE} is generally safer, but

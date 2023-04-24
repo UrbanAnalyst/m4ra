@@ -14,8 +14,8 @@ m4ra_times_multi_mode(
   initial_mode = "foot",
   final_mode = "foot",
   from = NULL,
-  fast = FALSE,
   duration_max = NULL,
+  fast = FALSE,
   n_closest = 10L,
   quiet = FALSE
 )
@@ -49,15 +49,15 @@ stops to destination points.}
 travel times. These must be vertices from the largest connected component of
 the contracted graph.}
 
-\item{fast}{Values of \code{TRUE} generate potentially enormous matrices which may
-not fit in local memory. The default value of \code{FALSE} is generally safer, but
-calculation may take considerably longer.}
-
 \item{duration_max}{If specified, only calculate times from each point to the
 nearest GTFS stops out to specified maximal duration. Values may be provided
 if overall travel times are only of interest out to some defined range or
 maximal value. Specifying values for this parameter can can considerably
 reduce calculation times.}
+
+\item{fast}{Values of \code{TRUE} generate potentially enormous matrices which may
+not fit in local memory. The default value of \code{FALSE} is generally safer, but
+calculation may take considerably longer.}
 
 \item{n_closest}{Final travel times to each destination point are calculated
 by tracing back times to this number of closest GTFS stops. Lower values will
