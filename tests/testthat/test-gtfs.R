@@ -67,8 +67,8 @@ test_that ("gtfs travel times", {
     res <- m4ra_gtfs_traveltimes (gtfs, start_time_limits = start_time_limits)
 
     expect_type (res, "list")
-    expect_length (res, 2L)
-    expect_identical (names (res), c ("duration", "ntransfers"))
+    expect_length (res, 3L)
+    expect_identical (names (res), c ("duration", "ntransfers", "intervals"))
 
     tt <- res$duration
     expect_type (tt, "integer")

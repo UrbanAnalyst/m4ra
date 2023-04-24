@@ -1,4 +1,3 @@
-
 test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
     identical (Sys.getenv ("GITHUB_WORKFLOW"), "test-coverage"))
 
@@ -42,14 +41,14 @@ test_that ("prepare data", {
     expect_type (flist, "character")
     expect_true (all (fs::file_exists (flist)))
 
-    expect_length (flist, 27L)
+    expect_length (flist, 29L)
     # 3 weighted networks:
     expect_length (grep ("foot|bicycle|motorcar", flist), 25L)
     # 1 GTFS source:
     expect_length (grep ("berlin\\-gtfs\\.Rds$", flist), 1L)
-    # plus one GTFS travel time matrix, and one GTFS-to-final network time
+    # plus three GTFS travel time matrices, and one GTFS-to-final network time
     # matrix:
-    expect_length (grep ("gtfs", flist), 3L)
+    expect_length (grep ("gtfs", flist), 5L)
 
     f <- grep ("\\-slow\\.Rds$", flist, value = TRUE)
     times_slow <- readRDS (f)
