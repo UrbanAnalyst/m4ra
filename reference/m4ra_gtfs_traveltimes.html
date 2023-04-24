@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.190</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.193</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,13 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_gtfs_traveltimes</span><span class="op">(</span><span class="va">gtfs</span>, <span class="va">start_time_limits</span>, <span class="va">day</span>, next_interval <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">m4ra_gtfs_traveltimes</span><span class="op">(</span></span>
+<span>  <span class="va">gtfs</span>,</span>
+<span>  <span class="va">start_time_limits</span>,</span>
+<span>  <span class="va">day</span>,</span>
+<span>  next_interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -80,6 +86,10 @@ all travel times. Setting this parameter to <code>TRUE</code> will therefore gen
 double the calculation time. Note that intervals to subsequent trips may be
 negative where alternative connections with greater numbers of transfers
 leave earlier than initial, minimal-transfer trips.</p></dd>
+
+
+<dt>quiet</dt>
+<dd><p>If <code>FALSE</code>, display progress information on screen.</p></dd>
 
 </dl></div>
     <div class="section level2">

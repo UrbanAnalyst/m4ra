@@ -14,7 +14,7 @@ modes of transport."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/a
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.190</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.193</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,6 +67,7 @@ modes of transport.</p>
 <span>  final_mode <span class="op">=</span> <span class="st">"foot"</span>,</span>
 <span>  from <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fast <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  duration_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_closest <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -122,6 +123,14 @@ the contracted graph.</p></dd>
 <dd><p>Values of <code>TRUE</code> generate potentially enormous matrices which may
 not fit in local memory. The default value of <code>FALSE</code> is generally safer, but
 calculation may take considerably longer.</p></dd>
+
+
+<dt>duration_max</dt>
+<dd><p>If specified, only calculate times from each point to the
+nearest GTFS stops out to specified maximal duration. Values may be provided
+if overall travel times are only of interest out to some defined range or
+maximal value. Specifying values for this parameter can can considerably
+reduce calculation times.</p></dd>
 
 
 <dt>n_closest</dt>
