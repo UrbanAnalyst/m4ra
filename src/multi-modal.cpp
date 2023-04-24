@@ -51,8 +51,13 @@ struct OneTimesToEndStops : public RcppParallel::Worker
                     if (time_i_to_k < tout (i, k))
                     {
                         tout (i, k) = time_i_to_k;
-                        tout (i, k + n_gtfs) = gtfs_times (j, k + n_gtfs); // ntransfers
-                        tout (i, k + 2 * n_gtfs) = gtfs_times (j, k + 2 * n_gtfs); // interval
+                        if (time_i_to_k < net_times (i, j)) // Multi-modal route
+                        {
+                            // set these to negative to flag multi-modal
+                            // routing:
+                            tout (i, k + n_gtfs) = -gtfs_times (j, k + n_gtfs); // ntransfers
+                            tout (i, k + 2 * n_gtfs) = -gtfs_times (j, k + 2 * n_gtfs); // interval
+                        }
                     }
                 }
             }
@@ -94,6 +99,7 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
     void operator() (std::size_t begin, std::size_t end)
     {
         const size_t n_gtfs = gtfs_to_net_dist_vec.size ();
+        const size_t n_verts = static_cast <int> (tout.ncol () / 3);
         // i over all vertices in the input distance matrix
         for (std::size_t i = begin; i < end; i++)
         {
@@ -113,7 +119,6 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
                         continue;
                     }
 
-                    //const double time_i_to_k = static_cast <double> (times_to_end_stops (i, j)) + gtfs_to_net_dist_vec [j] [k];
                     const int dist_j_k = static_cast <int> (round (gtfs_to_net_dist_vec [j] [k]));
                     const int time_i_to_k = times_to_end_stops (i, j) + dist_j_k;
                     const size_t index_k = gtfs_to_net_index_vec [j] [k];
@@ -121,8 +126,11 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
                     if (time_i_to_k < tout (i, index_k))
                     {
                         tout (i, index_k) = time_i_to_k;
-                        tout (i, n_gtfs + index_k) = times_to_end_stops (i, j + n_gtfs); // transfers
-                        tout (i, 2 * n_gtfs + index_k) = times_to_end_stops (i, j + 2 * n_gtfs); // interval
+                        if (times_to_end_stops (i, j + n_gtfs) < 0)
+                        {
+                            tout (i, n_verts + index_k) = -times_to_end_stops (i, j + n_gtfs); // transfers
+                            tout (i, 2 * n_verts + index_k) = -times_to_end_stops (i, j + 2 * n_gtfs); // interval
+                        }
                     }
                 }
             }
