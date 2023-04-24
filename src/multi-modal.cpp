@@ -51,12 +51,10 @@ struct OneTimesToEndStops : public RcppParallel::Worker
                     if (time_i_to_k < tout (i, k))
                     {
                         tout (i, k) = time_i_to_k;
-                        if (time_i_to_k < net_times (i, j)) // Multi-modal route
+                        if (time_i_to_k < net_times (i, k)) // Multi-modal route
                         {
-                            // set these to negative to flag multi-modal
-                            // routing:
-                            tout (i, k + n_gtfs) = -gtfs_times (j, k + n_gtfs); // ntransfers
-                            tout (i, k + 2 * n_gtfs) = -gtfs_times (j, k + 2 * n_gtfs); // interval
+                            tout (i, k + n_gtfs) = gtfs_times (j, k + n_gtfs); // ntransfers
+                            tout (i, k + 2 * n_gtfs) = gtfs_times (j, k + 2 * n_gtfs); // interval
                         }
                     }
                 }
@@ -126,11 +124,8 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
                     if (time_i_to_k < tout (i, index_k))
                     {
                         tout (i, index_k) = time_i_to_k;
-                        if (times_to_end_stops (i, j + n_gtfs) < 0)
-                        {
-                            tout (i, n_verts + index_k) = -times_to_end_stops (i, j + n_gtfs); // transfers
-                            tout (i, 2 * n_verts + index_k) = -times_to_end_stops (i, j + 2 * n_gtfs); // interval
-                        }
+                        tout (i, n_verts + index_k) = times_to_end_stops (i, j + n_gtfs); // transfers
+                        tout (i, 2 * n_verts + index_k) = times_to_end_stops (i, j + 2 * n_gtfs); // interval
                     }
                 }
             }
