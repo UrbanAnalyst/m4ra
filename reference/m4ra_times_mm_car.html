@@ -18,7 +18,7 @@ exist in the m4ra cache directory for the specified city."><!-- mathjax --><scri
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.193</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.194</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,7 @@ exist in the <code>m4ra</code> cache directory for the specified city.</p>
 <span>  initial_mode <span class="op">=</span> <span class="st">"foot"</span>,</span>
 <span>  final_mode <span class="op">=</span> <span class="st">"foot"</span>,</span>
 <span>  from <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  duration_max <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fast <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  n_closest <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  walk_dists <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -124,6 +125,14 @@ stops to destination points.</p></dd>
 calculated. Typically obtained by loading one weighted network, and
 sampling or extracting vertices from the function
 <code>m4ra_vertices</code>.</p></dd>
+
+
+<dt>duration_max</dt>
+<dd><p>If specified, only calculate times from each point to the
+nearest GTFS stops out to specified maximal duration. Values may be provided
+if overall travel times are only of interest out to some defined range or
+maximal value. Specifying values for this parameter can can considerably
+reduce calculation times.</p></dd>
 
 
 <dt>fast</dt>
