@@ -50,10 +50,10 @@ travel times. These must be vertices from the largest connected component of
 the contracted graph.}
 
 \item{duration_max}{If specified, only calculate times from each point to the
-nearest GTFS stops out to specified maximal duration. Values may be provided
-if overall travel times are only of interest out to some defined range or
-maximal value. Specifying values for this parameter can can considerably
-reduce calculation times.}
+nearest GTFS stops out to specified maximal duration in seconds. Values may
+be provided if overall travel times are only of interest out to some defined
+range or maximal value. Specifying values for this parameter can can
+considerably reduce calculation times.}
 
 \item{fast}{Values of \code{TRUE} generate potentially enormous matrices which may
 not fit in local memory. The default value of \code{FALSE} is generally safer, but

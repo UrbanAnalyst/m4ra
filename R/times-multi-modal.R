@@ -7,10 +7,10 @@
 #' travel times. These must be vertices from the largest connected component of
 #' the contracted graph.
 #' @param duration_max If specified, only calculate times from each point to the
-#' nearest GTFS stops out to specified maximal duration. Values may be provided
-#' if overall travel times are only of interest out to some defined range or
-#' maximal value. Specifying values for this parameter can can considerably
-#' reduce calculation times.
+#' nearest GTFS stops out to specified maximal duration in seconds. Values may
+#' be provided if overall travel times are only of interest out to some defined
+#' range or maximal value. Specifying values for this parameter can can
+#' considerably reduce calculation times.
 #' @inheritParams m4ra_prepare_data
 #' @family main
 #' @export
@@ -162,8 +162,8 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # res is then 3 matrices of (times, transfers, intervals)
     index <- seq_len (nverts_out)
     res_times <- res [, index]
-    res_transfers <- res [, index + nverts_out]
-    res_intervals <- res [, index + 2 * nverts_out]
+    res_intervals <- res [, index + nverts_out]
+    res_transfers <- res [, index + 2 * nverts_out]
 
     maxr <- rcpp_matrix_max (res_times)
     res_times [res_times == maxr] <- NA_integer_
