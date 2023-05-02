@@ -84,7 +84,8 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day,
         res_i <- do.call (rbind, res_i)
         res_i [res_i == .Machine$integer.max] <- NA_integer_
 
-        rownames (res_i) <- colnames (res_i) <- stops
+        rownames (res_i) <- stops
+        colnames (res_i) <- gtfs$stops$stop_id
 
         diag (res_i) <- 0L
 
@@ -138,7 +139,8 @@ gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
     next_interval <- next_starts - first_starts
     diag (next_interval) <- NA_integer_
 
-    rownames (next_interval) <- colnames (next_interval) <- stops
+    rownames (next_interval) <- stops
+    colnames (next_interval) <- gtfs$stops$stop_id
 
     return (next_interval)
 }
@@ -179,7 +181,7 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
                 max_traveltime
             )
         } else {
-            stns <- array (NA_integer_, dim = c (length (stops) + 1L, 3L))
+            stns <- array (NA_integer_, dim = c (nrow (gtfs$stops) + 1L, 3L))
         }
 
         return (stns [-1, ]) # 3 cols: start_time, duration, ntransfers
@@ -190,7 +192,8 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
     start_times <- do.call (rbind, start_times)
     start_times [start_times == .Machine$integer.max] <- NA_integer_
 
-    rownames (start_times) <- colnames (start_times) <- stop_names
+    rownames (start_times) <- stop_names
+    colnames (start_times) <- gtfs$stops$stop_id
 
     diag (start_times) <- 0L
 
