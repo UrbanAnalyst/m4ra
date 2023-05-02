@@ -162,8 +162,8 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # res is then 3 matrices of (times, transfers, intervals)
     index <- seq_len (nverts_out)
     res_times <- res [, index]
-    res_intervals <- res [, index + nverts_out]
-    res_transfers <- res [, index + 2 * nverts_out]
+    res_transfers <- res [, index + nverts_out]
+    res_intervals <- res [, index + 2 * nverts_out]
 
     maxr <- rcpp_matrix_max (res_times)
     res_times [res_times == maxr] <- NA_integer_
