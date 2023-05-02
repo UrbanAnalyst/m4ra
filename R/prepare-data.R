@@ -251,7 +251,7 @@ times_gtfs_to_gtfs <- function (gtfs,
         attr (ntr_gtfs_gtfs, "start_time_limits") <- start_time_limits
         saveRDS (ntr_gtfs_gtfs, fname_gtfs_transfers)
 
-        interval_gtfs_gtfs <- res_gtfs_gtfs$ntransfers
+        interval_gtfs_gtfs <- res_gtfs_gtfs$intervals
         attr (interval_gtfs_gtfs, "day") <- day
         attr (interval_gtfs_gtfs, "start_time_limits") <- start_time_limits
         saveRDS (interval_gtfs_gtfs, fname_gtfs_intervals)
