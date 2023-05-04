@@ -245,16 +245,19 @@ times_gtfs_to_gtfs <- function (gtfs,
         attr (tmat_gtfs_gtfs, "day") <- day
         attr (tmat_gtfs_gtfs, "start_time_limits") <- start_time_limits
         saveRDS (tmat_gtfs_gtfs, fname_gtfs_times)
+        rm (tmat_gtfs_gtfs)
 
         ntr_gtfs_gtfs <- res_gtfs_gtfs$ntransfers
         attr (ntr_gtfs_gtfs, "day") <- day
         attr (ntr_gtfs_gtfs, "start_time_limits") <- start_time_limits
         saveRDS (ntr_gtfs_gtfs, fname_gtfs_transfers)
+        rm (ntr_gtfs_gtfs)
 
         interval_gtfs_gtfs <- res_gtfs_gtfs$intervals
         attr (interval_gtfs_gtfs, "day") <- day
         attr (interval_gtfs_gtfs, "start_time_limits") <- start_time_limits
         saveRDS (interval_gtfs_gtfs, fname_gtfs_intervals)
+        rm (interval_gtfs_gtfs)
 
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (
