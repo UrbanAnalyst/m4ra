@@ -45,6 +45,9 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day,
     minimise_transfers <- FALSE
     max_traveltime <- 60 * 60
 
+    tdir <- fs::file_temp (pattern = "gtfs")
+    fs::dir_create (tdir)
+
     res <- parallel::mclapply (stops, function (s) {
 
         from_is_id <- TRUE
@@ -64,8 +67,13 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day,
             max_traveltime
         )
 
+        f <- fs::path (tdir, s)
+        writeLines (as.character (s), f)
+
         return (stns [-1, ]) # 3 cols: start_time, duration, ntransfers
     }, mc.cores = num_cores)
+
+    fs::dir_delete (tdir)
 
     if (next_interval) {
         if (!quiet) {
