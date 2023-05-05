@@ -58,8 +58,10 @@ m4ra_gtfs_traveltimes <- function (gtfs,
     max_traveltime <- 60 * 60
 
     tdir <- fs::dir_ls (fs::path_temp (), regexp = "gtfstemp")
-    checkmate::assert_character (tdir, len = 1L)
-    checkmate::assert_directory_exists (tdir)
+    if (length (tdir) > 0L) {
+        checkmate::assert_character (tdir, len = 1L)
+        checkmate::assert_directory_exists (tdir)
+    }
 
     res <- parallel::mclapply (stops, function (s) {
 
@@ -80,8 +82,10 @@ m4ra_gtfs_traveltimes <- function (gtfs,
             max_traveltime
         )
 
-        f <- fs::path (tdir, s)
-        writeLines (as.character (s), f)
+        if (length (tdir) > 0L) {
+            f <- fs::path (tdir, s)
+            writeLines (as.character (s), f)
+        }
 
         return (stns [-1, ]) # 3 cols: start_time, duration, ntransfers
     }, mc.cores = num_cores)
