@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <span>  <span class="va">gtfs</span>,</span>
 <span>  <span class="va">start_time_limits</span>,</span>
 <span>  <span class="va">day</span>,</span>
+<span>  from_stops <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  next_interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -76,6 +77,12 @@ departure times from each station.</p></dd>
 <dt>day</dt>
 <dd><p>As for the 'gtfs_traveltimes' function of <span class="pkg">gtfsrouter</span>, the
 day for which the matrix is to be calculated.</p></dd>
+
+
+<dt>from_stops</dt>
+<dd><p>If not <code>NULL</code> (default), calculate travel times only from
+the stops identified in this parameter. All values must be stops taken from
+<code>gtfs$stops$stop_id</code>.</p></dd>
 
 
 <dt>next_interval</dt>
