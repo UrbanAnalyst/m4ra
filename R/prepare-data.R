@@ -334,7 +334,7 @@ times_gtfs_to_gtfs_batch <- function (gtfs,
     size_len <- nchar (as.character (nrow (gtfs$stops)))
 
     if (!quiet) {
-        pb <- txtProgressBar (min = 0, max = nstops, style = 3)
+        pb <- utils::txtProgressBar (min = 0, max = nstops, style = 3)
     }
 
     for (s in stops) {
@@ -365,7 +365,7 @@ times_gtfs_to_gtfs_batch <- function (gtfs,
 
         count <- min (count + batch_size, nstops)
         if (!quiet) {
-            setTxtProgressBar (pb, count)
+            utils::setTxtProgressBar (pb, count)
         }
     }
 
