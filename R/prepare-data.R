@@ -42,11 +42,16 @@
 #' @param quiet If `FALSE`, display progress information on screen.
 #' @family prep
 #' @export
-m4ra_prepare_data <- function (net_sc = NULL, gtfs = NULL, city_name = NULL,
+m4ra_prepare_data <- function (net_sc = NULL,
+                               gtfs = NULL,
+                               city_name = NULL,
                                planet_file = NULL,
-                               day = NULL, start_time_limits = NULL,
-                               final_mode = "foot", fast = FALSE,
-                               n_closest = 10L, parking = FALSE,
+                               day = NULL,
+                               start_time_limits = NULL,
+                               final_mode = "foot",
+                               fast = FALSE,
+                               n_closest = 10L,
+                               parking = FALSE,
                                quiet = FALSE) {
 
     pt0_whole <- proc.time ()
