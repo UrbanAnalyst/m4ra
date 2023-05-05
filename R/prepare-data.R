@@ -255,12 +255,21 @@ times_gtfs_to_gtfs <- function (gtfs,
 
     if (!fs::file_exists (fname_gtfs_times)) {
 
+        # tempdir for writing each stop done within 'gtfs_traveltimes'. Can then
+        # be used to estimate remaining calculation time.
+        tdir <- fs::file_temp (pattern = "gtfstemp")
+        fs::dir_create (tdir)
+
         if (!quiet) {
             pt0 <- proc.time ()
             n_stns <- format (nrow (gtfs_data$stops), big.mark = ",")
             cli::cli_alert_info (cli::col_blue (
                 "Calculating GTFS travel time matrix between ",
                 n_stns, " stops."
+            ))
+            stime <- Sys.time ()
+            cli::cli_alert_info (cli::col_green (
+                "Started at {stime}; progress dumps in {tdir}"
             ))
         }
         gtfs_data <- gtfsrouter::gtfs_timetable (gtfs_data, day = day)
@@ -296,6 +305,8 @@ times_gtfs_to_gtfs <- function (gtfs,
                 quiet = quiet
             )
         }
+
+        fs::dir_delete (tdir)
 
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (
