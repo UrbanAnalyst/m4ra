@@ -55,9 +55,9 @@ result in faster calculation times, yet with potentially inaccurate results.}
 
 \item{batch_size}{Default routine calculates full travel time matrices
 between all pairs of stops. For very large GTFS feeds, this matrix may not
-fit into memory, in which case this parameter can be set to a positive integer
-value to sequentially calculate only portions of the full matrix, before
-final re-assembly into single result.}
+fit into memory, in which case this parameter can be set to a positive
+integer value to sequentially calculate only portions of the full matrix,
+before final re-assembly into single result.}
 
 \item{parking}{If \code{TRUE}, calculate local densities of parking availability
 and building volumes, and convert to a score used to calculate time penalties

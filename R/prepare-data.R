@@ -38,9 +38,9 @@
 #' result in faster calculation times, yet with potentially inaccurate results.
 #' @param batch_size Default routine calculates full travel time matrices
 #' between all pairs of stops. For very large GTFS feeds, this matrix may not
-#' fit into memory, in which case this parameter can be set to a positive integer
-#' value to sequentially calculate only portions of the full matrix, before
-#' final re-assembly into single result.
+#' fit into memory, in which case this parameter can be set to a positive
+#' integer value to sequentially calculate only portions of the full matrix,
+#' before final re-assembly into single result.
 #' @param parking If `TRUE`, calculate local densities of parking availability
 #' and building volumes, and convert to a score used to calculate time penalties
 #' for automobile routing.
@@ -172,6 +172,7 @@ m4ra_prepare_data <- function (net_sc = NULL,
             )
         }
 
+        # 'dat_p' is not used, but routine saves data to cache_dir:
         dat_p <- m4ra_parking (
             city_name = city_name,
             mode = "motorcar",
@@ -221,7 +222,13 @@ times_gtfs_to_gtfs <- function (gtfs,
         )
         fname_gtfs_pre <- fs::dir_ls (cache_dir, regexp = ptn)
         if (!is.null (start_time_limits)) {
-            ptn <- paste0 ("\\-", start_time_limits [1], "\\-", start_time_limits [2], "\\.Rds$")
+            ptn <- paste0 (
+                "\\-",
+                start_time_limits [1],
+                "\\-",
+                start_time_limits [2],
+                "\\.Rds$"
+            )
             fname_gtfs_pre <- grep (ptn, fname_gtfs_pre, value = TRUE)
         }
         if (!is.null (day)) {
@@ -229,11 +236,14 @@ times_gtfs_to_gtfs <- function (gtfs,
             fname_gtfs_pre <- grep (ptn, fname_gtfs_pre, value = TRUE)
         }
         if (length (fname_gtfs_pre) > 0) {
-            fname_gtfs_times <- grep ("\\-times\\-", fname_gtfs_pre, value = TRUE)
+            fname_gtfs_times <-
+                grep ("\\-times\\-", fname_gtfs_pre, value = TRUE)
         }
     }
-    fname_gtfs_transfers <- gsub ("\\-times\\-", "-transfers-", fname_gtfs_times)
-    fname_gtfs_intervals <- gsub ("\\-times\\-", "-intervals-", fname_gtfs_times)
+    fname_gtfs_transfers <-
+        gsub ("\\-times\\-", "-transfers-", fname_gtfs_times)
+    fname_gtfs_intervals <-
+        gsub ("\\-times\\-", "-intervals-", fname_gtfs_times)
 
     if (!fs::file_exists (fname_gtfs_times)) {
 

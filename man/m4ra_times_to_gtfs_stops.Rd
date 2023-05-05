@@ -15,7 +15,8 @@ function.}
 \item{gtfs}{A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
 'extract_gtfs'.}
 
-\item{city}{Name of city being analysed; used to name and extract cache files.}
+\item{city}{Name of city being analysed; used to name and extract cache
+files.}
 
 \item{from}{Vector or matrix of points \strong{from} which route distances are to
 be calculated. If not given, times are calculated from all points in the

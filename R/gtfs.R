@@ -216,7 +216,8 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
 #' function.
 #' @param gtfs A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,
 #' 'extract_gtfs'.
-#' @param city Name of city being analysed; used to name and extract cache files.
+#' @param city Name of city being analysed; used to name and extract cache
+#' files.
 #' @param from Vector or matrix of points **from** which route distances are to
 #' be calculated. If not given, times are calculated from all points in the
 #' network. Only has any effect is `graph_to_gtfs` is `TRUE`.
@@ -230,7 +231,11 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
 #' @family prep
 #' @export
 
-m4ra_times_to_gtfs_stops <- function (graph, gtfs, city, from = NULL, graph_to_gtfs = TRUE) {
+m4ra_times_to_gtfs_stops <- function (graph,
+                                      gtfs,
+                                      city,
+                                      from = NULL,
+                                      graph_to_gtfs = TRUE) {
 
     checkmate::assert_class (graph, "dodgr_streetnet_sc")
     checkmate::assert_class (gtfs, "gtfs")
