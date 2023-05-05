@@ -36,6 +36,11 @@
 #' @param n_closest Final travel times to each destination point are calculated
 #' by tracing back times to this number of closest GTFS stops. Lower values will
 #' result in faster calculation times, yet with potentially inaccurate results.
+#' @param batch_size Default routine calculates full travel time matrices
+#' between all pairs of stops. For very large GTFS feeds, this matrix may not
+#' fit into memory, in which case this parameter can be set to a positive integer
+#' value to sequentially calculate only portions of the full matrix, before
+#' final re-assembly into single result.
 #' @param parking If `TRUE`, calculate local densities of parking availability
 #' and building volumes, and convert to a score used to calculate time penalties
 #' for automobile routing.
@@ -51,6 +56,7 @@ m4ra_prepare_data <- function (net_sc = NULL,
                                final_mode = "foot",
                                fast = FALSE,
                                n_closest = 10L,
+                               batch_size = NULL,
                                parking = FALSE,
                                quiet = FALSE) {
 
@@ -97,12 +103,13 @@ m4ra_prepare_data <- function (net_sc = NULL,
 
         # (Re-)generate GTFS travel time matrix
         fnames_gtfs <- times_gtfs_to_gtfs (
-            gtfs,
-            city_name,
-            cache_dir,
-            day,
-            start_time_limits,
-            quiet
+            gtfs = gtfs,
+            city_name = city_name,
+            cache_dir = cache_dir,
+            day = day,
+            start_time_limits = start_time_limits,
+            batch_size = batch_size,
+            quiet = quiet
         )
 
     } else {
@@ -193,6 +200,7 @@ times_gtfs_to_gtfs <- function (gtfs,
                                 cache_dir,
                                 day,
                                 start_time_limits,
+                                batch_size,
                                 quiet) {
 
     gtfs_data <- m_readRDS (gtfs)
@@ -239,30 +247,21 @@ times_gtfs_to_gtfs <- function (gtfs,
         }
         gtfs_data <- gtfsrouter::gtfs_timetable (gtfs_data, day = day)
 
-        res_gtfs_gtfs <- m4ra_gtfs_traveltimes (
-            gtfs_data,
+        # This parameter is not exposed; default always calculates intervals to
+        # next service:
+        next_interval <- TRUE
+
+        times_gtfs_to_gtfs_one (
+            gtfs = gtfs_data,
+            day = day,
             start_time_limits = start_time_limits,
-            next_interval = TRUE,
+            next_interval = next_interval,
+            batch_size = batch_size,
+            fname_gtfs_times = fname_gtfs_times,
+            fname_gtfs_transfers = fname_gtfs_transfers,
+            fname_gtfs_intervals = fname_gtfs_intervals,
             quiet = quiet
         )
-
-        # travel times:
-        attr (res_gtfs_gtfs$duration, "day") <- day
-        attr (res_gtfs_gtfs$duration, "start_time_limits") <- start_time_limits
-        saveRDS (res_gtfs_gtfs$duration, fname_gtfs_times)
-        res_gtfs_gtfs$duration <- NULL
-
-        # transfers:
-        attr (res_gtfs_gtfs$ntransfers, "day") <- day
-        attr (res_gtfs_gtfs$ntransfers, "start_time_limits") <- start_time_limits
-        saveRDS (res_gtfs_gtfs$ntransfers, fname_gtfs_transfers)
-        res_gtfs_gtfs$ntransfers <- NULL
-
-        # intervals
-        attr (res_gtfs_gtfs$intervals, "day") <- day
-        attr (res_gtfs_gtfs$intervals, "start_time_limits") <- start_time_limits
-        saveRDS (res_gtfs_gtfs$intervals, fname_gtfs_intervals)
-        rm (res_gtfs_gtfs)
 
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (
@@ -276,6 +275,42 @@ times_gtfs_to_gtfs <- function (gtfs,
         fname_gtfs_transfers,
         fname_gtfs_intervals
     )))
+}
+
+times_gtfs_to_gtfs_one <- function (gtfs,
+                                    day,
+                                    start_time_limits,
+                                    next_interval,
+                                    batch_size,
+                                    fname_gtfs_times,
+                                    fname_gtfs_transfers,
+                                    fname_gtfs_intervals,
+                                    quiet) {
+
+    res_gtfs_gtfs <- m4ra_gtfs_traveltimes (
+        gtfs,
+        start_time_limits = start_time_limits,
+        next_interval = next_interval,
+        quiet = quiet
+    )
+
+    # travel times:
+    attr (res_gtfs_gtfs$duration, "day") <- day
+    attr (res_gtfs_gtfs$duration, "start_time_limits") <- start_time_limits
+    saveRDS (res_gtfs_gtfs$duration, fname_gtfs_times)
+    res_gtfs_gtfs$duration <- NULL
+
+    # transfers:
+    attr (res_gtfs_gtfs$ntransfers, "day") <- day
+    attr (res_gtfs_gtfs$ntransfers, "start_time_limits") <- start_time_limits
+    saveRDS (res_gtfs_gtfs$ntransfers, fname_gtfs_transfers)
+    res_gtfs_gtfs$ntransfers <- NULL
+
+    # intervals
+    attr (res_gtfs_gtfs$intervals, "day") <- day
+    attr (res_gtfs_gtfs$intervals, "start_time_limits") <- start_time_limits
+    saveRDS (res_gtfs_gtfs$intervals, fname_gtfs_intervals)
+    rm (res_gtfs_gtfs)
 }
 
 #' Identify closest GTFS stops to every network point.

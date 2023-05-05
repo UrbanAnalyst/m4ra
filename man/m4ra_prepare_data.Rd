@@ -14,6 +14,7 @@ m4ra_prepare_data(
   final_mode = "foot",
   fast = FALSE,
   n_closest = 10L,
+  batch_size = NULL,
   parking = FALSE,
   quiet = FALSE
 )
@@ -51,6 +52,12 @@ calculation may take considerably longer.}
 \item{n_closest}{Final travel times to each destination point are calculated
 by tracing back times to this number of closest GTFS stops. Lower values will
 result in faster calculation times, yet with potentially inaccurate results.}
+
+\item{batch_size}{Default routine calculates full travel time matrices
+between all pairs of stops. For very large GTFS feeds, this matrix may not
+fit into memory, in which case this parameter can be set to a positive integer
+value to sequentially calculate only portions of the full matrix, before
+final re-assembly into single result.}
 
 \item{parking}{If \code{TRUE}, calculate local densities of parking availability
 and building volumes, and convert to a score used to calculate time penalties
