@@ -66,14 +66,14 @@ m4ra_gtfs_traveltimes <- function (gtfs,
         from_is_id <- TRUE
         grep_fixed <- FALSE
         # gtfsrouter internal fn:
-        start_stn <- station_name_to_ids (s, gtfs, from_is_id, grep_fixed)
+        start_stns <- station_name_to_ids (s, gtfs, from_is_id, grep_fixed)
 
         # gtfsrouter internal fn:
         stns <- rcpp_traveltimes (
             gtfs$timetable,
             gtfs$transfers,
             nrow (gtfs$stop_ids),
-            start_stn,
+            start_stns,
             start_time_limits [1],
             start_time_limits [2],
             minimise_transfers,
@@ -214,7 +214,7 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
     rownames (start_times) <- stop_names
     colnames (start_times) <- gtfs$stops$stop_id
 
-    diag (start_times) <- 0L
+    # diag (start_times) <- 0L
 
     return (start_times)
 }
