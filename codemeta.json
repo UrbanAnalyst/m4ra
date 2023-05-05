@@ -7,13 +7,13 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.1.0.209",
+  "version": "0.1.1",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.2.2 (2022-10-31)",
+  "runtimePlatform": "R version 4.2.3 (2023-03-15)",
   "author": [
     {
       "@type": "Person",
@@ -90,6 +90,18 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=osmdata"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "osmextract",
+      "name": "osmextract",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=osmextract"
     },
     {
       "@type": "SoftwareApplication",
@@ -269,16 +281,9 @@
     },
     "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "455320.355KB",
+  "fileSize": "8074.258KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
-  "contIntegration": [
-    "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",
-    "https://app.codecov.io/gh/ATFutures/m4ra"
-  ],
+  "contIntegration": ["https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check", "https://app.codecov.io/gh/ATFutures/m4ra"],
   "developmentStatus": "https://www.repostatus.org/#concept",
-  "keywords": [
-    "gtfs",
-    "open-street-map",
-    "routing-engine"
-  ]
+  "keywords": ["gtfs", "open-street-map", "routing-engine"]
 }
