@@ -8,6 +8,7 @@ m4ra_gtfs_traveltimes(
   gtfs,
   start_time_limits,
   day,
+  from_stops = NULL,
   next_interval = TRUE,
   quiet = FALSE
 )
@@ -22,6 +23,10 @@ departure times from each station.}
 
 \item{day}{As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 day for which the matrix is to be calculated.}
+
+\item{from_stops}{If not \code{NULL} (default), calculate travel times only from
+the stops identified in this parameter. All values must be stops taken from
+\code{gtfs$stops$stop_id}.}
 
 \item{next_interval}{If \code{TRUE}, calculate time intervals to subsequent trips
 after identified fastest trips. These subsequent trips may not necessarily be

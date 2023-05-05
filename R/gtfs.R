@@ -7,6 +7,9 @@
 #' departure times from each station.
 #' @param day As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 #' day for which the matrix is to be calculated.
+#' @param from_stops If not `NULL` (default), calculate travel times only from
+#' the stops identified in this parameter. All values must be stops taken from
+#' `gtfs$stops$stop_id`.
 #' @param next_interval If `TRUE`, calculate time intervals to subsequent trips
 #' after identified fastest trips. These subsequent trips may not necessarily be
 #' as fast as the initial trips, and so this requires a second calculation of
@@ -27,8 +30,12 @@
 #' @family main
 #' @export
 
-m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day,
-                                   next_interval = TRUE, quiet = FALSE) {
+m4ra_gtfs_traveltimes <- function (gtfs,
+                                   start_time_limits,
+                                   day,
+                                   from_stops = NULL,
+                                   next_interval = TRUE,
+                                   quiet = FALSE) {
 
     if (!"timetable" %in% names (gtfs)) {
         gtfs <- gtfsrouter::gtfs_timetable (gtfs, day = day)
@@ -38,6 +45,11 @@ m4ra_gtfs_traveltimes <- function (gtfs, start_time_limits, day,
     start_time_limits <- convert_start_time_limits (start_time_limits)
 
     stops <- gtfs$stops$stop_id
+    if (!is.null (from_stops)) {
+        assert_character (from_stops)
+        assert_true (all (from_stops %in% gtfs$stops$stop_id))
+        stops <- from_stops
+    }
 
     num_cores <- get_num_cores () # in utils.R
 

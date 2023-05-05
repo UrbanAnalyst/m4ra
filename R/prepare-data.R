@@ -337,6 +337,7 @@ times_gtfs_to_gtfs_batch <- function (gtfs,
 times_gtfs_to_gtfs_one <- function (gtfs,
                                     day,
                                     start_time_limits,
+                                    from_stops = NULL,
                                     next_interval,
                                     fname_gtfs_times,
                                     fname_gtfs_transfers,
@@ -346,6 +347,7 @@ times_gtfs_to_gtfs_one <- function (gtfs,
     res_gtfs_gtfs <- m4ra_gtfs_traveltimes (
         gtfs,
         start_time_limits = start_time_limits,
+        from_stops = from_stops,
         next_interval = next_interval,
         quiet = quiet
     )
