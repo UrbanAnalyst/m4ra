@@ -46,8 +46,8 @@ m4ra_gtfs_traveltimes <- function (gtfs,
 
     stops <- gtfs$stops$stop_id
     if (!is.null (from_stops)) {
-        assert_character (from_stops)
-        assert_true (all (from_stops %in% gtfs$stops$stop_id))
+        checkmate::assert_character (from_stops)
+        checkmate::assert_true (all (from_stops %in% gtfs$stops$stop_id))
         stops <- from_stops
     }
 

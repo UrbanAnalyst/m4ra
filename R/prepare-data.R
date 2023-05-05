@@ -321,17 +321,71 @@ times_gtfs_to_gtfs_batch <- function (gtfs,
                                       fname_gtfs_intervals,
                                       quiet) {
 
-    times_gtfs_to_gtfs_one (
-        gtfs,
-        day,
-        start_time_limits,
-        next_interval,
-        batch_size,
-        fname_gtfs_times,
-        fname_gtfs_transfers,
-        fname_gtfs_intervals,
-        quiet
+    stops <- gtfs$stops$stop_id
+    nstops <- length (stops) # used only in progress bar
+    index <- rep (
+        seq (1L, ceiling (length (stops) / batch_size)),
+        each = batch_size
     )
+    index <- index [seq_along (stops)]
+    stops <- split (stops, f = as.factor (index))
+
+    count <- 0
+    size_len <- nchar (as.character (nrow (gtfs$stops)))
+
+    if (!quiet) {
+        pb <- txtProgressBar (min = 0, max = nstops, style = 3)
+    }
+
+    for (s in stops) {
+
+        sfx <- sprintf (paste0 ("_%0", size_len, "i.Rds"), count)
+        fname_gtfs_times_tmp <- gsub ("\\.Rds$", sfx, fname_gtfs_times)
+        fname_gtfs_transfers_tmp <- gsub ("\\.Rds$", sfx, fname_gtfs_transfers)
+        fname_gtfs_intervals_tmp <- gsub ("\\.Rds$", sfx, fname_gtfs_intervals)
+
+        # Skip over any previously-calculated files to allow restart in case
+        # routine was interrupted:
+        if (!(fs::file_exists (fname_gtfs_times_tmp) &&
+            fs::file_exists (fname_gtfs_transfers_tmp) &&
+            fs::file_exists (fname_gtfs_intervals_tmp))) {
+
+            times_gtfs_to_gtfs_one (
+                gtfs = gtfs,
+                day = day,
+                start_time_limits = start_time_limits,
+                from_stops = s,
+                next_interval = next_interval,
+                fname_gtfs_times = fname_gtfs_times_tmp,
+                fname_gtfs_transfers = fname_gtfs_transfers_tmp,
+                fname_gtfs_intervals = fname_gtfs_intervals_tmp,
+                quiet = TRUE
+            )
+        }
+
+        count <- min (count + batch_size, nstops)
+        if (!quiet) {
+            setTxtProgressBar (pb, count)
+        }
+    }
+
+    if (!quiet) {
+        close (pb)
+    }
+
+    # Then re-assemble the parts:
+    cache_dir <- fs::path_dir (fname_gtfs_times)
+
+    for (what in c ("times", "transfers", "intervals")) {
+
+        flist <- fs::dir_ls (cache_dir, regexp = paste0 ("\\-", what, "\\-"))
+        res <- do.call (rbind, lapply (flist, readRDS))
+        fs::file_delete (flist)
+        attr (res, "day") <- day
+        attr (res, "start_time_limits") <- start_time_limits
+        fname <- get (paste0 ("fname_gtfs_", what))
+        saveRDS (res, fname)
+    }
 }
 
 times_gtfs_to_gtfs_one <- function (gtfs,
