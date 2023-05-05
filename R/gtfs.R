@@ -63,32 +63,46 @@ m4ra_gtfs_traveltimes <- function (gtfs,
         checkmate::assert_directory_exists (tdir)
     }
 
-    res <- parallel::mclapply (stops, function (s) {
+    # mclapply sometimes fails to deliver results; this first wrapper ensures
+    # results are generated:
+    res <- list (integer (0L))
+    lens <- vapply (res, length, integer (1L))
+    count <- 0L
+    while (any (lens == 0L)) {
 
-        from_is_id <- TRUE
-        grep_fixed <- FALSE
-        # gtfsrouter internal fn:
-        start_stns <- station_name_to_ids (s, gtfs, from_is_id, grep_fixed)
+        res <- parallel::mclapply (stops, function (s) {
 
-        # gtfsrouter internal fn:
-        stns <- rcpp_traveltimes (
-            gtfs$timetable,
-            gtfs$transfers,
-            nrow (gtfs$stop_ids),
-            start_stns,
-            start_time_limits [1],
-            start_time_limits [2],
-            minimise_transfers,
-            max_traveltime
-        )
+            from_is_id <- TRUE
+            grep_fixed <- FALSE
+            # gtfsrouter internal fn:
+            start_stns <- station_name_to_ids (s, gtfs, from_is_id, grep_fixed)
 
-        if (length (tdir) > 0L) {
-            f <- fs::path (tdir, s)
-            writeLines (as.character (s), f)
+            # gtfsrouter internal fn:
+            stns <- rcpp_traveltimes (
+                gtfs$timetable,
+                gtfs$transfers,
+                nrow (gtfs$stop_ids),
+                start_stns,
+                start_time_limits [1],
+                start_time_limits [2],
+                minimise_transfers,
+                max_traveltime
+            )
+
+            if (length (tdir) > 0L) {
+                f <- fs::path (tdir, s)
+                writeLines (as.character (s), f)
+            }
+
+            return (stns [-1, ]) # 3 cols: start_time, duration, ntransfers
+        }, mc.cores = num_cores)
+
+        lens <- vapply (res, length, integer (1L))
+        count <- count + 1L
+        if (count > 5L) {
+            stop ("Unable to generate travel times.", call. = FALSE)
         }
-
-        return (stns [-1, ]) # 3 cols: start_time, duration, ntransfers
-    }, mc.cores = num_cores)
+    }
 
     if (next_interval) {
         if (!quiet) {
