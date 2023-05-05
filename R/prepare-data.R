@@ -80,6 +80,9 @@ m4ra_prepare_data <- function (net_sc = NULL,
         # gtfsrouter internal fn:
         start_time_limits <- convert_start_time_limits (start_time_limits)
     }
+    if (!is.null (batch_size)) {
+        checkmate::assert_integer (batch_size, len = 1L, lower = 1L)
+    }
 
     city_name <- gsub ("\\s+", "-", tolower (city_name))
 
@@ -213,6 +216,11 @@ times_gtfs_to_gtfs <- function (gtfs,
     )
     fname_gtfs_times <- fs::path (cache_dir, fname_gtfs_times)
 
+    if (!is.null (batch_size)) {
+        nstops <- nrow (gtfs_data$stops)
+        checkmate::assert_true (batch_size < nstops)
+    }
+
     if (!fs::file_exists (fname_gtfs_times)) {
 
         ptn <- paste0 (
@@ -261,17 +269,33 @@ times_gtfs_to_gtfs <- function (gtfs,
         # next service:
         next_interval <- TRUE
 
-        times_gtfs_to_gtfs_one (
-            gtfs = gtfs_data,
-            day = day,
-            start_time_limits = start_time_limits,
-            next_interval = next_interval,
-            batch_size = batch_size,
-            fname_gtfs_times = fname_gtfs_times,
-            fname_gtfs_transfers = fname_gtfs_transfers,
-            fname_gtfs_intervals = fname_gtfs_intervals,
-            quiet = quiet
-        )
+        if (is.null (batch_size)) {
+
+            times_gtfs_to_gtfs_one (
+                gtfs = gtfs_data,
+                day = day,
+                start_time_limits = start_time_limits,
+                next_interval = next_interval,
+                fname_gtfs_times = fname_gtfs_times,
+                fname_gtfs_transfers = fname_gtfs_transfers,
+                fname_gtfs_intervals = fname_gtfs_intervals,
+                quiet = quiet
+            )
+
+        } else {
+
+            times_gtfs_to_gtfs_batch (
+                gtfs = gtfs_data,
+                day = day,
+                start_time_limits = start_time_limits,
+                next_interval = next_interval,
+                batch_size = batch_size,
+                fname_gtfs_times = fname_gtfs_times,
+                fname_gtfs_transfers = fname_gtfs_transfers,
+                fname_gtfs_intervals = fname_gtfs_intervals,
+                quiet = quiet
+            )
+        }
 
         if (!quiet) {
             cli::cli_alert_success (cli::col_green (
@@ -287,11 +311,33 @@ times_gtfs_to_gtfs <- function (gtfs,
     )))
 }
 
+times_gtfs_to_gtfs_batch <- function (gtfs,
+                                      day,
+                                      start_time_limits,
+                                      next_interval,
+                                      batch_size,
+                                      fname_gtfs_times,
+                                      fname_gtfs_transfers,
+                                      fname_gtfs_intervals,
+                                      quiet) {
+
+    times_gtfs_to_gtfs_one (
+        gtfs,
+        day,
+        start_time_limits,
+        next_interval,
+        batch_size,
+        fname_gtfs_times,
+        fname_gtfs_transfers,
+        fname_gtfs_intervals,
+        quiet
+    )
+}
+
 times_gtfs_to_gtfs_one <- function (gtfs,
                                     day,
                                     start_time_limits,
                                     next_interval,
-                                    batch_size,
                                     fname_gtfs_times,
                                     fname_gtfs_transfers,
                                     fname_gtfs_intervals,
