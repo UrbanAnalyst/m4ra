@@ -272,7 +272,9 @@ times_gtfs_to_gtfs <- function (gtfs,
                 "Started at {stime}; progress dumps in {tdir}"
             ))
         }
-        gtfs_data <- gtfsrouter::gtfs_timetable (gtfs_data, day = day)
+        if (!"timetable" %in% names (gtfs_data)) {
+            gtfs_data <- gtfsrouter::gtfs_timetable (gtfs_data, day = day)
+        }
 
         # This parameter is not exposed; default always calculates intervals to
         # next service:
@@ -394,6 +396,7 @@ times_gtfs_to_gtfs_batch <- function (gtfs,
         fs::file_delete (flist)
         attr (res, "day") <- day
         attr (res, "start_time_limits") <- start_time_limits
+        diag (res) <- 0L
         fname <- get (paste0 ("fname_gtfs_", what))
         saveRDS (res, fname)
     }
@@ -416,6 +419,16 @@ times_gtfs_to_gtfs_one <- function (gtfs,
         next_interval = next_interval,
         quiet = quiet
     )
+
+    if (!is.null (from_stops)) {
+
+        diag (res_gtfs_gtfs$duration) <- NA_integer_
+        diag (res_gtfs_gtfs$ntransfers) <- NA_integer_
+        diag (res_gtfs_gtfs$intervals) <- NA_integer_
+
+    } else {
+        # diagonals for batch jobs are done at end of batch routine
+    }
 
     # travel times:
     attr (res_gtfs_gtfs$duration, "day") <- day

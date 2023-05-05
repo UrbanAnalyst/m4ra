@@ -106,7 +106,7 @@ m4ra_gtfs_traveltimes <- function (gtfs,
         rownames (res_i) <- stops
         colnames (res_i) <- gtfs$stops$stop_id
 
-        diag (res_i) <- 0L
+        # diag (res_i) <- 0L # diagonals set in "prepare-data" routines
 
         return (res_i)
     })
@@ -156,7 +156,9 @@ gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
     first_starts <- do.call (rbind, first_starts)
     first_starts [first_starts == .Machine$integer.max] <- NA_integer_
     next_interval <- next_starts - first_starts
-    diag (next_interval) <- NA_integer_
+
+    # diagonals set in prepare-data routines:
+    # diag (next_interval) <- NA_integer_
 
     rownames (next_interval) <- stops
     colnames (next_interval) <- gtfs$stops$stop_id
@@ -214,7 +216,7 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
     rownames (start_times) <- stop_names
     colnames (start_times) <- gtfs$stops$stop_id
 
-    # diag (start_times) <- 0L
+    # diag (start_times) <- 0L # diagonals set in prepare-data routines:
 
     return (start_times)
 }
