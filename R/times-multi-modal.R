@@ -56,23 +56,6 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         )
     }
 
-    stops <- m_readRDS (gtfs)$stops
-    f <- grep ("gtfs\\-.*[0-9]{5}\\-[0-9]{5}\\.Rds$", files, value = TRUE)
-    f_times <- grep ("\\-times\\-", f, value = TRUE)
-    gtfs_times_mat <- m_readRDS (f_times)
-    # Expand matrix out to include transfers and intervals to next service:
-    f_transfers <- grep ("\\-transfers\\-", f, value = TRUE)
-    gtfs_transfers_mat <- m_readRDS (f_transfers)
-    f_intervals <- grep ("\\-intervals\\-", f, value = TRUE)
-    gtfs_intervals_mat <- m_readRDS (f_intervals)
-
-    gtfs_mat <- cbind (gtfs_times_mat, gtfs_transfers_mat, gtfs_intervals_mat)
-
-    f <- grep ("gtfs\\-to\\-net", files, value = TRUE)
-    f <- grep (paste0 ("\\-", final_mode, "\\-"), f, value = TRUE)
-    gtfs_to_net <- m_readRDS (f)
-
-
     # need times to all vertices to extract overall minimal time from initial
     # mode vs GTFS-routed modes at end. The times here are then reduced to times
     # to the GTFS stops by matching vertices afterward.
@@ -86,6 +69,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     times <- round (times)
     storage.mode (times) <- "integer"
 
+    stops <- m_readRDS (gtfs)$stops
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")]
     )]
@@ -95,6 +79,25 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
             "Calculated single-mode travel times for {initial_mode}"
         ))
     }
+
+
+    f <- grep ("gtfs\\-.*[0-9]{5}\\-[0-9]{5}\\.Rds$", files, value = TRUE)
+
+    f_times <- grep ("\\-times\\-", f, value = TRUE)
+    gtfs_times_mat <- m_readRDS (f_times)
+    gtfs_times_mat [is.na (gtfs_times_mat)] <- -1L
+
+    f_transfers <- grep ("\\-transfers\\-", f, value = TRUE)
+    gtfs_transfers_mat <- m_readRDS (f_transfers)
+    gtfs_transfers_mat [is.na (gtfs_transfers_mat)] <- -1L
+
+    f_intervals <- grep ("\\-intervals\\-", f, value = TRUE)
+    gtfs_intervals_mat <- m_readRDS (f_intervals)
+    gtfs_intervals_mat [is.na (gtfs_intervals_mat)] <- -1L
+
+    f <- grep ("gtfs\\-to\\-net", files, value = TRUE)
+    f <- grep (paste0 ("\\-", final_mode, "\\-"), f, value = TRUE)
+    gtfs_to_net <- m_readRDS (f)
 
     # Then convert initial times to nearest GTFS stops to times through entire
     # GTFS network to all termimal network vertices.
@@ -119,7 +122,6 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # times is numeric, as small so okay to leave as is, but gtfs_mat is
     # potentially huge, and must stay as integer!
     times [is.na (times)] <- -1L
-    gtfs_mat [is.na (gtfs_mat)] <- -1L
 
     if (!is.null (duration_max)) {
         # Reduce sizes of all inputs to only those GTFS stops within maximal
@@ -131,12 +133,9 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         index <- sort (unique (unlist (index)))
 
         times_to_gtfs <- times_to_gtfs [, index]
-        index2 <- c (
-            index,
-            nrow (gtfs_mat) + index,
-            2 * nrow (gtfs_mat) + index
-        )
-        gtfs_mat <- gtfs_mat [index, index2]
+        gtfs_times_mat <- gtfs_times_mat [index, index]
+        gtfs_transfers_mat <- gtfs_transfers_mat [index, index]
+        gtfs_intervals_mat <- gtfs_intervals_mat [index, index]
         gtfs_to_net$index <- gtfs_to_net$index [index]
         gtfs_to_net$d <- gtfs_to_net$d [index]
     }
@@ -148,7 +147,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     }
     res <- rcpp_add_net_to_gtfs (
         times_to_gtfs,
-        gtfs_mat,
+        cbind (gtfs_times_mat, gtfs_transfers_mat, gtfs_intervals_mat),
         gtfs_to_net$index,
         gtfs_to_net$d,
         nverts_out
