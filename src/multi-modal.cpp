@@ -146,8 +146,7 @@ Rcpp::IntegerMatrix rcpp_add_net_to_gtfs (Rcpp::IntegerMatrix net_times,
     const size_t nfrom = static_cast <size_t> (net_times.nrow ());
     const size_t n_gtfs = static_cast <size_t> (net_times.ncol ());
 
-    if (gtfs_times.nrow () != gtfs_times.ncol () &&
-            gtfs_times.nrow () != n_gtfs)
+    if ((gtfs_times.ncol () / 3) != n_gtfs)
     {
         Rcpp::stop ("GTFS and travel time matrices are not compatible");
     }
