@@ -68,6 +68,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # Convert to integer storage (#16):
     times <- round (times)
     storage.mode (times) <- "integer"
+    times [is.na (times)] <- -1L
 
     stops <- m_readRDS (gtfs)$stops
     to <- v$id [dodgr::match_points_to_verts (
@@ -80,19 +81,36 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         ))
     }
 
+    if (is.null (duration_max)) {
+        stops_index <- seq_len (ncol (times_to_gtfs))
+    } else {
+        # Trace GTFS trips only from stops reachable within maximal time limit.
+        # This is done here to immediately reduce size of matrices after
+        # loading, because it can have huge memory effects of cities like Paris
+        # with 30,000 steps.
+        stops_index <- apply (
+            times_to_gtfs, 1,
+            function (i) which (i <= duration_max)
+        )
+        stops_index <- sort (unique (unlist (stops_index)))
+    }
+    times_to_gtfs <- times_to_gtfs [, stops_index]
 
     f <- grep ("gtfs\\-.*[0-9]{5}\\-[0-9]{5}\\.Rds$", files, value = TRUE)
 
     f_times <- grep ("\\-times\\-", f, value = TRUE)
     gtfs_times_mat <- m_readRDS (f_times)
+    gtfs_times_mat <- gtfs_times_mat [stops_index, ]
     gtfs_times_mat [is.na (gtfs_times_mat)] <- -1L
 
     f_transfers <- grep ("\\-transfers\\-", f, value = TRUE)
     gtfs_transfers_mat <- m_readRDS (f_transfers)
+    gtfs_transfers_mat <- gtfs_transfers_mat [stops_index, ]
     gtfs_transfers_mat [is.na (gtfs_transfers_mat)] <- -1L
 
     f_intervals <- grep ("\\-intervals\\-", f, value = TRUE)
     gtfs_intervals_mat <- m_readRDS (f_intervals)
+    gtfs_intervals_mat <- gtfs_intervals_mat [stops_index, ]
     gtfs_intervals_mat [is.na (gtfs_intervals_mat)] <- -1L
 
     f <- grep ("gtfs\\-to\\-net", files, value = TRUE)
@@ -119,32 +137,13 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         ids_out <- v_c_final_mode$id
     }
 
-    # times is numeric, as small so okay to leave as is, but gtfs_mat is
-    # potentially huge, and must stay as integer!
-    times [is.na (times)] <- -1L
-
-    if (!is.null (duration_max)) {
-        # Reduce sizes of all inputs to only those GTFS stops within maximal
-        # time limit:
-        index <- apply (
-            times_to_gtfs, 1,
-            function (i) which (i <= duration_max)
-        )
-        index <- sort (unique (unlist (index)))
-
-        times_to_gtfs <- times_to_gtfs [, index]
-        gtfs_times_mat <- gtfs_times_mat [index, index]
-        gtfs_transfers_mat <- gtfs_transfers_mat [index, index]
-        gtfs_intervals_mat <- gtfs_intervals_mat [index, index]
-        gtfs_to_net$index <- gtfs_to_net$index [index]
-        gtfs_to_net$d <- gtfs_to_net$d [index]
-    }
-
     if (!quiet) {
         cli::cli_alert_info (cli::col_blue (
             "Calculating multi-mode travel times"
         ))
     }
+    # This calculates strict multi-modal times only, some of which may be slower
+    # than single-mode times calculated in "times" matrix.
     res <- rcpp_add_net_to_gtfs (
         times_to_gtfs,
         cbind (gtfs_times_mat, gtfs_transfers_mat, gtfs_intervals_mat),
@@ -168,6 +167,11 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     res_times [res_times == maxr] <- NA_integer_
     res_transfers [res_transfers == maxr] <- NA_integer_
     res_intervals [res_intervals == maxr] <- NA_integer_
+
+    index <- which (times < res_times)
+    res_times [index] <- times [index]
+    res_transfers [index] <- NA_integer_
+    res_intervals [index] <- NA_integer_
 
     rownames (res_times) <- from
     colnames (res_times) <- ids_out

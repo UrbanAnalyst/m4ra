@@ -1,61 +1,77 @@
 
 #include "multi-modal.h"
 
+//' @param t_net_to_gtfs Reduced matrix of times from each "from" point to
+//' subset of GTFS points within nominated time limit.
+//' @param t_gtfs_to_gtfs Reduced subset of full GTFS travel times matrix, with
+//' numbers of rows reduced to only those stops reachable from each "from"
+//' point, but retaining all destination stops.
+//' @noRd
 struct OneTimesToEndStops : public RcppParallel::Worker
 {
-    const RcppParallel::RMatrix <int> net_times;
-    const Rcpp::IntegerMatrix gtfs_times;
+    const RcppParallel::RMatrix <int> t_net_to_gtfs;
+    const Rcpp::IntegerMatrix t_gtfs_to_gtfs;
     const size_t nfrom;
-    const size_t n_gtfs;
-    // gtfs_times is actually 3 matrices of (times, transfers, intervals)
-    // dim (n_gtfs, 3 * n_gtfs)
+    const size_t n_gtfs_start;
+    const size_t n_gtfs_total;
+    // t_gtfs_to_gtfs is actually 3 matrices of (times, transfers, intervals)
+    // dim (n_gtfs_start, 3 * n_gtfs_total)
 
     RcppParallel::RMatrix <int> tout;
 
     // constructor
     OneTimesToEndStops (
-            const RcppParallel::RMatrix <int> net_times_in,
-            const Rcpp::IntegerMatrix gtfs_times_in,
+            const RcppParallel::RMatrix <int> t_net_to_gtfs_in,
+            const Rcpp::IntegerMatrix t_gtfs_to_gtfs_in,
             const size_t nfrom_in,
-            const size_t n_gtfs_in,
+            const size_t n_gtfs_start_in,
+            const size_t n_gtfs_total_in,
             RcppParallel::RMatrix <int> tout_in) :
-        net_times (net_times_in), gtfs_times (gtfs_times_in),
-        nfrom (nfrom_in), n_gtfs (n_gtfs_in), tout (tout_in)
+        t_net_to_gtfs (t_net_to_gtfs_in), t_gtfs_to_gtfs (t_gtfs_to_gtfs_in),
+        nfrom (nfrom_in), n_gtfs_start (n_gtfs_start_in), 
+        n_gtfs_total (n_gtfs_total_in), tout (tout_in)
     {
     }
 
-    // Parallel function operator
+    // Parallel function operator.
+    //
+    // This post from JJ Aliare suggests that iteration can be implemented
+    // directly over rows of RMatrix objects, and not just over elements:
+    // https://gallery.rcpp.org/articles/parallel-distance-matrix/
     void operator() (std::size_t begin, std::size_t end)
     {
         // i over all vertices in the input distance matrix
         for (std::size_t i = begin; i < end; i++)
         {
-            for (size_t j = 0; j < n_gtfs; j++)
+            RcppParallel::RMatrix <int>::Row times_row = t_net_to_gtfs.row (i);
+            // Length of times_row is equal to number of GTFS stops reachable
+            // from each "from" point in < duration_max. Dim of 't_gtfs_to_gtfs'
+            // is also reduced to (n_reachable, n_total), so first dimension can
+            // be indexed directly with "j":
+
+            for (size_t j = 0; j < times_row.size (); j++)
             {
-                const int time_i_to_j = net_times (i, j);
+                // Time from network point to GTFS stop:
+                const int time_i_to_j = times_row [j];
                 if (time_i_to_j < 0) // NA's have been replaced with -ve
                 {
                     continue;
                 }
 
-                for (size_t k = 0; k < n_gtfs; k++)
+                for (size_t k = 0; k < n_gtfs_total; k++)
                 {
-                    const int time_j_to_k = gtfs_times (j, k);
+                    const int time_j_to_k = t_gtfs_to_gtfs (j, k);
                     if (time_j_to_k < 0)
                     {
                         continue;
                     }
 
-                    const int time_i_to_k = std::min (net_times (i, k), time_i_to_j + time_j_to_k);
-
+                    int time_i_to_k = time_i_to_j + time_j_to_k;
                     if (time_i_to_k < tout (i, k))
                     {
                         tout (i, k) = time_i_to_k;
-                        if (time_i_to_k < net_times (i, k)) // Multi-modal route
-                        {
-                            tout (i, k + n_gtfs) = gtfs_times (j, k + n_gtfs); // ntransfers
-                            tout (i, k + 2 * n_gtfs) = gtfs_times (j, k + 2 * n_gtfs); // interval
-                        }
+                        tout (i, k + n_gtfs_total) = t_gtfs_to_gtfs (j, k + n_gtfs_total); // ntransfers
+                        tout (i, k + 2 * n_gtfs_total) = t_gtfs_to_gtfs (j, k + 2 * n_gtfs_total); // interval
                     }
                 }
             }
@@ -96,12 +112,12 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
     // Parallel function operator
     void operator() (std::size_t begin, std::size_t end)
     {
-        const size_t n_gtfs = gtfs_to_net_dist_vec.size ();
+        const size_t n_gtfs_total = gtfs_to_net_dist_vec.size ();
         const size_t n_verts = static_cast <int> (tout.ncol () / 3);
         // i over all vertices in the input distance matrix
         for (std::size_t i = begin; i < end; i++)
         {
-            for (size_t j = 0; j < n_gtfs; j++)
+            for (size_t j = 0; j < n_gtfs_total; j++)
             {
                 if (times_to_end_stops (i, j) == INFINITE_INT)
                 {
@@ -124,8 +140,8 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
                     if (time_i_to_k < tout (i, index_k))
                     {
                         tout (i, index_k) = time_i_to_k;
-                        tout (i, n_verts + index_k) = times_to_end_stops (i, j + n_gtfs); // transfers
-                        tout (i, 2 * n_verts + index_k) = times_to_end_stops (i, j + 2 * n_gtfs); // interval
+                        tout (i, n_verts + index_k) = times_to_end_stops (i, j + n_gtfs_total); // transfers
+                        tout (i, 2 * n_verts + index_k) = times_to_end_stops (i, j + 2 * n_gtfs_total); // interval
                     }
                 }
             }
@@ -139,14 +155,15 @@ struct AddTwoMatricesWorker : public RcppParallel::Worker
 //' travel time matrix to generate fastest travel times to all GTFS end points.
 //' @noRd
 // [[Rcpp::export]]
-Rcpp::IntegerMatrix rcpp_add_net_to_gtfs (Rcpp::IntegerMatrix net_times,
+Rcpp::IntegerMatrix rcpp_add_net_to_gtfs (Rcpp::IntegerMatrix t_net_to_gtfs,
         Rcpp::IntegerMatrix gtfs_times, Rcpp::List gtfs_to_net_index,
         Rcpp::List gtfs_to_net_dist, const int nverts)
 {
-    const size_t nfrom = static_cast <size_t> (net_times.nrow ());
-    const size_t n_gtfs = static_cast <size_t> (net_times.ncol ());
+    const size_t nfrom = static_cast <size_t> (t_net_to_gtfs.nrow ());
+    const size_t n_gtfs_start = static_cast <size_t> (t_net_to_gtfs.ncol ());
+    const size_t n_gtfs_total = static_cast <size_t> (gtfs_times.ncol () / 3);
 
-    if ((gtfs_times.ncol () / 3) != n_gtfs)
+    if (t_net_to_gtfs.ncol () != gtfs_times.nrow ())
     {
         Rcpp::stop ("GTFS and travel time matrices are not compatible");
     }
@@ -155,13 +172,16 @@ Rcpp::IntegerMatrix rcpp_add_net_to_gtfs (Rcpp::IntegerMatrix net_times,
     // 1. Actual times;
     // 2. Numbers of transfers;
     // 3. Effective intervals to next service.
-    Rcpp::IntegerMatrix times_to_end_stops (static_cast <int> (nfrom), static_cast <int> (3 * n_gtfs));
+    Rcpp::IntegerMatrix times_to_end_stops (
+            static_cast <int> (nfrom),
+            static_cast <int> (3 * n_gtfs_total)
+    );
     std::fill (times_to_end_stops.begin (), times_to_end_stops.end (), INFINITE_INT);
 
     // Add initial times to all closest GTFS stops to the times to all terminal
     // GTFS stops:
-    OneTimesToEndStops one_times (RcppParallel::RMatrix <int> (net_times),
-            gtfs_times, nfrom, n_gtfs,
+    OneTimesToEndStops one_times (RcppParallel::RMatrix <int> (t_net_to_gtfs),
+            gtfs_times, nfrom, n_gtfs_start, n_gtfs_total,
             RcppParallel::RMatrix <int> (times_to_end_stops));
 
     RcppParallel::parallelFor (0, nfrom, one_times);

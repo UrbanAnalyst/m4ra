@@ -12,17 +12,17 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rcpp_add_net_to_gtfs
-Rcpp::IntegerMatrix rcpp_add_net_to_gtfs(Rcpp::IntegerMatrix net_times, Rcpp::IntegerMatrix gtfs_times, Rcpp::List gtfs_to_net_index, Rcpp::List gtfs_to_net_dist, const int nverts);
-RcppExport SEXP _m4ra_rcpp_add_net_to_gtfs(SEXP net_timesSEXP, SEXP gtfs_timesSEXP, SEXP gtfs_to_net_indexSEXP, SEXP gtfs_to_net_distSEXP, SEXP nvertsSEXP) {
+Rcpp::IntegerMatrix rcpp_add_net_to_gtfs(Rcpp::IntegerMatrix t_net_to_gtfs, Rcpp::IntegerMatrix gtfs_times, Rcpp::List gtfs_to_net_index, Rcpp::List gtfs_to_net_dist, const int nverts);
+RcppExport SEXP _m4ra_rcpp_add_net_to_gtfs(SEXP t_net_to_gtfsSEXP, SEXP gtfs_timesSEXP, SEXP gtfs_to_net_indexSEXP, SEXP gtfs_to_net_distSEXP, SEXP nvertsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type net_times(net_timesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type t_net_to_gtfs(t_net_to_gtfsSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type gtfs_times(gtfs_timesSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type gtfs_to_net_index(gtfs_to_net_indexSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type gtfs_to_net_dist(gtfs_to_net_distSEXP);
     Rcpp::traits::input_parameter< const int >::type nverts(nvertsSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_add_net_to_gtfs(net_times, gtfs_times, gtfs_to_net_index, gtfs_to_net_dist, nverts));
+    rcpp_result_gen = Rcpp::wrap(rcpp_add_net_to_gtfs(t_net_to_gtfs, gtfs_times, gtfs_to_net_index, gtfs_to_net_dist, nverts));
     return rcpp_result_gen;
 END_RCPP
 }
