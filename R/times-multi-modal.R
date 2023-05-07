@@ -151,6 +151,9 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         gtfs_to_net$d,
         nverts_out
     )
+    rm (times_to_gtfs, gtfs_times_mat, gtfs_transfers_mat, gtfs_intervals_mat)
+    rm (gtfs_to_net)
+
     if (!quiet) {
         cli::cli_alert_success (cli::col_blue (
             "Calculated multi-mode travel times"
