@@ -152,7 +152,6 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         nverts_out
     )
     rm (times_to_gtfs, gtfs_times_mat, gtfs_transfers_mat, gtfs_intervals_mat)
-    rm (gtfs_to_net)
 
     if (!quiet) {
         cli::cli_alert_success (cli::col_blue (
@@ -208,6 +207,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     # These need to be caught and removed. 'gtfs_to_net$index' values are
     # 0-indexed!
     final_mode_index <- sort (unique (unlist (gtfs_to_net$index))) + 1
+    rm (gtfs_to_net)
 
     res_times <- res_times [, final_mode_index, drop = FALSE]
     res_transfers <- res_transfers [, final_mode_index, drop = FALSE]
