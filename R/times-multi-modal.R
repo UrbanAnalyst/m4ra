@@ -170,6 +170,8 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     res_transfers [res_transfers == maxr] <- NA_integer_
     res_intervals [res_intervals == maxr] <- NA_integer_
 
+    # Replace multi-modal times with direct initial_mode times where they are
+    # faster:
     index <- which (times < res_times)
     res_times [index] <- times [index]
     res_transfers [index] <- NA_integer_
