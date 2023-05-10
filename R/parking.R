@@ -468,8 +468,10 @@ aggregate_parking_data <- function (graph_c, city, parking,
     attr (graph_c, "turn_penalty") <- 0
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
+    n_p <- length (to_from_indices$from$index)
+    n_p <- format (n_p, big.mark = ",")
     cli::cli_alert_info (cli::col_blue (
-        "Weighting parking by distances to all vertices"
+        "Weighting {n_p} parking locations by distances to all vertices"
     ))
     d <- rcpp_weighted_dists (
         graph_c,
@@ -529,8 +531,10 @@ aggregate_building_data <- function (graph_c, city, buildings,
     attr (graph_c, "turn_penalty") <- 0
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
+    n_b <- length (to_from_indices$from$index)
+    n_b <- format (n_b, big.mark = ",")
     cli::cli_alert_info (cli::col_blue (
-        "Weighting buildings by distances to all vertices"
+        "Weighting {n_b} buildings by distances to all vertices"
     ))
     vol_wt <- rcpp_weighted_dists (
         graph_c,
