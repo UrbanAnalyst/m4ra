@@ -7,13 +7,13 @@
   "codeRepository": "https://github.com/ATFutures/m4ra",
   "issueTracker": "https://github.com/ATFutures/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.1.1.017",
+  "version": "0.1.1.018",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.2.3 (2023-03-15)",
+  "runtimePlatform": "R version 4.3.0 (2023-04-21)",
   "author": [
     {
       "@type": "Person",
@@ -281,7 +281,7 @@
     },
     "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "8074.258KB",
+  "fileSize": "8086.486KB",
   "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
   "contIntegration": [
     "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",
