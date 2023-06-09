@@ -4,10 +4,10 @@
   "identifier": "m4ra",
   "description": "Many-to-many multi-modal routing aggregator, combining 'dodgr' and 'gtfsrouter' for complete routing through urban networks.",
   "name": "m4ra: Many-to-Many Multi-Modal Routing Aggregator",
-  "codeRepository": "https://github.com/ATFutures/m4ra",
-  "issueTracker": "https://github.com/ATFutures/m4ra/issues",
+  "codeRepository": "https://github.com/UrbanAnalyst/m4ra",
+  "issueTracker": "https://github.com/UrbanAnalyst/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.1.1.018",
+  "version": "0.1.1.019",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -281,11 +281,11 @@
     },
     "SystemRequirements": "C++11, GNU make"
   },
-  "fileSize": "8086.486KB",
-  "readme": "https://github.com/ATFutures/m4ra/blob/main/README.md",
+  "fileSize": "8086.51KB",
+  "readme": "https://github.com/UrbanAnalyst/m4ra/blob/main/README.md",
   "contIntegration": [
-    "https://github.com/atfutures/m4ra/actions?query=workflow%3AR-CMD-check",
-    "https://app.codecov.io/gh/ATFutures/m4ra"
+    "https://github.com/UrbanAnalyst/m4ra/actions?query=workflow%3AR-CMD-check",
+    "https://app.codecov.io/gh/UrbanAnalyst/m4ra"
   ],
   "developmentStatus": "https://www.repostatus.org/#concept",
   "keywords": [

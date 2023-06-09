@@ -11,8 +11,8 @@ Many-to-many multi-modal routing aggregator, combining 'dodgr' and 'gtfsrouter' 
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/ATFutures/m4ra}
-  \item Report bugs at \url{https://github.com/ATFutures/m4ra/issues}
+  \item \url{https://github.com/UrbanAnalyst/m4ra}
+  \item Report bugs at \url{https://github.com/UrbanAnalyst/m4ra/issues}
 }
 
 }

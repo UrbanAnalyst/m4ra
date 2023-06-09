@@ -1,4 +1,4 @@
-url: https://atfutures.github.io/m4ra
+url: https://UrbanAnalyst.github.io/m4ra
 title: m4ra
 
 template:
@@ -36,4 +36,4 @@ navbar:
     href: reference/index.html
   right:
   - icon: fa-github fa-lg
-    href: https://github.com/ATFutures/m4ra
+    href: https://github.com/UrbanAnalyst/m4ra
