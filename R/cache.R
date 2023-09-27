@@ -1,4 +1,3 @@
-
 get_hash <- function (graph, contracted = FALSE, force = FALSE) {
 
     hash <- NULL
@@ -34,7 +33,7 @@ m4ra_cache_dir <- function () {
         ))
 
         if (!fs::dir_exists (cache_dir)) {
-            fs::dir_create (cache_dir, recursive = TRUE)
+            fs::dir_create (cache_dir, recurse = TRUE)
         }
     }
 
