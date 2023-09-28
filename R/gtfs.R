@@ -169,10 +169,11 @@ gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
         start_times,
         diff (start_time_limits)
     )
+    next_starts [next_starts <= 0] <- NA_integer_
 
     first_starts <- lapply (res, function (i) as.vector (i [, 1]))
     first_starts <- do.call (rbind, first_starts)
-    first_starts [first_starts == .Machine$integer.max] <- NA_integer_
+    first_starts [first_starts == .Machine$integer.max | first_starts <= 0] <- NA_integer_
     next_interval <- next_starts - first_starts
 
     # diagonals set in prepare-data routines:
