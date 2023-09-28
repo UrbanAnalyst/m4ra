@@ -147,7 +147,7 @@ gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
     # may differ, but generally almost all connections leave on same service,
     # the start time of which is then accurately captured by the modal value.
     start_times <- vapply (res, function (i) {
-        index <- which (i [, 1] < (24L * 3600L))
+        index <- which (i [, 1] > 0 & i [, 1] < (24L * 3600L))
         out <- NA_integer_
         if (length (index) > 0L) {
             vals <- sort (i [index, 1])
