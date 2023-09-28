@@ -415,6 +415,7 @@ times_gtfs_to_gtfs_one <- function (gtfs,
     res_gtfs_gtfs <- m4ra_gtfs_traveltimes (
         gtfs,
         start_time_limits = start_time_limits,
+        day = day,
         from_stops = from_stops,
         next_interval = next_interval,
         quiet = quiet
