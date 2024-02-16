@@ -2,8 +2,8 @@
 % Please edit documentation in R/m4ra-package.R
 \docType{package}
 \name{m4ra-package}
+\alias{m4ra}
 \alias{m4ra-package}
-\alias{_PACKAGE}
 \title{m4ra: Many-to-Many Multi-Modal Routing Aggregator}
 \description{
 Many-to-many multi-modal routing aggregator, combining 'dodgr' and 'gtfsrouter' for complete routing through urban networks.
