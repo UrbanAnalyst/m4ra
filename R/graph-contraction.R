@@ -43,8 +43,10 @@ m4ra_contract_graph <- function (graph, city) {
     hash <- substring (attr (graph, "hash"), 1, 6)
     fname_c <- fs::path (
         cache_dir,
-        paste0 ("m4ra-", city, "-", wt_profile, "-graphc-",
-            hash, ".Rds")
+        paste0 (
+            "m4ra-", city, "-", wt_profile, "-graphc-",
+            hash, ".Rds"
+        )
     )
 
     if (fs::file_exists (fname_c)) {
@@ -59,8 +61,10 @@ m4ra_contract_graph <- function (graph, city) {
 
         fname <- fs::path (
             cache_dir,
-            paste0 ("m4ra-", city, "-", wt_profile, "-graph-",
-                hash, ".Rds")
+            paste0 (
+                "m4ra-", city, "-", wt_profile, "-graph-",
+                hash, ".Rds"
+            )
         )
         if (!fs::file_exists (fname)) {
             flist <- cache_one_graph (graph, city)
@@ -94,8 +98,10 @@ m4ra_contract_graph <- function (graph, city) {
 
         fname_e <- fs::path (
             cache_dir,
-            paste0 ("m4ra-", city, "-", wt_profile, "-edgemap-",
-                substring (hash, 1, 6), ".Rds")
+            paste0 (
+                "m4ra-", city, "-", wt_profile, "-edgemap-",
+                substring (hash, 1, 6), ".Rds"
+            )
         )
         fst::write_fst (edge_map, fname_e, compress = 0)
     }
