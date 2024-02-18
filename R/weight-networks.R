@@ -92,7 +92,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
         filenames <- c (
             filenames,
-            m4ra_cache_network (net_w, city = city, mode = w)
+            m4ra_cache_network (net_w, city = city)
         )
 
         if (!quiet) {
