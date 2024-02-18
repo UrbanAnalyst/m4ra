@@ -82,11 +82,9 @@ m4ra_network_hash <- function (graph) {
 #'
 #' @param graph The full network to be cached.
 #' @param city Name of city; used to name cached network files.
-#' @param mode Mode of transport, as name of weighting profile used to weight
-#' networks in \pkg{dodgr}; used to name cached network files.
 #' @family cache
 #' @export
-m4ra_cache_network <- function (graph, city, mode) {
+m4ra_cache_network <- function (graph, city) {
 
     flist_out <- NULL
 
