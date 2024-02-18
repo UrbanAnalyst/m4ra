@@ -97,7 +97,7 @@ m4ra_contract_graph <- function (graph, city) {
             paste0 ("m4ra-", city, "-", wt_profile, "-edgemap-",
                 substring (hash, 1, 6), ".Rds")
         )
-        fst::write_fst (edge_map, fname_e)
+        fst::write_fst (edge_map, fname_e, compress = 0)
     }
 
     return (graph_c)

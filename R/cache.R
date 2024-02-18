@@ -138,7 +138,7 @@ cache_one_graph <- function (graph, city) {
         paste0 ("-", gtag, "-"),
         apath
     )
-    fst::write_fst (graph, gpath)
+    fst::write_fst (graph, gpath, compress = 0)
 
     return (c (apath, gpath))
 }

@@ -1,4 +1,3 @@
-
 #' m4ra_vertices
 #'
 #' Extract vertices of graph, including spatial coordinates if included.
@@ -45,7 +44,7 @@ m4ra_vertices <- function (graph, city) {
         verts <- fst::read_fst (fpath)
     } else {
         verts <- dodgr_vertices_internal (graph)
-        fst::write_fst (verts, fpath)
+        fst::write_fst (verts, fpath, compress = 0)
     }
 
     return (verts)
