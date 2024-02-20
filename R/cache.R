@@ -77,9 +77,6 @@ m4ra_network_hash <- function (graph) {
 #' Save a weighted street network in both full and contracted forms to local
 #' cache.
 #'
-#' This uses \pkg{fst}, which strips all attributes, so they are saved
-#' separately, and re-attached in `load_cached_network()`.
-#'
 #' @param graph The full network to be cached.
 #' @param city Name of city; used to name cached network files.
 #' @family cache
@@ -116,7 +113,6 @@ cache_one_graph <- function (graph, city) {
 
     contracted <- inherits (graph, "dodgr_contracted")
 
-    atag <- ifelse (contracted, "attrc", "attr")
     gtag <- ifelse (contracted, "graphc", "graph")
 
     a <- get_graph_attributes (graph)
@@ -125,22 +121,15 @@ cache_one_graph <- function (graph, city) {
 
     cache_dir <- fs::path (m4ra_cache_dir (), city)
 
-    aname <- paste0 (
+    gname <- paste0 (
         "m4ra-", city, "-", mode, "-",
-        atag, "-", hash, ".Rds"
+        gtag, "-", hash, ".Rds"
     )
-    apath <- fs::path (cache_dir, aname)
+    gpath <- fs::path (cache_dir, gname)
 
-    saveRDS (a, apath)
+    saveRDS (graph, gpath)
 
-    gpath <- gsub (
-        paste0 ("\\-", atag, "\\-"),
-        paste0 ("-", gtag, "-"),
-        apath
-    )
-    fst::write_fst (graph, gpath, compress = 0)
-
-    return (c (apath, gpath))
+    return (gpath)
 }
 
 
@@ -194,17 +183,9 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
 
     }
 
-    graph <- m_read_fst (f)
-
-    ptn <- gsub ("graph", "attr", ptn) # retains 'attrc' for contracted
-    a <- readRDS (grep (ptn, flist, value = TRUE))
-    for (i in seq_along (a)) {
-        attr (graph, names (a) [i]) <- a [[i]]
-    }
+    graph <- m_readRDS (f)
 
     return (graph)
 }
 
 m_readRDS <- memoise::memoise (function (path) readRDS (path))
-
-m_read_fst <- memoise::memoise (function (path) fst::read_fst (path))

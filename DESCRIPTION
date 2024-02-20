@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.1.1.031
+Version: 0.1.1.032
 Authors@R: 
     person(given = "Mark",
            family = "Padgham",
@@ -19,7 +19,6 @@ Imports:
     digest,
     dodgr,
     fs,
-    fst,
     gtfsrouter,
     methods,
     memoise,

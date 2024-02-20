@@ -2,9 +2,8 @@
 #'
 #' Extract vertices of graph, including spatial coordinates if included.
 #' Modified version of equivalent \pkg{dodgr} function that uses different hash
-#' comparisons, and uses \pkg{fst} for write/read functions. This version also
-#' does none of the checks implemented in the \pkg{dodgr} version, and assumes
-#' graphs remain unmodified throughout.
+#' comparisons. This version also does none of the checks implemented in the
+#' \pkg{dodgr} version, and assumes graphs remain unmodified throughout.
 #'
 #' @param graph A flat table of graph edges. Must contain columns labelled
 #' `from` and `to`, or `start` and `stop`. May also contain
@@ -41,10 +40,10 @@ m4ra_vertices <- function (graph, city) {
     fpath <- fs::path (cache_dir, fname)
 
     if (fs::file_exists (fpath)) {
-        verts <- fst::read_fst (fpath)
+        verts <- readRDS (fpath)
     } else {
         verts <- dodgr_vertices_internal (graph)
-        fst::write_fst (verts, fpath, compress = 0)
+        saveRDS (verts, fpath)
     }
 
     return (verts)

@@ -13,8 +13,8 @@ m4ra_cache_network(graph, city)
 \item{city}{Name of city; used to name cached network files.}
 }
 \description{
-This uses \pkg{fst}, which strips all attributes, so they are saved
-separately, and re-attached in \code{load_cached_network()}.
+Save a weighted street network in both full and contracted forms to local
+cache.
 }
 \seealso{
 Other cache: 

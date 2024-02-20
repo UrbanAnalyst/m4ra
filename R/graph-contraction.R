@@ -1,11 +1,10 @@
 #' m4rar_contract_graph
 #'
 #' Removes redundant (straight-line) vertices from graph, leaving only junction
-#' vertices. This is mostly a copy of the same function in \pkg{dodgr}, but uses
-#' \pkg{fst} to write and read locally-cached versions of graphs, does that in
-#' the `m4ra_cache_dir` rather than tempdir, and does not expose the `verts`
-#' parameter, so graph contraction leaves junction vertices only, with no
-#' optional extra vertices.
+#' vertices. This is mostly a copy of the same function in \pkg{dodgr}, but
+#' writes and reads locally-cached versions of graphs in the `m4ra_cache_dir`
+#' rather than tempdir, and does not expose the `verts` parameter, so graph
+#' contraction leaves junction vertices only, with no optional extra vertices.
 #'
 #' @param graph A flat table of graph edges. Must contain columns labelled
 #' `from` and `to`, or `start` and `stop`. May also contain
@@ -103,7 +102,7 @@ m4ra_contract_graph <- function (graph, city) {
                 substring (hash, 1, 6), ".Rds"
             )
         )
-        fst::write_fst (edge_map, fname_e, compress = 0)
+        saveRDS (edge_map, fname_e)
     }
 
     return (graph_c)

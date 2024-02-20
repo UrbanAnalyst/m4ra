@@ -20,9 +20,8 @@ A \code{data.frame} of vertices with unique numbers (\code{n}).
 \description{
 Extract vertices of graph, including spatial coordinates if included.
 Modified version of equivalent \pkg{dodgr} function that uses different hash
-comparisons, and uses \pkg{fst} for write/read functions. This version also
-does none of the checks implemented in the \pkg{dodgr} version, and assumes
-graphs remain unmodified throughout.
+comparisons. This version also does none of the checks implemented in the
+\pkg{dodgr} version, and assumes graphs remain unmodified throughout.
 }
 \note{
 Values of \code{n} are 0-indexed
