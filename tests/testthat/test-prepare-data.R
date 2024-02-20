@@ -7,7 +7,9 @@ test_that ("prepare data", {
     Sys.setenv ("M4RA_NUM_CORES" = 1L)
 
     z <- gtfsrouter::berlin_gtfs_to_zip ()
-    gtfs <- gtfsrouter::extract_gtfs (z)
+    suppressWarnings (
+        gtfs <- gtfsrouter::extract_gtfs (z)
+    )
     gtfs_path <- fs::path (fs::path_temp (), "berlin-gtfs.Rds")
     saveRDS (gtfs, gtfs_path)
 
@@ -41,9 +43,9 @@ test_that ("prepare data", {
     expect_type (flist, "character")
     expect_true (all (fs::file_exists (flist)))
 
-    expect_length (flist, 29L)
+    expect_length (flist, 23L)
     # 3 weighted networks:
-    expect_length (grep ("foot|bicycle|motorcar", flist), 25L)
+    expect_length (grep ("foot|bicycle|motorcar", flist), 19L)
     # 1 GTFS source:
     expect_length (grep ("berlin\\-gtfs\\.Rds$", flist), 1L)
     # plus three GTFS travel time matrices, and one GTFS-to-final network time

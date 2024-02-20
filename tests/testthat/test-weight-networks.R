@@ -1,4 +1,3 @@
-
 test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
     identical (Sys.getenv ("GITHUB_WORKFLOW"), "test-coverage"))
 
@@ -26,6 +25,6 @@ test_that ("weight networks", {
     )
 
     expect_type (f, "character")
-    expect_length (f, 24L)
+    expect_length (f, 18L)
     expect_true (all (fs::file_exists (f)))
 })

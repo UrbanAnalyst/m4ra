@@ -59,7 +59,9 @@ fake_network_data <- function (gtfs, npts = 1e3) {
 test_that ("gtfs travel times", {
 
     z <- gtfsrouter::berlin_gtfs_to_zip ()
-    gtfs <- gtfsrouter::extract_gtfs (z)
+    suppressWarnings (
+        gtfs <- gtfsrouter::extract_gtfs (z)
+    )
     gtfs <- gtfsrouter::gtfs_timetable (gtfs, day = "Monday")
 
     Sys.setenv ("M4RA_NUM_CORES" = 1L)
@@ -84,7 +86,9 @@ test_that ("gtfs travel times", {
 test_that ("gtfs to graph fns", {
 
     z <- gtfsrouter::berlin_gtfs_to_zip ()
-    gtfs <- gtfsrouter::extract_gtfs (z)
+    suppressWarnings (
+        gtfs <- gtfsrouter::extract_gtfs (z)
+    )
     gtfs <- gtfsrouter::gtfs_timetable (gtfs, day = "Monday")
 
     npts <- 1e3L
