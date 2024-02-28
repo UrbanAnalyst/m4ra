@@ -161,6 +161,7 @@ gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
         }
         return (out)
     }, integer (1L))
+    start_times [which (is.na (start_times))] <- start_time_limits [1]
 
     # call next_start_times fn to get times of next services:
     next_starts <- gtfs_next_start_times (
