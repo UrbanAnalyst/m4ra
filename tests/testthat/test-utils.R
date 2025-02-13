@@ -1,6 +1,5 @@
-
-test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") |
-    identical (Sys.getenv ("GITHUB_WORKFLOW"), "test-coverage"))
+test_all <- (identical (Sys.getenv ("MPADGE_LOCAL"), "true") ||
+    identical (Sys.getenv ("GITHUB_JOB"), "test-coverage"))
 
 Sys.setenv ("M4RA_CACHE_DIR" = fs::path_temp ())
 
