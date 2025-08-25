@@ -13,7 +13,7 @@ dodgr version, and assumes graphs remain unmodified throughout."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.045</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.046</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,6 +77,7 @@ similarly labelled columns of spatial coordinates (for example
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu">dodgr</span><span class="fu">::</span><span class="fu"><a href="https://UrbanAnalyst.github.io/dodgr/reference/weight_streetnet.html" class="external-link">weight_streetnet</a></span> <span class="op">(</span><span class="fu">dodgr</span><span class="fu">::</span><span class="va"><a href="https://UrbanAnalyst.github.io/dodgr/reference/hampi.html" class="external-link">hampi</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu">m4ra_vertices</span> <span class="op">(</span><span class="va">graph</span>, <span class="st">"hampi"</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> [EACCES] Failed to make directory '/hampi': permission denied</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
