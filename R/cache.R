@@ -166,7 +166,12 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
 
         mode <- match.arg (tolower (mode), c ("foot", "bicycle", "motorcar"))
 
-        flist <- fs::dir_ls (fs::path (m4ra_cache_dir (), city), regexp = mode)
+        flist <- fs::dir_ls (m4ra_cache_dir (), type = "directory", recurse = TRUE)
+        city_dir <- flist [which (basename (flist) == city)]
+        if (length (city_dir) > 1L) {
+            cli::cli_abort ("Ambiguous city directories at {city_dir}.")
+        }
+        flist <- fs::dir_ls (city_dir, regexp = mode)
 
         f <- grep (ptn, flist, value = TRUE)
 
