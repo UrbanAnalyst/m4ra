@@ -21,7 +21,7 @@
 #' v <- m4ra_vertices (graph, "hampi")
 m4ra_vertices <- function (graph, city) {
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    cache_dir <- m4ra_cache_dir (city)
     if (!fs::dir_exists (cache_dir)) {
         fs::dir_create (cache_dir, recurse = TRUE)
     }

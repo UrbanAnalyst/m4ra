@@ -86,7 +86,7 @@ m4ra_prepare_data <- function (net_sc = NULL,
 
     city_name <- gsub ("\\s+", "-", tolower (city_name))
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city_name)
+    cache_dir <- m4ra_cache_dir (city_name)
 
     if (!is.null (net_sc)) {
         # (Re-)generate weighted networks
@@ -467,7 +467,7 @@ times_gtfs_to_net <- function (files,
 
     f_gtfs_to_net <- grep (
         paste0 (city, "\\-gtfs\\-to\\-net\\-"),
-        fs::dir_ls (fs::path (m4ra_cache_dir (), city)),
+        fs::dir_ls (m4ra_cache_dir (city)),
         value = TRUE
     )
     f_gtfs_to_net <- grep (
@@ -533,7 +533,7 @@ times_gtfs_to_net <- function (files,
         ifelse (fast, "fast", "slow"),
         ".Rds"
     )
-    fname <- fs::path (m4ra_cache_dir (), city, fname)
+    fname <- fs::path (m4ra_cache_dir (city), fname)
 
     if (!fs::file_exists (fname)) {
 

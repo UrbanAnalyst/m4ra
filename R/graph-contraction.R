@@ -35,7 +35,7 @@ m4ra_contract_graph <- function (graph, city) {
 
     wt_profile <- attr (graph, "wt_profile")
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    cache_dir <- m4ra_cache_dir (city)
 
     v <- m4ra_vertices (graph, city)
 

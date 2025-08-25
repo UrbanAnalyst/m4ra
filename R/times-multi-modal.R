@@ -431,7 +431,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
 #' @noRd
 add_parking_times <- function (car_times, verts_car, city) {
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    cache_dir <- m4ra_cache_dir (city)
     f_parking <- fs::dir_ls (cache_dir, regexp = "parking", fixed = TRUE)
 
     if (length (f_parking) > 0) {

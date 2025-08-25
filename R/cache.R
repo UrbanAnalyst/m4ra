@@ -17,9 +17,9 @@ get_hash <- function (graph, contracted = FALSE, force = FALSE) {
     return (hash)
 }
 
-#' Path to user cache directory
+#' Path to user cache directory, optionally for specified city
 #' @noRd
-m4ra_cache_dir <- function () {
+m4ra_cache_dir <- function (city = NULL) {
 
     # use envvar is set, so tempdir can be used on CRAN checks
     cache_dir <- Sys.getenv ("M4RA_CACHE_DIR")
@@ -34,6 +34,18 @@ m4ra_cache_dir <- function () {
 
         if (!fs::dir_exists (cache_dir)) {
             fs::dir_create (cache_dir, recurse = TRUE)
+        }
+    }
+
+    if (!is.null (city)) {
+        checkmate::assert_character (city, len = 1L)
+        flist <- fs::dir_ls (cache_dir, type = "directory", recurse = TRUE)
+        cache_dir <- flist [which (basename (flist) == city)]
+        if (length (cache_dir) == 0L) {
+            cache_dir <- fs::path (Sys.getenv ("M4RA_CACHE_DIR"), city)
+        }
+        if (length (cache_dir) > 1L) {
+            cli::cli_abort ("Ambiguous city directories at {city_dir}.")
         }
     }
 
@@ -85,7 +97,7 @@ m4ra_cache_network <- function (graph, city) {
 
     flist_out <- NULL
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    cache_dir <- m4ra_cache_dir (city)
     city <- gsub ("\\s+", "-", tolower (city))
 
     # Full graph:
@@ -119,7 +131,7 @@ cache_one_graph <- function (graph, city) {
     hash <- substring (a$hash, 1, 6)
     mode <- a$wt_profile
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    cache_dir <- m4ra_cache_dir (city)
 
     gname <- paste0 (
         "m4ra-", city, "-", mode, "-",
@@ -156,7 +168,7 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
         city <- dirs [length (dirs) - 1L]
         f <- filename
 
-        flist <- fs::dir_ls (fs::path (m4ra_cache_dir (), city), regexp = mode)
+        flist <- fs::dir_ls (m4ra_cache_dir (city), regexp = mode)
 
     } else {
 
@@ -166,11 +178,7 @@ m4ra_load_cached_network <- function (city = NULL, mode = "foot",
 
         mode <- match.arg (tolower (mode), c ("foot", "bicycle", "motorcar"))
 
-        flist <- fs::dir_ls (m4ra_cache_dir (), type = "directory", recurse = TRUE)
-        city_dir <- flist [which (basename (flist) == city)]
-        if (length (city_dir) > 1L) {
-            cli::cli_abort ("Ambiguous city directories at {city_dir}.")
-        }
+        city_dir <- m4ra_cache_dir (city = city)
         flist <- fs::dir_ls (city_dir, regexp = mode)
 
         f <- grep (ptn, flist, value = TRUE)

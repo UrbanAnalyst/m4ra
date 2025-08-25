@@ -49,7 +49,7 @@ m4ra_parking <- function (bb,
 
     v <- m4ra_vertices (graph_c, city_name)
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city_name)
+    cache_dir <- m4ra_cache_dir (city_name)
 
     v_hash <- substring (digest::digest (v$id), 1, 6)
 

@@ -40,7 +40,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
     hash <- m4ra_network_hash (net)
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    cache_dir <- m4ra_cache_dir (city)
     if (!dir.exists (cache_dir)) {
         dir.create (cache_dir, recursive = TRUE)
     }
@@ -107,7 +107,7 @@ cache_networks <- function (net, city, wt_profiles, quiet = TRUE) {
 
 cache_vertex_indices <- function (city) {
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    cache_dir <- m4ra_cache_dir (city)
 
     # Then cache the indices needed to match vertices between the different
     # networks:
@@ -160,7 +160,7 @@ cache_vertex_indices <- function (city) {
 
 load_vert_index <- function (city, mode1, mode2) {
 
-    cache_dir <- fs::path (m4ra_cache_dir (), city)
+    cache_dir <- m4ra_cache_dir (city)
     flist <- fs::dir_ls (cache_dir, regexp = "\\-vert\\-index\\-")
     f <- grep (paste0 ("\\-", mode1, "\\-", mode2, "\\-"), flist, value = TRUE)
     readRDS (f)
