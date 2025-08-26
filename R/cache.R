@@ -40,7 +40,12 @@ m4ra_cache_dir <- function (city = NULL) {
     if (!is.null (city)) {
         checkmate::assert_character (city, len = 1L)
         flist <- fs::dir_ls (cache_dir, type = "directory", recurse = TRUE)
-        cache_dir <- flist [which (basename (flist) == city)]
+        if (!is.null (flist)) {
+            cache_dir <- fs::path (cache_dir, city)
+            fs::dir_create (cache_dir, recurse = TRUE)
+        } else {
+            cache_dir <- flist [which (basename (flist) == city)]
+        }
         if (length (cache_dir) == 0L) {
             cache_dir <- fs::path (Sys.getenv ("M4RA_CACHE_DIR"), city)
         }
