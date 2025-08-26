@@ -7,7 +7,7 @@
   "codeRepository": "https://github.com/UrbanAnalyst/m4ra",
   "issueTracker": "https://github.com/UrbanAnalyst/m4ra/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "0.1.1.047",
+  "version": "0.1.1.048",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
