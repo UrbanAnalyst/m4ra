@@ -148,7 +148,11 @@ cache_vertex_indices <- function (city) {
                 )
             )
             if (!fs::file_exists (fname)) {
-                index <- dodgr::match_points_to_verts (v1, v2 [, c ("x", "y")])
+                # dodgr issues warnings if any (x, y) values are NA:
+                suppressWarnings (
+                    index <-
+                        dodgr::match_points_to_verts (v1, v2 [, c ("x", "y")])
+                )
                 saveRDS (index, fname)
             }
             flist <- c (flist, fname)
