@@ -194,6 +194,12 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
         c (stops [i], start_times [i] + c (0, start_interval))
     })
 
+    tdir <- fs::dir_ls (fs::path_temp (), regexp = "gtfstemp")
+    if (length (tdir) > 0L) {
+        checkmate::assert_character (tdir, len = 1L)
+        checkmate::assert_directory_exists (tdir)
+    }
+
     # gtfsrouter::traveltimes default params:
     minimise_transfers <- FALSE
     max_traveltime <- 60 * 60
@@ -224,6 +230,13 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
             )
         } else {
             stns <- array (NA_integer_, dim = c (nrow (gtfs$stops) + 1L, 3L))
+        }
+
+        if (length (tdir) > 0L) {
+            f <- fs::path (tdir, s)
+            if (fs::file_exists (f)) {
+                write ("-intervals", file = f, append = TRUE)
+            }
         }
 
         return (stns [-1, ]) # 3 cols: start_time, duration, ntransfers
