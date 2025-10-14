@@ -122,7 +122,7 @@ m4ra_gtfs_traveltimes <- function (gtfs,
         res_i [res_i == .Machine$integer.max] <- NA_integer_
 
         rownames (res_i) <- stops
-        colnames (res_i) <- gtfs$stop_ids$stop_id
+        colnames (res_i) <- gtfs$stops$stop_id
 
         # diag (res_i) <- 0L # diagonals set in "prepare-data" routines
 
@@ -140,13 +140,6 @@ m4ra_gtfs_traveltimes <- function (gtfs,
 
 #' Main function to calculate intervals to next fastest connection, called from
 #' `m4ra_gtfs_traveltimes()` if `next_interval = TRUE`.
-#'
-#' @param res Result of rcpp_traveltimes as a list of matrices (n, 3), where n
-#' is the number of "stop_id" values in gtfs$stops. The 'gtfs_next_start_times'
-#' routine returns a matrix with number of rows equal to 'nrow(gtfs$stop_ids)',
-#' which is generally less, because that is unique IDs only. The two have to
-#' reconciled below.
-#'
 #' @noRd
 gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
 
@@ -189,7 +182,7 @@ gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
     # diag (next_interval) <- NA_integer_
 
     rownames (next_interval) <- stops
-    colnames (next_interval) <- gtfs$stop_ids$stop_id
+    colnames (next_interval) <- gtfs$stops$stop_id
 
     return (next_interval)
 }
@@ -242,7 +235,7 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
     start_times [start_times == .Machine$integer.max] <- NA_integer_
 
     rownames (start_times) <- stop_names
-    colnames (start_times) <- gtfs$stop_ids$stop_id
+    colnames (start_times) <- gtfs$stops$stop_id
 
     # diag (start_times) <- 0L # diagonals set in prepare-data routines:
 

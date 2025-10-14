@@ -334,7 +334,7 @@ times_gtfs_to_gtfs_batch <- function (gtfs,
                                       fname_gtfs_intervals,
                                       quiet) {
 
-    stops <- unique (gtfs$stops$stop_id)
+    stops <- gtfs$stops$stop_id
     nstops <- length (stops) # used only in progress bar
     index <- rep (
         seq (1L, ceiling (length (stops) / batch_size)),
