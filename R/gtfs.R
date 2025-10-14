@@ -180,10 +180,6 @@ gtfs_next_intervals <- function (gtfs, stops, res, start_time_limits) {
     )
     next_starts [next_starts <= 0] <- NA_integer_
 
-    # reduce dimension to only unique stops:
-    index <- match (gtfs$stop_ids$stop_ids, gtfs$stops$stop_id)
-    next_starts <- next_starts [, index]
-
     first_starts <- lapply (res, function (i) as.vector (i [, 1]))
     first_starts <- do.call (rbind, first_starts)
     first_starts [first_starts == .Machine$integer.max | first_starts <= 0] <- NA_integer_
@@ -246,7 +242,7 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
     start_times [start_times == .Machine$integer.max] <- NA_integer_
 
     rownames (start_times) <- stop_names
-    colnames (start_times) <- gtfs$stops$stop_id
+    colnames (start_times) <- gtfs$stop_ids$stop_id
 
     # diag (start_times) <- 0L # diagonals set in prepare-data routines:
 
