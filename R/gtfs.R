@@ -233,7 +233,7 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
         }
 
         if (length (tdir) > 0L) {
-            f <- fs::path (tdir, s)
+            f <- fs::path (tdir, s [1])
             if (fs::file_exists (f)) {
                 write ("-intervals", file = f, append = TRUE)
             }
