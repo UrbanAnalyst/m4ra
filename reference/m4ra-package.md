@@ -14,3 +14,7 @@ Useful links:
 ## Author
 
 **Maintainer**: Mark Padgham <mark.padgham@email.com>
+
+Authors:
+
+- Mark Padgham <mark.padgham@email.com>
