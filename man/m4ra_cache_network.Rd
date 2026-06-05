@@ -17,10 +17,10 @@ Save a weighted street network in both full and contracted forms to local
 cache.
 }
 \seealso{
-Other cache: 
-\code{\link{m4ra_batch_weight_networks}()},
-\code{\link{m4ra_load_cached_network}()},
-\code{\link{m4ra_network_hash}()},
-\code{\link{m4ra_weight_networks}()}
+Other cache:
+\code{\link[=m4ra_batch_weight_networks]{m4ra_batch_weight_networks()}},
+\code{\link[=m4ra_load_cached_network]{m4ra_load_cached_network()}},
+\code{\link[=m4ra_network_hash]{m4ra_network_hash()}},
+\code{\link[=m4ra_weight_networks]{m4ra_weight_networks()}}
 }
 \concept{cache}

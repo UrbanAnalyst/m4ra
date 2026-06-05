@@ -27,8 +27,8 @@ Convert bicycle and automobile times into equivalent areas for a specified
 range of ratios of the two travel times.
 }
 \seealso{
-Other analyses: 
-\code{\link{m4ra_times_bike_car}()},
-\code{\link{m4ra_times_mm_car}()}
+Other analyses:
+\code{\link[=m4ra_times_bike_car]{m4ra_times_bike_car()}},
+\code{\link[=m4ra_times_mm_car]{m4ra_times_mm_car()}}
 }
 \concept{analyses}

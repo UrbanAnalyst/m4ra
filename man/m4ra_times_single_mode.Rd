@@ -37,9 +37,9 @@ net <- dodgr::weight_streetnet (m4ra_hampi, wt_profile = "foot")
 traveltimes <- m4ra_times_single_mode (net)
 }
 \seealso{
-Other main: 
-\code{\link{m4ra_dists_n_pts}()},
-\code{\link{m4ra_gtfs_traveltimes}()},
-\code{\link{m4ra_times_multi_mode}()}
+Other main:
+\code{\link[=m4ra_dists_n_pts]{m4ra_dists_n_pts()}},
+\code{\link[=m4ra_gtfs_traveltimes]{m4ra_gtfs_traveltimes()}},
+\code{\link[=m4ra_times_multi_mode]{m4ra_times_multi_mode()}}
 }
 \concept{main}

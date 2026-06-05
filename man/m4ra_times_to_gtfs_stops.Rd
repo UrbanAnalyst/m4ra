@@ -37,8 +37,8 @@ Construct a travel time matrix to or from all stops in a 'GTFS' feed from or
 to to all points in a street network.
 }
 \seealso{
-Other prep: 
-\code{\link{m4ra_parking}()},
-\code{\link{m4ra_prepare_data}()}
+Other prep:
+\code{\link[=m4ra_parking]{m4ra_parking()}},
+\code{\link[=m4ra_prepare_data]{m4ra_prepare_data()}}
 }
 \concept{prep}

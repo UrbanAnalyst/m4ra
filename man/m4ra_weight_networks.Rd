@@ -26,10 +26,10 @@ location can be over-ridden by specifying a local environment variable,
 cached networks.
 }
 \seealso{
-Other cache: 
-\code{\link{m4ra_batch_weight_networks}()},
-\code{\link{m4ra_cache_network}()},
-\code{\link{m4ra_load_cached_network}()},
-\code{\link{m4ra_network_hash}()}
+Other cache:
+\code{\link[=m4ra_batch_weight_networks]{m4ra_batch_weight_networks()}},
+\code{\link[=m4ra_cache_network]{m4ra_cache_network()}},
+\code{\link[=m4ra_load_cached_network]{m4ra_load_cached_network()}},
+\code{\link[=m4ra_network_hash]{m4ra_network_hash()}}
 }
 \concept{cache}

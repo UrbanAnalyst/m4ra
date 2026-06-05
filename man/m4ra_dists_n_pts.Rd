@@ -23,9 +23,9 @@ to be calculated.}
 Calculate network distances to nearest 'n' points.
 }
 \seealso{
-Other main: 
-\code{\link{m4ra_gtfs_traveltimes}()},
-\code{\link{m4ra_times_multi_mode}()},
-\code{\link{m4ra_times_single_mode}()}
+Other main:
+\code{\link[=m4ra_gtfs_traveltimes]{m4ra_gtfs_traveltimes()}},
+\code{\link[=m4ra_times_multi_mode]{m4ra_times_multi_mode()}},
+\code{\link[=m4ra_times_single_mode]{m4ra_times_single_mode()}}
 }
 \concept{main}

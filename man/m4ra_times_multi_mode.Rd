@@ -70,9 +70,9 @@ Calculate matrix of pair-wise travel times between points using multiple
 modes of transport.
 }
 \seealso{
-Other main: 
-\code{\link{m4ra_dists_n_pts}()},
-\code{\link{m4ra_gtfs_traveltimes}()},
-\code{\link{m4ra_times_single_mode}()}
+Other main:
+\code{\link[=m4ra_dists_n_pts]{m4ra_dists_n_pts()}},
+\code{\link[=m4ra_gtfs_traveltimes]{m4ra_gtfs_traveltimes()}},
+\code{\link[=m4ra_times_single_mode]{m4ra_times_single_mode()}}
 }
 \concept{main}

@@ -79,8 +79,8 @@ in a local cache directory defined by the \code{user_cache_dir()} function of th
 "M4RA_CACHE_DIR", if set.
 }
 \seealso{
-Other prep: 
-\code{\link{m4ra_parking}()},
-\code{\link{m4ra_times_to_gtfs_stops}()}
+Other prep:
+\code{\link[=m4ra_parking]{m4ra_parking()}},
+\code{\link[=m4ra_times_to_gtfs_stops]{m4ra_times_to_gtfs_stops()}}
 }
 \concept{prep}

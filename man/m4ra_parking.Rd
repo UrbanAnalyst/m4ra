@@ -46,8 +46,8 @@ Get data on parking availability and building volumes to estimate time
 penalties for automobile travel.
 }
 \seealso{
-Other prep: 
-\code{\link{m4ra_prepare_data}()},
-\code{\link{m4ra_times_to_gtfs_stops}()}
+Other prep:
+\code{\link[=m4ra_prepare_data]{m4ra_prepare_data()}},
+\code{\link[=m4ra_times_to_gtfs_stops]{m4ra_times_to_gtfs_stops()}}
 }
 \concept{prep}

@@ -26,10 +26,10 @@ location specified by \code{rappdirs::user_cache_dir()}. This location can be
 over-ridden by specifying a local environment variable, "M4RA_CACHE_DIR".
 }
 \seealso{
-Other cache: 
-\code{\link{m4ra_cache_network}()},
-\code{\link{m4ra_load_cached_network}()},
-\code{\link{m4ra_network_hash}()},
-\code{\link{m4ra_weight_networks}()}
+Other cache:
+\code{\link[=m4ra_cache_network]{m4ra_cache_network()}},
+\code{\link[=m4ra_load_cached_network]{m4ra_load_cached_network()}},
+\code{\link[=m4ra_network_hash]{m4ra_network_hash()}},
+\code{\link[=m4ra_weight_networks]{m4ra_weight_networks()}}
 }
 \concept{cache}

@@ -19,10 +19,10 @@ particular to determine whether or not weighted versions of a given network
 have been previously cached.
 }
 \seealso{
-Other cache: 
-\code{\link{m4ra_batch_weight_networks}()},
-\code{\link{m4ra_cache_network}()},
-\code{\link{m4ra_load_cached_network}()},
-\code{\link{m4ra_weight_networks}()}
+Other cache:
+\code{\link[=m4ra_batch_weight_networks]{m4ra_batch_weight_networks()}},
+\code{\link[=m4ra_cache_network]{m4ra_cache_network()}},
+\code{\link[=m4ra_load_cached_network]{m4ra_load_cached_network()}},
+\code{\link[=m4ra_weight_networks]{m4ra_weight_networks()}}
 }
 \concept{cache}

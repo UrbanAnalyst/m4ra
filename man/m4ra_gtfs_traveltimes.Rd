@@ -53,9 +53,9 @@ in the 'duration' item.
 Construct a travel time matrix between all pairs of stops in a 'GTFS' feed.
 }
 \seealso{
-Other main: 
-\code{\link{m4ra_dists_n_pts}()},
-\code{\link{m4ra_times_multi_mode}()},
-\code{\link{m4ra_times_single_mode}()}
+Other main:
+\code{\link[=m4ra_dists_n_pts]{m4ra_dists_n_pts()}},
+\code{\link[=m4ra_times_multi_mode]{m4ra_times_multi_mode()}},
+\code{\link[=m4ra_times_single_mode]{m4ra_times_single_mode()}}
 }
 \concept{main}
