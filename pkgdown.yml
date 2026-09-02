@@ -1,8 +1,8 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles: {}
-last_built: 2026-07-02T06:34Z
+last_built: 2026-09-02T07:13Z
 urls:
   reference: https://UrbanAnalyst.github.io/m4ra/reference
   article: https://UrbanAnalyst.github.io/m4ra/articles
