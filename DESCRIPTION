@@ -1,11 +1,12 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.1.1.061
-Authors@R: 
+Version: 0.1.1.062
+Authors@R:
     person(given = "Mark",
            family = "Padgham",
            role = c("aut", "cre"),
-           email = "mark.padgham@email.com")
+           email = "mark.padgham@email.com",
+           comment = c(ORCID = "0000-0003-2172-5265"))
 Description: Many-to-many multi-modal routing aggregator, combining 'dodgr' and
     'gtfsrouter' for complete routing through urban networks.
 License: GPL-3
