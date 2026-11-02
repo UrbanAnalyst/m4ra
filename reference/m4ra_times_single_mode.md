@@ -50,6 +50,5 @@ Other main:
 
 ``` r
 net <- dodgr::weight_streetnet (m4ra_hampi, wt_profile = "foot")
-#> Loading required namespace: dplyr
 traveltimes <- m4ra_times_single_mode (net)
 ```
