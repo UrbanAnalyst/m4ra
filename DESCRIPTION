@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.1.1.072
+Version: 0.1.1.073
 Authors@R:
     person(given = "Mark",
            family = "Padgham",
@@ -26,7 +26,8 @@ Imports:
     parallel,
     rappdirs,
     Rcpp (>= 0.12.6),
-    RcppParallel
+    RcppParallel,
+    rosmium
 Suggests:
     dplyr,
     geodist,
@@ -40,6 +41,8 @@ LinkingTo:
     Rcpp,
     RcppParallel,
     RcppThread
+Remotes:
+    mpadge/rosmium
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: yes

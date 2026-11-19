@@ -150,11 +150,11 @@ get_parking_data <- function (bb,
 
         # key = "parking":
         tags <- c ("amenity", "building", "capacity", "parking")
-        f_p <- grep ("parking\\.", osm_files, value = TRUE)
+        f_p <- osm_files [["parking"]]
         dat_p <- use_osmextract (f_p, extra_tags = tags)
 
         # key = "amenity" or "building":
-        f_a <- grep ("amenity", osm_files, value = TRUE)
+        f_a <- osm_files [["amenity"]]
         dat_a <- use_osmextract (f_a, extra_tags = tags)
 
         # key = "parking:lane:<side>"
@@ -168,7 +168,7 @@ get_parking_data <- function (bb,
                 )
             )
         )
-        f_l <- grep ("lane", osm_files, value = TRUE)
+        f_l <- osm_files [["parking_lane"]]
         dat_l <- osmextract::oe_read (
             f_l,
             layer = "lines",
@@ -493,7 +493,7 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
         }
         osm_files <- osmium_process (planet_file, bb, city_name, quiet = quiet)
 
-        f_b <- grep ("building", osm_files, value = TRUE)
+        f_b <- osm_files [["building"]]
         dat_b <- osmextract::oe_read (
             f_b,
             layer = "multipolygons",
