@@ -20,6 +20,13 @@ Concept](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repo
     incline on pedestrian and bicycle travel times.
 2.  A GTFS (General Transit Feed Specification)-format data file of
     public transport data for the study city or location.
+3.  Optionally, a local OSM data file (such as `.osm.pbf`) encompassing
+    the study area, from which data on parking and buildings are
+    extracted with [`rosmium`](https://github.com/mpadge/rosmium), which
+    does not need any system installation of ‘osmium’. This is passed as
+    the `osm_extract` parameter of `m4ra_parking()` and
+    `m4ra_prepare_data()`. Without this, data are downloaded from the
+    Overpass API.
 
 ## How?
 

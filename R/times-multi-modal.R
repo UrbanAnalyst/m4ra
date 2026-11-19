@@ -431,24 +431,7 @@ m4ra_times_mm_car <- function (net_sc = NULL,
 #' @noRd
 add_parking_times <- function (car_times, verts_car, city) {
 
-    cache_dir <- m4ra_cache_dir (city)
-    f_parking <- fs::dir_ls (cache_dir, regexp = "parking", fixed = TRUE)
-
-    if (length (f_parking) > 0) {
-        f_parking_hash <- substring (digest::digest (verts_car$id), 1, 6)
-        f_parking <- grep (f_parking_hash, f_parking, value = TRUE)
-    }
-
-    if (length (f_parking) > 1L) {
-        # Files are named with a hash of the vertex IDs, so there should only
-        # ever be one match for a given network.
-        stop (
-            "Multiple parking files match this network in [", cache_dir,
-            "]; please remove all but one:\n",
-            paste0 (f_parking, collapse = "\n"),
-            call. = FALSE
-        )
-    }
+    f_parking <- find_parking_file (city, verts_car$id)
 
     if (length (f_parking) == 1L) {
 

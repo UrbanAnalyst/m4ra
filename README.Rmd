@@ -1,3 +1,12 @@
+---
+title: "m4ra: Many-to-Many Multi-Modal Routing Aggregator"
+output:
+  md_document:
+    variant: markdown_github
+
+  rmarkdown::html_vignette:
+    self_contained: no
+---
 
 [![R build
 status](https://github.com/UrbanAnalyst/m4ra/workflows/R-CMD-check/badge.svg)](https://github.com/UrbanAnalyst/m4ra/actions?query=workflow%3AR-CMD-check)
@@ -22,6 +31,12 @@ status](https://github.com/UrbanAnalyst/m4ra/workflows/R-CMD-check/badge.svg)](h
    pedestrian and bicycle travel times.
 2. A GTFS (General Transit Feed Specification)-format data file of public
    transport data for the study city or location.
+3. Optionally, a local OSM data file (such as `.osm.pbf`) encompassing the study
+   area, from which data on parking and buildings are extracted with
+   [`rosmium`](https://github.com/mpadge/rosmium), which does not need any
+   system installation of 'osmium'. This is passed as the `osm_extract`
+   parameter of `m4ra_parking()` and `m4ra_prepare_data()`. Without this, data
+   are downloaded from the Overpass API.
 
 ## How?
 

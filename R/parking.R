@@ -82,7 +82,6 @@ m4ra_parking <- function (bb,
 
         requireNamespace ("dplyr")
         requireNamespace ("osmdata")
-        requireNamespace ("sf")
 
         parking <- get_parking_data (bb, osm_extract, city_name, quiet)
         buildings <- get_building_data (bb, osm_extract, city_name, quiet)
@@ -115,6 +114,64 @@ m4ra_parking <- function (bb,
     }
 
     return (v)
+}
+
+#' Find the cached file with parking data for a network.
+#'
+#' Files are named with a hash of the IDs of the vertices of the (contracted)
+#' network, so that there should be only one for any network.
+#'
+#' @param city_name Name of city used to name cached files.
+#' @param ids IDs of the vertices of the contracted network.
+#' @return Path of the file, or `character (0)` if there is none. An error is
+#' thrown if there are several files.
+#' @noRd
+find_parking_file <- function (city_name, ids) {
+
+    cache_dir <- m4ra_cache_dir (city_name)
+    hash <- substring (digest::digest (ids), 1, 6)
+
+    f <- as.character (fs::dir_ls (cache_dir, type = "file"))
+    f <- f [which (
+        grepl ("parking", basename (f), fixed = TRUE) &
+            grepl (hash, basename (f), fixed = TRUE)
+    )]
+
+    if (length (f) > 1L) {
+        stop (
+            "Multiple parking files match this network in [", cache_dir,
+            "]; please remove all but one:\n",
+            paste0 (f, collapse = "\n"),
+            call. = FALSE
+        )
+    }
+
+    return (f)
+}
+
+#' Path to the cached file with parking data for a city.
+#'
+#' This is the file of the results of \link{m4ra_parking}, which are used to
+#' add parking times to travel times by automobile.
+#'
+#' @param city_name Name of city used to name cached files.
+#' @param mode Mode of transport of the network used to calculate parking data
+#' (should generally be "motorcar").
+#' @return Path to the cached file, or `character (0)` if there is none. An
+#' error is thrown if there is more than one file for the cached network.
+#'
+#' @family cache
+#' @export
+m4ra_parking_file <- function (city_name, mode = "motorcar") {
+
+    graph_c <- m4ra_load_cached_network (
+        city = city_name,
+        mode = mode,
+        contracted = TRUE
+    )
+    v <- m4ra_vertices (graph_c, city_name)
+
+    find_parking_file (city_name, v$id)
 }
 
 #' Read a local OSM file written with \pkg{rosmium}.
@@ -192,15 +249,12 @@ get_parking_data <- function (bb,
 #' @param dat_l List with a single `osm_lines` item with on-street parking
 #' lanes from "parking:lane:<side>" keys.
 #' @return A list of `dat_p` (points with capacities) and `dat_l` (a reduced
-#' `dodgr` network with on-street parking numbers).
+#' \pkg{dodgr} network with on-street parking numbers).
 #' @noRd
 process_parking_data <- function (dat_p, dat_a, dat_l) {
 
     # suppress no visible binding notes:
     amenity <- parking <- NULL
-
-    # `sf` methods for subsetting must be registered:
-    requireNamespace ("sf", quietly = TRUE)
 
     dat_p <- combine_pts_and_polys (dat_p)
     dat_a <- combine_pts_and_polys (dat_a)
@@ -229,7 +283,8 @@ process_parking_data <- function (dat_p, dat_a, dat_l) {
     # all remain NA, and are removed when aggregating.
     dat_p <- dplyr::group_by (dat_p, amenity, parking) |>
         dplyr::mutate_at ("capacity", fill_na_with_mean) |>
-        dplyr::ungroup ()
+        dplyr::ungroup () |>
+        as.data.frame ()
 
     # Finally add any on-street parking denoted with "parking:lane:<side>" keys.
     # This is done by converting the ways/lines to a `dodgr` network, and
@@ -314,51 +369,42 @@ fill_na_with_mean <- function (x) {
 #' parking is not counted twice.
 #'
 #' @param dat Object returned from `osmdata::osmdata_sf()`.
+#' @return A `data.frame` of `osm_id`, `amenity`, `building`, `parking`,
+#' `capacity`, and coordinates in `x` and `y`.
 #' @noRd
 combine_pts_and_polys <- function (dat) {
 
-    cols0 <- c (
-        "osm_id", "amenity", "building",
-        "parking", "capacity", "geometry"
-    )
-    cols <- cols0 [which (cols0 %in% names (dat$osm_points))]
-    dat_pts <-
-        dat$osm_points [grep ("parking", dat$osm_points$amenity), cols]
+    cols <- c ("amenity", "building", "parking", "capacity")
 
-    cols <- cols0 [which (cols0 %in% names (dat$osm_polygons))]
-    dat_poly <-
-        dat$osm_polygons [grep ("parking", dat$osm_polygons$amenity), cols]
+    pts <- osm_sf_parts (dat$osm_points, cols)
+    dat_pts <- data.frame (pts$data, point_xy (pts$geometry))
+    dat_pts <- dat_pts [grep ("parking", dat_pts$amenity), , drop = FALSE]
+
+    poly <- osm_sf_parts (dat$osm_polygons, cols)
+    index <- grep ("parking", poly$data$amenity)
+    polygons <- poly$geometry [index]
     # Only retain valid polygons:
-    dat_poly <- dat_poly [which (sf::st_is_valid (dat_poly)), ]
+    st <- polygon_stats (polygons)
+    index_valid <- which (st$valid)
+    dat_poly <- data.frame (
+        poly$data [index, , drop = FALSE] [index_valid, , drop = FALSE],
+        x = st$x [index_valid],
+        y = st$y [index_valid]
+    )
 
     # Rm any nodes that are part of those polygons
-    ids <- polygon_node_ids (dat_poly$geometry)
-    dat_pts <- dat_pts [which (!dat_pts$osm_id %in% ids), ]
-    dat_poly <- sf::st_centroid (dat_poly)
+    ids <- polygon_node_ids (polygons [index_valid])
+    dat_pts <- dat_pts [which (!dat_pts$osm_id %in% ids), , drop = FALSE]
 
-    dat <- dplyr::bind_rows (dat_pts, dat_poly)
+    dat <- rbind (dat_pts, dat_poly)
+    rownames (dat) <- NULL
 
     return (dat)
 }
 
-#' Get the OSM node IDs of all vertices of a list of polygons.
-#'
-#' `osmdata_sf()` polygons store node IDs as the row names of the coordinate
-#' matrix of each ring.
-#' @param geometry List of polygon or multipolygon geometries.
-#' @return Character vector of unique node IDs.
-#' @noRd
-polygon_node_ids <- function (geometry) {
-
-    ids <- lapply (geometry, function (g) {
-        rapply (unclass (g), function (m) rownames (m), how = "unlist")
-    })
-    unique (as.character (unlist (ids)))
-}
-
 #' Calculate on-street parking denoted with "parking:lane:\<side\>" keys.
 #'
-#' This is done by converting the ways/lines to a `dodgr` network, and
+#' This is done by converting the ways/lines to a \pkg{dodgr} network, and
 #' matching vertices.
 #' @noRd
 process_onstreet_lanes <- function (dat_l) {
@@ -489,49 +535,45 @@ get_building_data <- function (bb, osm_extract, city_name, quiet = FALSE) {
 #'
 #' @param dat_b Object returned from `osmdata::osmdata_sf()` with buildings
 #' (polygons and, optionally, multipolygons).
-#' @return Centroids of all buildings of sufficient size, with areas (in m^2)
-#' and volumes (in m^3), both as plain numeric values.
+#' @return A `data.frame` with the centroids of all buildings of sufficient
+#' size, in `x` and `y`, with areas (in m^2) and volumes (in m^3).
 #' @noRd
 process_building_data <- function (dat_b) {
 
     # suppress no visible binding notes:
     building <- NULL
 
-    # `sf` methods for subsetting must be registered:
-    requireNamespace ("sf", quietly = TRUE)
-
     cols <- c ("building", "height")
 
-    get_polys <- function (p) {
-        for (col in cols [which (!cols %in% names (p))]) {
-            p [[col]] <- NA_character_
-        }
-        keep <- c (intersect ("osm_id", names (p)), cols, "geometry")
-        p [, keep]
-    }
-    p <- get_polys (dat_b$osm_polygons)
-    if (!is.null (dat_b$osm_multipolygons) &&
-        nrow (dat_b$osm_multipolygons) > 0L) {
-        mp <- suppressWarnings (
-            sf::st_cast (get_polys (dat_b$osm_multipolygons), "POLYGON")
-        )
-        p <- dplyr::bind_rows (p, mp)
-    }
-    p <- p [which (sf::st_is_valid (p)), ]
-    p$height <- parse_height (p$height)
+    p <- osm_sf_parts (dat_b$osm_polygons, cols)
+    polygons <- p$geometry
+    dat <- p$data
 
-    p <- dplyr::group_by (p, building) |>
+    # Multipolygons are split into separate polygons:
+    mp <- osm_sf_parts (dat_b$osm_multipolygons, cols)
+    if (length (mp$geometry) > 0L) {
+        mp_parts <- multipolygon_parts (mp$geometry)
+        polygons <- c (polygons, mp_parts$polygons)
+        dat <- rbind (dat, mp$data [mp_parts$index, , drop = FALSE])
+    }
+
+    st <- polygon_stats (polygons)
+    # `area` is in m^2:
+    dat <- data.frame (dat, area = st$area, x = st$x, y = st$y)
+    dat <- dat [which (st$valid), , drop = FALSE]
+    dat$height <- parse_height (dat$height)
+
+    dat <- dplyr::group_by (dat, building) |>
         dplyr::mutate_at ("height", fill_na_with_mean) |>
-        dplyr::ungroup ()
-    # Plain numbers, so that `volume` is not labelled with the units of area:
-    p$area <- as.numeric (sf::st_area (p)) # m^2
-    p$volume <- p$area * p$height # m^3
-    p <- sf::st_centroid (p)
+        dplyr::ungroup () |>
+        as.data.frame ()
+    dat$volume <- dat$area * dat$height # m^3
 
     # Finally, exclude any buildings < 20 m ^ 2 or < 3 m high
-    p <- p [which (p$area > 20 & p$height > 3), ]
+    dat <- dat [which (dat$area > 20 & dat$height > 3), , drop = FALSE]
+    rownames (dat) <- NULL
 
-    return (p)
+    return (dat)
 }
 
 #' Rescale distance-weighted means so that their mean is the overall mean per
@@ -558,7 +600,7 @@ rescale_to_site_mean <- function (x, total, n_sites) {
 #'
 #' @param parking A list of two objects: `dat_p` containing vertices and
 #' capacities of parking from OSM nodes and polygons; and `dat_l` containing a
-#' reduced `dodgr` street network with numbers of onstreet parking spaces
+#' reduced \pkg{dodgr} street network with numbers of onstreet parking spaces
 #' calculated in `process_onstreet_lanes()`.
 #' @noRd
 aggregate_parking_data <- function (graph_c, city, parking,
@@ -576,12 +618,8 @@ aggregate_parking_data <- function (graph_c, city, parking,
     from <- v$id
 
     # Aggregate parking from `dat_p` at each node of `graph_c`:
-    index <- dodgr::match_points_to_verts (v, sf::st_coordinates (parking))
+    index <- dodgr::match_points_to_verts (v, parking [, c ("x", "y")])
     parking$osm_id <- v$id [index]
-    xy <- sf::st_coordinates (parking)
-    parking <- sf::st_drop_geometry (parking)
-    parking$x <- xy [, 1]
-    parking$y <- xy [, 2]
     parking <- parking [
         which (is.finite (parking$capacity) & !is.na (parking$capacity)),
     ]
@@ -659,12 +697,8 @@ aggregate_building_data <- function (graph_c, city, buildings,
 
     from <- v$id
 
-    index <- dodgr::match_points_to_verts (v, sf::st_coordinates (buildings))
+    index <- dodgr::match_points_to_verts (v, buildings [, c ("x", "y")])
     buildings$osm_id <- v$id [index]
-    xy <- sf::st_coordinates (buildings)
-    buildings <- sf::st_drop_geometry (buildings)
-    buildings$x <- xy [, 1]
-    buildings$y <- xy [, 2]
     buildings <- buildings [
         which (is.finite (buildings$volume) & !is.na (buildings$volume)),
     ]
