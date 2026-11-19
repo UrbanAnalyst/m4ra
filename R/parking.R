@@ -4,7 +4,7 @@
 # That ratio generally has mean and median values between 1 and 2, and maximal
 # values around 4-5. These ratios are then converted to corresponding times in
 # minutes by multiplying by the following factors, as documented in
-# https://github.com/ATFutures/m4ra/issues/9
+# https://github.com/UrbanAnalyst/m4ra/issues/9
 parking_ratio_multiplier_start <- 2
 parking_ratio_multiplier_end <- 3
 
