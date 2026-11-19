@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.1.1.064
+Version: 0.1.1.074
 Authors@R:
     person(given = "Mark",
            family = "Padgham",
@@ -13,7 +13,7 @@ License: GPL-3
 URL: https://github.com/UrbanAnalyst/m4ra
 BugReports: https://github.com/UrbanAnalyst/m4ra/issues
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1)
 Imports:
     checkmate,
     cli,
@@ -26,24 +26,26 @@ Imports:
     parallel,
     rappdirs,
     Rcpp (>= 0.12.6),
-    RcppParallel
+    RcppParallel,
+    rosmium
 Suggests:
     dplyr,
     geodist,
     geosphere,
     hms,
     osmdata,
-    osmextract,
     sf,
     testthat (>= 3.0.0)
 LinkingTo:
     Rcpp,
     RcppParallel,
     RcppThread
+Remotes:
+    mpadge/rosmium
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: yes
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 SystemRequirements: GNU make
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.1

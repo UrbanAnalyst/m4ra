@@ -9,7 +9,7 @@ m4ra_parking(
   bb,
   city_name,
   mode = "motorcar",
-  planet_file = NULL,
+  osm_extract = NULL,
   dlim = 5000,
   k = 1000,
   quiet = FALSE
@@ -23,9 +23,13 @@ m4ra_parking(
 \item{mode}{Mode of transport used to extract OSM node IDs at which to
 estimate relative parking availability (should generally be "motorcar").}
 
-\item{planet_file}{Optional file path to local \code{.osm.pbf} or \code{.osm.bz2} file
-encompassing specified bounding box. If given, data are extracted with
-system-level calls to "osmium", which must be installed.}
+\item{osm_extract}{Optional file path to a local OSM data file, such as
+\code{.osm.pbf} or \code{.osm.bz2}, encompassing the specified bounding box. If given,
+data are extracted from this file with \pkg{rosmium}, rather than being
+downloaded from the Overpass API. The extract for the bounding box is saved
+in the same directory as \verb{<city_name>.osm.pbf}, and, along with files with
+the filtered data, is used again if it already exists. The \code{osm_extract} file
+itself is never modified.}
 
 \item{dlim}{Distance limit in metres out to which contributions of parking
 and buildings will be aggregated.}
@@ -39,7 +43,13 @@ decreases weight to 37\% at 1km, 14\% at 2km, and 0.6\% at 5km.}
 \value{
 A \code{data.frame} of the vertices of the (contracted) network, with
 additional columns quantifying number of parking spaces associated with each
-vertex, as well as the total volume of all surrounding buildings.
+vertex (\code{parking}), as well as the volume of all surrounding buildings, in
+cubic metres (\code{building_volume}). Both are distance-weighted means over
+nearby parking sites and buildings, rescaled so that their means over all
+vertices are the overall mean capacity per parking site, and mean volume per
+building. The \code{ratio} column is \code{parking / building_volume ^ (1 / 3)}, and
+\code{penalty_start} and \code{penalty_end} are the corresponding time penalties for
+parking at the start and end of journeys, in seconds.
 }
 \description{
 Get data on parking availability and building volumes to estimate time

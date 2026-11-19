@@ -439,7 +439,18 @@ add_parking_times <- function (car_times, verts_car, city) {
         f_parking <- grep (f_parking_hash, f_parking, value = TRUE)
     }
 
-    if (length (f_parking == 1L)) {
+    if (length (f_parking) > 1L) {
+        # Files are named with a hash of the vertex IDs, so there should only
+        # ever be one match for a given network.
+        stop (
+            "Multiple parking files match this network in [", cache_dir,
+            "]; please remove all but one:\n",
+            paste0 (f_parking, collapse = "\n"),
+            call. = FALSE
+        )
+    }
+
+    if (length (f_parking) == 1L) {
 
         parking <- m_readRDS (f_parking)
         index <- match (rownames (car_times), parking$id)
@@ -449,7 +460,7 @@ add_parking_times <- function (car_times, verts_car, city) {
         )
         index <- match (colnames (car_times), parking$id)
         p_end_mat <- t (array (
-            parking$penalty_start [index],
+            parking$penalty_end [index],
             dim = rev (dim (car_times))
         ))
         car_times <- p_start_mat + car_times + p_end_mat

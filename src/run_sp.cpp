@@ -173,7 +173,7 @@ struct OneWeightedDist : public RcppParallel::Worker
                 if (d [toi [j]] < INFINITE_DOUBLE)
                 {
                     dout (i, 0) += exp (-d [toi [j]] / k);
-                    dout (i, 1) += dout (i, 0) * wti [j];
+                    dout (i, 1) += exp (-d [toi [j]] / k) * wti [j];
                 }
             }
         }
