@@ -351,6 +351,16 @@ process_onstreet_lanes <- function (dat_l) {
         keep_cols = keep_cols
     )
 
+    # `dodgr` represents each way as two directed edges, but the parking
+    # capacity of a street segment is the same in both directions, so keep only
+    # one edge for each physical segment of each way.
+    seg_key <- paste (
+        net$way_id,
+        pmin (net$from_id, net$to_id),
+        pmax (net$from_id, net$to_id)
+    )
+    net <- net [!duplicated (seg_key), , drop = FALSE]
+
     # All possible combinations of parking lane tags:
     cols <- expand.grid (
         c ("both", "left", "right"),
@@ -368,54 +378,59 @@ process_onstreet_lanes <- function (dat_l) {
         diagonal = 4.75 # (par + perp) / 2
     )
 
+    # Tag values which explicitly denote no parking on that side:
+    no_parking <- c ("no", "none", "no_parking", "no_stopping", "separate")
+
     # First need to process the tags which just end in "<side>", and have values
     # identifying parking direction:
     col_side <- grep ("(both|left|right)$", cols, value = TRUE)
     for (co in col_side) {
-        index <- which (!is.na (net [[co]]))
-        col_sub <- net [[co]] [index]
-        i_par <- which (col_sub == "parallel")
-        i_per <- which (col_sub == "perpendicular")
-        i_dia <- which (col_sub == "diagonal")
-        col_sub [i_par] <- sizes [1]
-        col_sub [i_per] <- sizes [2]
-        col_sub [i_dia] <- sizes [3]
-        # replace any other sizes with random samples from actual distribution:
-        index_in <- sort (c (i_par, i_per, i_dia))
-        index_out <- seq_along (col_sub) [-index_in]
-        values <- as.numeric (col_sub [index_in])
-        col_sub [index_out] <-
-            sample (values, size = length (index_out), replace = TRUE)
-        net [[co]] [index] <- col_sub
-        net [[co]] [which (is.na (net [[co]]))] <- 0
-        net [[co]] <- as.numeric (net [[co]])
+        vals <- net [[co]]
+        size <- sizes [match (vals, names (sizes))]
+        has_tag <- !is.na (vals) & !vals %in% no_parking
 
-        if (co == "parking:lane:both") {
-            net [[co]] <- 2 * net [[co]]
+        # replace any other sizes ("yes", "marked", "lane", ...) with random
+        # samples from the actual distribution of sizes, or with the size of
+        # parallel parking where there are no such values.
+        index_out <- which (has_tag & is.na (size))
+        if (length (index_out) > 0L) {
+            values <- size [!is.na (size)]
+            if (length (values) == 0L) {
+                values <- sizes [["parallel"]]
+            }
+            # (Do not use `sample (values)`, which samples from `1:values`
+            # when `values` is a single number.)
+            i <- sample.int (length (values), length (index_out), replace = TRUE)
+            size [index_out] <- values [i]
         }
 
-        net [[co]] [index] <-
-            as.integer (floor (net$d [index] / net [[co]] [index]))
+        # The number of spaces on each side, with "both" having two sides:
+        n_sides <- ifelse (co == "parking:lane:both", 2L, 1L)
+        net [[co]] <- 0L
+        net [[co]] [has_tag] <-
+            n_sides * as.integer (floor (net$d [has_tag] / size [has_tag]))
     }
 
     # Other columns are then the explicit "parking:lane:<side>:<direction>"
     # tags. Key values for these don't matter, as they're mostly just
-    # descriptions like "on_street" or "half_on_kerb".
+    # descriptions like "on_street" or "half_on_kerb", except that "no"-type
+    # values denote no parking.
     cols_dir <- cols [which (!cols %in% col_side)]
     for (co in cols_dir) {
-        index <- which (!is.na (net [[co]]))
-        net [[co]] [which (is.na (net [[co]]))] <- 0
+        has_tag <- !is.na (net [[co]]) & !net [[co]] %in% no_parking
         direction <- gsub ("^.*:", "", co)
-        this_size <- sizes [match (direction, names (sizes))]
-        net [[co]] [index] <- floor (net$d [index] / this_size)
-        net [[co]] <- as.integer (net [[co]])
-
-        if (grepl ("both", co)) {
-            net [[co]] <- 2 * net [[co]]
-        }
+        this_size <- sizes [[direction]]
+        n_sides <- ifelse (grepl ("both", co), 2L, 1L)
+        net [[co]] <- 0L
+        net [[co]] [has_tag] <-
+            n_sides * as.integer (floor (net$d [has_tag] / this_size))
     }
 
-    net$street_parking <- apply (net [, cols, drop = FALSE], 1, sum)
+    if (length (cols) > 0L) {
+        net$street_parking <- apply (net [, cols, drop = FALSE], 1, sum)
+    } else {
+        net$street_parking <- 0L
+    }
 
     net <- net [, c (
         "from_id", "from_lon", "from_lat",
