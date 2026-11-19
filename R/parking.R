@@ -82,7 +82,6 @@ m4ra_parking <- function (bb,
 
         requireNamespace ("dplyr")
         requireNamespace ("osmdata")
-        requireNamespace ("sf")
 
         parking <- get_parking_data (bb, osm_extract, city_name, quiet)
         buildings <- get_building_data (bb, osm_extract, city_name, quiet)
@@ -199,9 +198,6 @@ process_parking_data <- function (dat_p, dat_a, dat_l) {
     # suppress no visible binding notes:
     amenity <- parking <- NULL
 
-    # `sf` methods for subsetting must be registered:
-    requireNamespace ("sf", quietly = TRUE)
-
     dat_p <- combine_pts_and_polys (dat_p)
     dat_a <- combine_pts_and_polys (dat_a)
     dat_a <- dat_a [which (!dat_a$osm_id %in% dat_p$osm_id), ]
@@ -229,7 +225,8 @@ process_parking_data <- function (dat_p, dat_a, dat_l) {
     # all remain NA, and are removed when aggregating.
     dat_p <- dplyr::group_by (dat_p, amenity, parking) |>
         dplyr::mutate_at ("capacity", fill_na_with_mean) |>
-        dplyr::ungroup ()
+        dplyr::ungroup () |>
+        as.data.frame ()
 
     # Finally add any on-street parking denoted with "parking:lane:<side>" keys.
     # This is done by converting the ways/lines to a `dodgr` network, and
@@ -314,46 +311,37 @@ fill_na_with_mean <- function (x) {
 #' parking is not counted twice.
 #'
 #' @param dat Object returned from `osmdata::osmdata_sf()`.
+#' @return A `data.frame` of `osm_id`, `amenity`, `building`, `parking`,
+#' `capacity`, and coordinates in `x` and `y`.
 #' @noRd
 combine_pts_and_polys <- function (dat) {
 
-    cols0 <- c (
-        "osm_id", "amenity", "building",
-        "parking", "capacity", "geometry"
-    )
-    cols <- cols0 [which (cols0 %in% names (dat$osm_points))]
-    dat_pts <-
-        dat$osm_points [grep ("parking", dat$osm_points$amenity), cols]
+    cols <- c ("amenity", "building", "parking", "capacity")
 
-    cols <- cols0 [which (cols0 %in% names (dat$osm_polygons))]
-    dat_poly <-
-        dat$osm_polygons [grep ("parking", dat$osm_polygons$amenity), cols]
+    pts <- osm_sf_parts (dat$osm_points, cols)
+    dat_pts <- data.frame (pts$data, point_xy (pts$geometry))
+    dat_pts <- dat_pts [grep ("parking", dat_pts$amenity), , drop = FALSE]
+
+    poly <- osm_sf_parts (dat$osm_polygons, cols)
+    index <- grep ("parking", poly$data$amenity)
+    polygons <- poly$geometry [index]
     # Only retain valid polygons:
-    dat_poly <- dat_poly [which (sf::st_is_valid (dat_poly)), ]
+    st <- polygon_stats (polygons)
+    index_valid <- which (st$valid)
+    dat_poly <- data.frame (
+        poly$data [index, , drop = FALSE] [index_valid, , drop = FALSE],
+        x = st$x [index_valid],
+        y = st$y [index_valid]
+    )
 
     # Rm any nodes that are part of those polygons
-    ids <- polygon_node_ids (dat_poly$geometry)
-    dat_pts <- dat_pts [which (!dat_pts$osm_id %in% ids), ]
-    dat_poly <- sf::st_centroid (dat_poly)
+    ids <- polygon_node_ids (polygons [index_valid])
+    dat_pts <- dat_pts [which (!dat_pts$osm_id %in% ids), , drop = FALSE]
 
-    dat <- dplyr::bind_rows (dat_pts, dat_poly)
+    dat <- rbind (dat_pts, dat_poly)
+    rownames (dat) <- NULL
 
     return (dat)
-}
-
-#' Get the OSM node IDs of all vertices of a list of polygons.
-#'
-#' `osmdata_sf()` polygons store node IDs as the row names of the coordinate
-#' matrix of each ring.
-#' @param geometry List of polygon or multipolygon geometries.
-#' @return Character vector of unique node IDs.
-#' @noRd
-polygon_node_ids <- function (geometry) {
-
-    ids <- lapply (geometry, function (g) {
-        rapply (unclass (g), function (m) rownames (m), how = "unlist")
-    })
-    unique (as.character (unlist (ids)))
 }
 
 #' Calculate on-street parking denoted with "parking:lane:\<side\>" keys.
@@ -489,49 +477,45 @@ get_building_data <- function (bb, osm_extract, city_name, quiet = FALSE) {
 #'
 #' @param dat_b Object returned from `osmdata::osmdata_sf()` with buildings
 #' (polygons and, optionally, multipolygons).
-#' @return Centroids of all buildings of sufficient size, with areas (in m^2)
-#' and volumes (in m^3), both as plain numeric values.
+#' @return A `data.frame` with the centroids of all buildings of sufficient
+#' size, in `x` and `y`, with areas (in m^2) and volumes (in m^3).
 #' @noRd
 process_building_data <- function (dat_b) {
 
     # suppress no visible binding notes:
     building <- NULL
 
-    # `sf` methods for subsetting must be registered:
-    requireNamespace ("sf", quietly = TRUE)
-
     cols <- c ("building", "height")
 
-    get_polys <- function (p) {
-        for (col in cols [which (!cols %in% names (p))]) {
-            p [[col]] <- NA_character_
-        }
-        keep <- c (intersect ("osm_id", names (p)), cols, "geometry")
-        p [, keep]
-    }
-    p <- get_polys (dat_b$osm_polygons)
-    if (!is.null (dat_b$osm_multipolygons) &&
-        nrow (dat_b$osm_multipolygons) > 0L) {
-        mp <- suppressWarnings (
-            sf::st_cast (get_polys (dat_b$osm_multipolygons), "POLYGON")
-        )
-        p <- dplyr::bind_rows (p, mp)
-    }
-    p <- p [which (sf::st_is_valid (p)), ]
-    p$height <- parse_height (p$height)
+    p <- osm_sf_parts (dat_b$osm_polygons, cols)
+    polygons <- p$geometry
+    dat <- p$data
 
-    p <- dplyr::group_by (p, building) |>
+    # Multipolygons are split into separate polygons:
+    mp <- osm_sf_parts (dat_b$osm_multipolygons, cols)
+    if (length (mp$geometry) > 0L) {
+        mp_parts <- multipolygon_parts (mp$geometry)
+        polygons <- c (polygons, mp_parts$polygons)
+        dat <- rbind (dat, mp$data [mp_parts$index, , drop = FALSE])
+    }
+
+    st <- polygon_stats (polygons)
+    # `area` is in m^2:
+    dat <- data.frame (dat, area = st$area, x = st$x, y = st$y)
+    dat <- dat [which (st$valid), , drop = FALSE]
+    dat$height <- parse_height (dat$height)
+
+    dat <- dplyr::group_by (dat, building) |>
         dplyr::mutate_at ("height", fill_na_with_mean) |>
-        dplyr::ungroup ()
-    # Plain numbers, so that `volume` is not labelled with the units of area:
-    p$area <- as.numeric (sf::st_area (p)) # m^2
-    p$volume <- p$area * p$height # m^3
-    p <- sf::st_centroid (p)
+        dplyr::ungroup () |>
+        as.data.frame ()
+    dat$volume <- dat$area * dat$height # m^3
 
     # Finally, exclude any buildings < 20 m ^ 2 or < 3 m high
-    p <- p [which (p$area > 20 & p$height > 3), ]
+    dat <- dat [which (dat$area > 20 & dat$height > 3), , drop = FALSE]
+    rownames (dat) <- NULL
 
-    return (p)
+    return (dat)
 }
 
 #' Rescale distance-weighted means so that their mean is the overall mean per
@@ -576,12 +560,8 @@ aggregate_parking_data <- function (graph_c, city, parking,
     from <- v$id
 
     # Aggregate parking from `dat_p` at each node of `graph_c`:
-    index <- dodgr::match_points_to_verts (v, sf::st_coordinates (parking))
+    index <- dodgr::match_points_to_verts (v, parking [, c ("x", "y")])
     parking$osm_id <- v$id [index]
-    xy <- sf::st_coordinates (parking)
-    parking <- sf::st_drop_geometry (parking)
-    parking$x <- xy [, 1]
-    parking$y <- xy [, 2]
     parking <- parking [
         which (is.finite (parking$capacity) & !is.na (parking$capacity)),
     ]
@@ -659,12 +639,8 @@ aggregate_building_data <- function (graph_c, city, buildings,
 
     from <- v$id
 
-    index <- dodgr::match_points_to_verts (v, sf::st_coordinates (buildings))
+    index <- dodgr::match_points_to_verts (v, buildings [, c ("x", "y")])
     buildings$osm_id <- v$id [index]
-    xy <- sf::st_coordinates (buildings)
-    buildings <- sf::st_drop_geometry (buildings)
-    buildings$x <- xy [, 1]
-    buildings$y <- xy [, 2]
     buildings <- buildings [
         which (is.finite (buildings$volume) & !is.na (buildings$volume)),
     ]

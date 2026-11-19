@@ -1,6 +1,6 @@
 Package: m4ra
 Title: Many-to-Many Multi-Modal Routing Aggregator
-Version: 0.1.1.074
+Version: 0.2.0
 Authors@R:
     person(given = "Mark",
            family = "Padgham",
@@ -20,6 +20,7 @@ Imports:
     digest,
     dodgr,
     fs,
+    geodist,
     gtfsrouter,
     methods,
     memoise,
@@ -30,7 +31,6 @@ Imports:
     rosmium
 Suggests:
     dplyr,
-    geodist,
     geosphere,
     hms,
     osmdata,
