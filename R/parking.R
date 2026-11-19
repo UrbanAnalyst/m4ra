@@ -261,9 +261,9 @@ get_parking_data <- function (bb,
 #' @noRd
 process_onstreet_lanes <- function (dat_l) {
 
-    # osmextract inserts underscores instead of ".":
-    names (dat_l$osm_lines) <- gsub ("\\_", ".", names (dat_l$osm_lines))
-    keep_cols <- grep ("^parking\\.lane", names (dat_l$osm_lines), value = TRUE)
+    # Column names retain the colons of the OSM keys, as returned by
+    # `osmdata::osmdata_sf()`, like "parking:lane:both".
+    keep_cols <- grep ("^parking:lane", names (dat_l$osm_lines), value = TRUE)
     net <- dodgr::weight_streetnet (
         dat_l$osm_lines,
         wt_profile = 1,
@@ -275,8 +275,8 @@ process_onstreet_lanes <- function (dat_l) {
         c ("both", "left", "right"),
         c ("", "parallel", "diagonal", "perpendicular")
     )
-    cols <- paste0 ("parking.lane.", paste0 (cols [, 1], ".", cols [, 2]))
-    cols <- gsub ("\\.$", "", cols)
+    cols <- paste0 ("parking:lane:", paste0 (cols [, 1], ":", cols [, 2]))
+    cols <- gsub (":$", "", cols)
     cols <- cols [which (cols %in% keep_cols)]
 
     # Use the following translations (in metres), mostly from
@@ -309,7 +309,7 @@ process_onstreet_lanes <- function (dat_l) {
         net [[co]] [which (is.na (net [[co]]))] <- 0
         net [[co]] <- as.numeric (net [[co]])
 
-        if (co == "parking.lane.both") {
+        if (co == "parking:lane:both") {
             net [[co]] <- 2 * net [[co]]
         }
 
@@ -324,7 +324,7 @@ process_onstreet_lanes <- function (dat_l) {
     for (co in cols_dir) {
         index <- which (!is.na (net [[co]]))
         net [[co]] [which (is.na (net [[co]]))] <- 0
-        direction <- gsub ("^.*\\.", "", co)
+        direction <- gsub ("^.*:", "", co)
         this_size <- sizes [match (direction, names (sizes))]
         net [[co]] [index] <- floor (net$d [index] / this_size)
         net [[co]] <- as.integer (net [[co]])
@@ -334,7 +334,7 @@ process_onstreet_lanes <- function (dat_l) {
         }
     }
 
-    net$street_parking <- apply (net [, cols], 1, sum)
+    net$street_parking <- apply (net [, cols, drop = FALSE], 1, sum)
 
     net <- net [, c (
         "from_id", "from_lon", "from_lat",
