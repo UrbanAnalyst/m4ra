@@ -542,6 +542,10 @@ test_that ("rescaled parking has the mean capacity per site", {
     expect_equal (mean (cap), mean (cap_site))
 })
 
+# Paths from `fs` always use forward slashes, but not those from `file.path ()`
+# on Windows.
+norm_path <- function (x) normalizePath (x, winslash = "/", mustWork = FALSE)
+
 test_that ("cached parking files are found by the hash of vertex IDs", {
 
     ids <- c ("a", "b", "c")
@@ -563,7 +567,7 @@ test_that ("cached parking files are found by the hash of vertex IDs", {
     expect_identical (m4ra:::find_parking_file ("test", ids), character (0L))
 
     f <- save_file (paste0 ("m4ra-test-parking-", hash, ".Rds"))
-    expect_identical (m4ra:::find_parking_file ("test", ids), f)
+    expect_equal (norm_path (m4ra:::find_parking_file ("test", ids)), norm_path (f))
 
     # More than one is an error:
     save_file (paste0 ("m4ra-test-parking-", hash, "-old.Rds"))
@@ -589,5 +593,5 @@ test_that ("the exported function finds the parking file for a city", {
     expect_identical (m4ra_parking_file ("test"), character (0L))
     f <- file.path (cache_dir, paste0 ("m4ra-test-parking-", hash, ".Rds"))
     saveRDS (1, f)
-    expect_identical (m4ra_parking_file ("test"), f)
+    expect_equal (norm_path (m4ra_parking_file ("test")), norm_path (f))
 })
