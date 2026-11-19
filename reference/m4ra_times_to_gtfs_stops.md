@@ -13,8 +13,10 @@ m4ra_times_to_gtfs_stops(graph, gtfs, city, from = NULL, graph_to_gtfs = TRUE)
 
 - graph:
 
-  A `dodgr` network returned from the weight_streetnet function using a
-  network obtained with the osmdata `osmdata_sc` function.
+  A dodgr network returned from the
+  [weight_streetnet](https://UrbanAnalyst.github.io/dodgr/reference/weight_streetnet.html)
+  function using a network obtained with the osmdata `osmdata_sc`
+  function.
 
 - gtfs:
 

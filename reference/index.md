@@ -50,6 +50,8 @@
   : Load cached file for one city and mode
 - [`m4ra_network_hash()`](https://UrbanAnalyst.github.io/m4ra/reference/m4ra_network_hash.md)
   : Return a unique hash for the input network.
+- [`m4ra_parking_file()`](https://UrbanAnalyst.github.io/m4ra/reference/m4ra_parking_file.md)
+  : Path to the cached file with parking data for a city.
 - [`m4ra_weight_networks()`](https://UrbanAnalyst.github.io/m4ra/reference/m4ra_weight_networks.md)
   : Cache weighted networks for routing query
 

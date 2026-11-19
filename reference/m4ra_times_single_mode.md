@@ -13,8 +13,10 @@ m4ra_times_single_mode(graph, from = NULL, to = NULL, path = NULL)
 
 - graph:
 
-  A `dodgr` network returned from the weight_streetnet function using a
-  network obtained with the osmdata `osmdata_sc` function.
+  A dodgr network returned from the
+  [weight_streetnet](https://UrbanAnalyst.github.io/dodgr/reference/weight_streetnet.html)
+  function using a network obtained with the osmdata `osmdata_sc`
+  function.
 
 - from:
 

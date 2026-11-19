@@ -12,8 +12,10 @@ m4ra_dists_n_pts(graph, from = NULL, to = NULL, npts = 3L)
 
 - graph:
 
-  A `dodgr` network returned from the weight_streetnet function using a
-  network obtained with the osmdata `osmdata_sc` function.
+  A dodgr network returned from the
+  [weight_streetnet](https://UrbanAnalyst.github.io/dodgr/reference/weight_streetnet.html)
+  function using a network obtained with the osmdata `osmdata_sc`
+  function.
 
 - from:
 

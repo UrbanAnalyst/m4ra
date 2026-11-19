@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.074</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@
 <ol style="list-style-type: decimal">
 <li>A representation of the local street network, in <a href="https://docs.ropensci.org/osmdata/reference/osmdata_sc.html" class="external-link"><code>osmdata_sc</code> format</a>, potentially including elevation data to accommodate effects of incline on pedestrian and bicycle travel times.</li>
 <li>A GTFS (General Transit Feed Specification)-format data file of public transport data for the study city or location.</li>
+<li>Optionally, a local OSM data file (such as <code>.osm.pbf</code>) encompassing the study area, from which data on parking and buildings are extracted with <a href="https://github.com/mpadge/rosmium" class="external-link"><code>rosmium</code></a>, which does not need any system installation of ‘osmium’. This is passed as the <code>osm_extract</code> parameter of <code><a href="reference/m4ra_parking.html">m4ra_parking()</a></code> and <code><a href="reference/m4ra_prepare_data.html">m4ra_prepare_data()</a></code>. Without this, data are downloaded from the Overpass API.</li>
 </ol>
 </div>
 <div class="section level2">
