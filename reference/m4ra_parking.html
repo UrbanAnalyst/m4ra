@@ -9,7 +9,7 @@ penalties for automobile travel."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">m4ra</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.063</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.074</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ penalties for automobile travel.</p>
 <span>  <span class="va">bb</span>,</span>
 <span>  <span class="va">city_name</span>,</span>
 <span>  mode <span class="op">=</span> <span class="st">"motorcar"</span>,</span>
-<span>  planet_file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  osm_extract <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dlim <span class="op">=</span> <span class="fl">5000</span>,</span>
 <span>  k <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -68,10 +68,14 @@ penalties for automobile travel.</p>
 estimate relative parking availability (should generally be "motorcar").</p></dd>
 
 
-<dt id="arg-planet-file">planet_file<a class="anchor" aria-label="anchor" href="#arg-planet-file"></a></dt>
-<dd><p>Optional file path to local <code>.osm.pbf</code> or <code>.osm.bz2</code> file
-encompassing specified bounding box. If given, data are extracted with
-system-level calls to "osmium", which must be installed.</p></dd>
+<dt id="arg-osm-extract">osm_extract<a class="anchor" aria-label="anchor" href="#arg-osm-extract"></a></dt>
+<dd><p>Optional file path to a local OSM data file, such as
+<code>.osm.pbf</code> or <code>.osm.bz2</code>, encompassing the specified bounding box. If given,
+data are extracted from this file with <span class="pkg">rosmium</span>, rather than being
+downloaded from the Overpass API. The extract for the bounding box is saved
+in the same directory as <code>&lt;city_name&gt;.osm.pbf</code>, and, along with files with
+the filtered data, is used again if it already exists. The <code>osm_extract</code> file
+itself is never modified.</p></dd>
 
 
 <dt id="arg-dlim">dlim<a class="anchor" aria-label="anchor" href="#arg-dlim"></a></dt>
@@ -93,7 +97,13 @@ decreases weight to 37% at 1km, 14% at 2km, and 0.6% at 5km.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>data.frame</code> of the vertices of the (contracted) network, with
 additional columns quantifying number of parking spaces associated with each
-vertex, as well as the total volume of all surrounding buildings.</p>
+vertex (<code>parking</code>), as well as the volume of all surrounding buildings, in
+cubic metres (<code>building_volume</code>). Both are distance-weighted means over
+nearby parking sites and buildings, rescaled so that their means over all
+vertices are the overall mean capacity per parking site, and mean volume per
+building. The <code>ratio</code> column is <code>parking / building_volume ^ (1 / 3)</code>, and
+<code>penalty_start</code> and <code>penalty_end</code> are the corresponding time penalties for
+parking at the start and end of journeys, in seconds.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

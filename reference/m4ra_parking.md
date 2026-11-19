@@ -10,7 +10,7 @@ m4ra_parking(
   bb,
   city_name,
   mode = "motorcar",
-  planet_file = NULL,
+  osm_extract = NULL,
   dlim = 5000,
   k = 1000,
   quiet = FALSE
@@ -32,11 +32,15 @@ m4ra_parking(
   Mode of transport used to extract OSM node IDs at which to estimate
   relative parking availability (should generally be "motorcar").
 
-- planet_file:
+- osm_extract:
 
-  Optional file path to local `.osm.pbf` or `.osm.bz2` file encompassing
-  specified bounding box. If given, data are extracted with system-level
-  calls to "osmium", which must be installed.
+  Optional file path to a local OSM data file, such as `.osm.pbf` or
+  `.osm.bz2`, encompassing the specified bounding box. If given, data
+  are extracted from this file with rosmium, rather than being
+  downloaded from the Overpass API. The extract for the bounding box is
+  saved in the same directory as `<city_name>.osm.pbf`, and, along with
+  files with the filtered data, is used again if it already exists. The
+  `osm_extract` file itself is never modified.
 
 - dlim:
 
@@ -57,7 +61,14 @@ m4ra_parking(
 
 A `data.frame` of the vertices of the (contracted) network, with
 additional columns quantifying number of parking spaces associated with
-each vertex, as well as the total volume of all surrounding buildings.
+each vertex (`parking`), as well as the volume of all surrounding
+buildings, in cubic metres (`building_volume`). Both are
+distance-weighted means over nearby parking sites and buildings,
+rescaled so that their means over all vertices are the overall mean
+capacity per parking site, and mean volume per building. The `ratio`
+column is `parking / building_volume ^ (1 / 3)`, and `penalty_start` and
+`penalty_end` are the corresponding time penalties for parking at the
+start and end of journeys, in seconds.
 
 ## See also
 

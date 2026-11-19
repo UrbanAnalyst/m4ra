@@ -22,7 +22,7 @@ m4ra_prepare_data(
   net_sc = NULL,
   gtfs = NULL,
   city_name = NULL,
-  planet_file = NULL,
+  osm_extract = NULL,
   day = NULL,
   start_time_limits = NULL,
   final_mode = "foot",
@@ -53,11 +53,13 @@ m4ra_prepare_data(
 
   Name of city used to name cached files.
 
-- planet_file:
+- osm_extract:
 
-  Optional file path to local `.osm.pbf` or `.osm.bz2` file encompassing
-  specified bounding box. If given, data are extracted with system-level
-  calls to "osmium", which must be installed.
+  Optional file path to a local OSM data file, such as `.osm.pbf` or
+  `.osm.bz2`, used to extract data on parking, if `parking = TRUE`. If
+  given, data are extracted from this file with rosmium, rather than
+  being downloaded from the Overpass API. See
+  [m4ra_parking](https://UrbanAnalyst.github.io/m4ra/reference/m4ra_parking.md).
 
 - day:
 
