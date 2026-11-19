@@ -94,23 +94,23 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
         )
         stops_index <- sort (unique (unlist (stops_index)))
     }
-    times_to_gtfs <- times_to_gtfs [, stops_index]
+    times_to_gtfs <- times_to_gtfs [, stops_index, drop = FALSE]
 
     f <- grep ("gtfs\\-.*[0-9]{5}\\-[0-9]{5}\\.Rds$", files, value = TRUE)
 
     f_times <- grep ("\\-times\\-", f, value = TRUE)
     gtfs_times_mat <- m_readRDS (f_times)
-    gtfs_times_mat <- gtfs_times_mat [stops_index, ]
+    gtfs_times_mat <- gtfs_times_mat [stops_index, , drop = FALSE]
     gtfs_times_mat [is.na (gtfs_times_mat)] <- -1L
 
     f_transfers <- grep ("\\-transfers\\-", f, value = TRUE)
     gtfs_transfers_mat <- m_readRDS (f_transfers)
-    gtfs_transfers_mat <- gtfs_transfers_mat [stops_index, ]
+    gtfs_transfers_mat <- gtfs_transfers_mat [stops_index, , drop = FALSE]
     gtfs_transfers_mat [is.na (gtfs_transfers_mat)] <- -1L
 
     f_intervals <- grep ("\\-intervals\\-", f, value = TRUE)
     gtfs_intervals_mat <- m_readRDS (f_intervals)
-    gtfs_intervals_mat <- gtfs_intervals_mat [stops_index, ]
+    gtfs_intervals_mat <- gtfs_intervals_mat [stops_index, , drop = FALSE]
     gtfs_intervals_mat [is.na (gtfs_intervals_mat)] <- -1L
 
     f <- grep ("gtfs\\-to\\-net", files, value = TRUE)
@@ -161,21 +161,15 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
 
     # res is then 3 matrices of (times, transfers, intervals)
     index <- seq_len (nverts_out)
-    res_times <- res [, index]
-    res_transfers <- res [, index + nverts_out]
-    res_intervals <- res [, index + 2 * nverts_out]
+    res_times <- res [, index, drop = FALSE]
+    res_transfers <- res [, index + nverts_out, drop = FALSE]
+    res_intervals <- res [, index + 2 * nverts_out, drop = FALSE]
 
-    maxr <- rcpp_matrix_max (res_times)
+    # Unreachable locations are marked with INT_MAX in the C++ code
+    maxr <- .Machine$integer.max
     res_times [res_times == maxr] <- NA_integer_
     res_transfers [res_transfers == maxr] <- NA_integer_
     res_intervals [res_intervals == maxr] <- NA_integer_
-
-    # Replace multi-modal times with direct initial_mode times where they are
-    # faster:
-    index <- which (times < res_times)
-    res_times [index] <- times [index]
-    res_transfers [index] <- NA_integer_
-    res_intervals [index] <- NA_integer_
 
     rownames (res_times) <- from
     colnames (res_times) <- ids_out
@@ -184,12 +178,9 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
     rownames (res_intervals) <- from
     colnames (res_intervals) <- ids_out
 
-    # At that stage, `res_times` holds the fastest values routed through the
-    # GTFS network. They just then have to be compared with the
-    # previously-calculated times to all vertices using "initial_mode".
-
+    # Map initial-mode times on to the vertices of the final-mode network
+    # before comparing:
     if (initial_mode != final_mode) {
-
         times <- remap_times_to_final_network (
             res_times,
             times,
@@ -197,6 +188,17 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
             v
         )
     }
+
+    # Replace multi-modal times with direct initial_mode times where they are
+    # faster:
+    index <- which (times < res_times)
+    res_times [index] <- times [index]
+    res_transfers [index] <- NA_integer_
+    res_intervals [index] <- NA_integer_
+
+    # At that stage, `res_times` holds the fastest values routed through the
+    # GTFS network. They just then have to be compared with the
+    # previously-calculated times to all vertices using "initial_mode".
 
     res_times <- rcpp_min_from_two_matrices (res_times, times)
 
@@ -240,7 +242,7 @@ m4ra_times_multi_mode <- function (net_sc = NULL,
 remap_times_to_final_network <- function (res, times, v_res, v_times) {
 
     index <- match (colnames (res), colnames (times))
-    times_out <- times [, index]
+    times_out <- times [, index, drop = FALSE]
 
     # Vertices in 'res' that have are not in 'times':
     index_no_match <- which (is.na (index))
@@ -248,7 +250,7 @@ remap_times_to_final_network <- function (res, times, v_res, v_times) {
     v_no_match <- v_res [match (no_match, v_res$id), ]
     # Match those to nearest points in "initial mode" network:
     index <- dodgr::match_points_to_verts (v_times, v_no_match [, c ("x", "y")])
-    times_out [, index_no_match] <- times [, index]
+    times_out [, index_no_match] <- times [, index, drop = FALSE]
     colnames (times_out) <- colnames (res)
 
     return (times_out)
