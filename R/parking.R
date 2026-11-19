@@ -173,7 +173,7 @@ get_parking_data <- function (bb,
         # key = "amenity" or "building":
         dat_a <- osmdata::opq (bb) |>
             osmdata::add_osm_features (features = c (
-                "\"amentiy\"=\"parking\"",
+                "\"amenity\"=\"parking\"",
                 "\"building\"=\"garage\"",
                 "\"building\"=\"garages\""
             )) |>
@@ -186,32 +186,6 @@ get_parking_data <- function (bb,
                 "\"parking:lane:both\""
             )) |>
             osmdata::osmdata_sf (quiet = quiet)
-    }
-
-    combine_pts_and_polys <- function (dat) {
-
-        cols0 <- c (
-            "osm_id", "amenity", "building",
-            "parking", "capacity", "geometry"
-        )
-        cols <- cols0 [which (cols0 %in% names (dat$osm_points))]
-        dat_pts <-
-            dat$osm_points [grep ("parking", dat$osm_points$amenity), cols]
-
-        cols <- cols0 [which (cols0 %in% names (dat$osm_polygons))]
-        dat_poly <-
-            dat$osm_polygons [grep ("parking", dat$osm_polygons$amenity), cols]
-        # Only retain valid polygons:
-        dat_poly <- dat_poly [which (sf::st_is_valid (dat_poly)), ]
-
-        # Rm any nodes that are part of those polygons
-        ids <- length (unique (names (unlist (dat_poly$geometry))))
-        dat_pts <- dat_pts [which (!dat_pts$osm_id %in% ids), ]
-        dat_poly <- sf::st_centroid (dat_poly)
-
-        dat <- dplyr::bind_rows (dat_pts, dat_poly)
-
-        return (dat)
     }
 
     dat_p <- combine_pts_and_polys (dat_p)
@@ -252,6 +226,55 @@ get_parking_data <- function (bb,
     dat_l <- process_onstreet_lanes (dat_l)
 
     return (list (dat_p = dat_p, dat_l = dat_l))
+}
+
+#' Combine parking points and polygons from OSM data into a single `data.frame`
+#' of points, with polygons reduced to their centroids.
+#'
+#' Any points which are vertices of the retained polygons are removed, so that
+#' parking is not counted twice.
+#'
+#' @param dat Object returned from `osmdata::osmdata_sf()`.
+#' @noRd
+combine_pts_and_polys <- function (dat) {
+
+    cols0 <- c (
+        "osm_id", "amenity", "building",
+        "parking", "capacity", "geometry"
+    )
+    cols <- cols0 [which (cols0 %in% names (dat$osm_points))]
+    dat_pts <-
+        dat$osm_points [grep ("parking", dat$osm_points$amenity), cols]
+
+    cols <- cols0 [which (cols0 %in% names (dat$osm_polygons))]
+    dat_poly <-
+        dat$osm_polygons [grep ("parking", dat$osm_polygons$amenity), cols]
+    # Only retain valid polygons:
+    dat_poly <- dat_poly [which (sf::st_is_valid (dat_poly)), ]
+
+    # Rm any nodes that are part of those polygons
+    ids <- polygon_node_ids (dat_poly$geometry)
+    dat_pts <- dat_pts [which (!dat_pts$osm_id %in% ids), ]
+    dat_poly <- sf::st_centroid (dat_poly)
+
+    dat <- dplyr::bind_rows (dat_pts, dat_poly)
+
+    return (dat)
+}
+
+#' Get the OSM node IDs of all vertices of a list of polygons.
+#'
+#' `osmdata_sf()` polygons store node IDs as the row names of the coordinate
+#' matrix of each ring.
+#' @param geometry List of polygon or multipolygon geometries.
+#' @return Character vector of unique node IDs.
+#' @noRd
+polygon_node_ids <- function (geometry) {
+
+    ids <- lapply (geometry, function (g) {
+        rapply (unclass (g), function (m) rownames (m), how = "unlist")
+    })
+    unique (as.character (unlist (ids)))
 }
 
 #' Calculate on-street parking denoted with "parking:lane:\<side\>" keys.
