@@ -9,7 +9,7 @@ m4ra_parking(
   bb,
   city_name,
   mode = "motorcar",
-  planet_file = NULL,
+  osm_extract = NULL,
   dlim = 5000,
   k = 1000,
   quiet = FALSE
@@ -23,9 +23,13 @@ m4ra_parking(
 \item{mode}{Mode of transport used to extract OSM node IDs at which to
 estimate relative parking availability (should generally be "motorcar").}
 
-\item{planet_file}{Optional file path to local \code{.osm.pbf} or \code{.osm.bz2} file
-encompassing specified bounding box. If given, data are extracted with
-system-level calls to "osmium", which must be installed.}
+\item{osm_extract}{Optional file path to a local OSM data file, such as
+\code{.osm.pbf} or \code{.osm.bz2}, encompassing the specified bounding box. If given,
+data are extracted from this file with \pkg{rosmium}, rather than being
+downloaded from the Overpass API. The extract for the bounding box is saved
+in the same directory as \verb{<city_name>.osm.pbf}, and, along with files with
+the filtered data, is used again if it already exists. The \code{osm_extract} file
+itself is never modified.}
 
 \item{dlim}{Distance limit in metres out to which contributions of parking
 and buildings will be aggregated.}

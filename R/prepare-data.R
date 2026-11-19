@@ -20,9 +20,11 @@
 #' or transfer information in addition to data represented in original
 #' `zip`-format data of provided GTFS feed.
 #' @param city_name Name of city used to name cached files.
-#' @param planet_file Optional file path to local `.osm.pbf` or `.osm.bz2` file
-#' encompassing specified bounding box. If given, data are extracted with
-#' system-level calls to "osmium", which must be installed.
+#' @param osm_extract Optional file path to a local OSM data file, such as
+#' `.osm.pbf` or `.osm.bz2`, used to extract data on parking, if `parking =
+#' TRUE`. If given, data are extracted from this file with \pkg{rosmium},
+#' rather than being downloaded from the Overpass API. See
+#' \link{m4ra_parking}.
 #' @param day As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 #' day for which the matrix is to be calculated.
 #' @param start_time_limits As for the 'gtfs_traveltimes' function of
@@ -50,7 +52,7 @@
 m4ra_prepare_data <- function (net_sc = NULL,
                                gtfs = NULL,
                                city_name = NULL,
-                               planet_file = NULL,
+                               osm_extract = NULL,
                                day = NULL,
                                start_time_limits = NULL,
                                final_mode = "foot",
@@ -179,7 +181,7 @@ m4ra_prepare_data <- function (net_sc = NULL,
         dat_p <- m4ra_parking (
             city_name = city_name,
             mode = "motorcar",
-            planet_file = planet_file,
+            osm_extract = osm_extract,
             dlim = 5000,
             k = 1000,
             quiet = quiet

@@ -23,9 +23,13 @@ parking_ratio_multiplier_end <- 3
 #' @param bb Bounding box of city for query to extract parking data.
 #' @param mode Mode of transport used to extract OSM node IDs at which to
 #' estimate relative parking availability (should generally be "motorcar").
-#' @param planet_file Optional file path to local `.osm.pbf` or `.osm.bz2` file
-#' encompassing specified bounding box. If given, data are extracted with
-#' system-level calls to "osmium", which must be installed.
+#' @param osm_extract Optional file path to a local OSM data file, such as
+#' `.osm.pbf` or `.osm.bz2`, encompassing the specified bounding box. If given,
+#' data are extracted from this file with \pkg{rosmium}, rather than being
+#' downloaded from the Overpass API. The extract for the bounding box is saved
+#' in the same directory as `<city_name>.osm.pbf`, and, along with files with
+#' the filtered data, is used again if it already exists. The `osm_extract` file
+#' itself is never modified.
 #' @param dlim Distance limit in metres out to which contributions of parking
 #' and buildings will be aggregated.
 #' @param k With of exponential function used to weight contributions with
@@ -48,7 +52,7 @@ parking_ratio_multiplier_end <- 3
 m4ra_parking <- function (bb,
                           city_name,
                           mode = "motorcar",
-                          planet_file = NULL,
+                          osm_extract = NULL,
                           dlim = 5000,
                           k = 1000,
                           quiet = FALSE) {
@@ -80,8 +84,8 @@ m4ra_parking <- function (bb,
         requireNamespace ("osmdata")
         requireNamespace ("sf")
 
-        parking <- get_parking_data (bb, planet_file, city_name, quiet)
-        buildings <- get_building_data (bb, planet_file, city_name, quiet)
+        parking <- get_parking_data (bb, osm_extract, city_name, quiet)
+        buildings <- get_building_data (bb, osm_extract, city_name, quiet)
 
         v$parking <- aggregate_parking_data (
             graph_c,
@@ -113,69 +117,44 @@ m4ra_parking <- function (bb,
     return (v)
 }
 
+#' Read a local OSM file written with \pkg{rosmium}.
+#'
+#' All keys of the file are read as columns, so no additional tags need to be
+#' specified.
+#' @param f Path to a local '.osm' (XML) file.
+#' @return An `osmdata` object as returned from `osmdata::osmdata_sf()`.
+#' @noRd
+read_osm_file <- function (f) {
+
+    osmdata::osmdata_sf (doc = f, quiet = TRUE)
+}
+
 #' Get raw Open Street Map parking data.
 #'
 #' Centroids of all parking polygons and points, and associated capacities.
 #' @noRd
 get_parking_data <- function (bb,
-                              planet_file = NULL, city_name, quiet = FALSE) {
+                              osm_extract = NULL, city_name, quiet = FALSE) {
 
     # suppress no visible binding notes:
     amenity <- parking <- NULL
 
-    if (!is.null (planet_file)) {
+    if (!is.null (osm_extract)) {
 
         if (!quiet) {
             cli::cli_h3 (cli::col_green ("Extracting data on parking spaces:"))
         }
 
-        osm_files <- osmium_process (planet_file, bb, city_name, quiet = quiet)
-
-        use_osmextract <- function (f, extra_tags = "capacity") {
-            list (
-                osm_polygons = osmextract::oe_read (
-                    f,
-                    layer = "multipolygons",
-                    extra_tags = extra_tags,
-                    quiet = TRUE
-                ) |> sf::st_cast ("POLYGON"),
-                osm_points = osmextract::oe_read (
-                    f,
-                    layer = "points",
-                    extra_tags = extra_tags,
-                    quiet = TRUE
-                )
-            )
-        }
+        osm_files <- osmium_process (osm_extract, bb, city_name, quiet = quiet)
 
         # key = "parking":
-        tags <- c ("amenity", "building", "capacity", "parking")
-        f_p <- osm_files [["parking"]]
-        dat_p <- use_osmextract (f_p, extra_tags = tags)
+        dat_p <- read_osm_file (osm_files [["parking"]])
 
         # key = "amenity" or "building":
-        f_a <- osm_files [["amenity"]]
-        dat_a <- use_osmextract (f_a, extra_tags = tags)
+        dat_a <- read_osm_file (osm_files [["amenity"]])
 
         # key = "parking:lane:<side>"
-        tags <- c (
-            "parking",
-            paste0 (
-                "parking:lane:",
-                c (
-                    "", "both", "left", "right",
-                    "parallel", "diagonal", "perpendicular"
-                )
-            )
-        )
-        f_l <- osm_files [["parking_lane"]]
-        dat_l <- osmextract::oe_read (
-            f_l,
-            layer = "lines",
-            extra_tags = tags,
-            quiet = TRUE
-        )
-        dat_l <- list (osm_lines = dat_l)
+        dat_l <- read_osm_file (osm_files [["parking_lane"]])
 
     } else {
 
@@ -227,6 +206,13 @@ process_parking_data <- function (dat_p, dat_a, dat_l) {
     dat_a <- combine_pts_and_polys (dat_a)
     dat_a <- dat_a [which (!dat_a$osm_id %in% dat_p$osm_id), ]
     dat_p <- dplyr::bind_rows (dat_p, dat_a)
+
+    # Columns only exist if any object has the corresponding key:
+    for (col in c ("amenity", "parking", "capacity")) {
+        if (!col %in% names (dat_p)) {
+            dat_p [[col]] <- NA_character_
+        }
+    }
 
     not_these <- c (
         "parking_entrance",
@@ -479,28 +465,15 @@ process_onstreet_lanes <- function (dat_l) {
 #'
 #' Total volumes of all buildings
 #' @noRd
-get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
+get_building_data <- function (bb, osm_extract, city_name, quiet = FALSE) {
 
-    # suppress no visible binding notes:
-    building <- NULL
-
-    cols <- c ("building", "height")
-
-    if (!is.null (planet_file)) {
+    if (!is.null (osm_extract)) {
 
         if (!quiet) {
             cli::cli_h3 (cli::col_green ("Extracting data on buildings:"))
         }
-        osm_files <- osmium_process (planet_file, bb, city_name, quiet = quiet)
-
-        f_b <- osm_files [["building"]]
-        dat_b <- osmextract::oe_read (
-            f_b,
-            layer = "multipolygons",
-            extra_tags = cols,
-            quiet = TRUE
-        ) |> sf::st_cast ("POLYGON")
-        dat_b <- list (osm_polygons = dat_b)
+        osm_files <- osmium_process (osm_extract, bb, city_name, quiet = quiet)
+        dat_b <- read_osm_file (osm_files [["building"]])
 
     } else {
 

@@ -8,7 +8,7 @@ m4ra_prepare_data(
   net_sc = NULL,
   gtfs = NULL,
   city_name = NULL,
-  planet_file = NULL,
+  osm_extract = NULL,
   day = NULL,
   start_time_limits = NULL,
   final_mode = "foot",
@@ -31,9 +31,10 @@ or transfer information in addition to data represented in original
 
 \item{city_name}{Name of city used to name cached files.}
 
-\item{planet_file}{Optional file path to local \code{.osm.pbf} or \code{.osm.bz2} file
-encompassing specified bounding box. If given, data are extracted with
-system-level calls to "osmium", which must be installed.}
+\item{osm_extract}{Optional file path to a local OSM data file, such as
+\code{.osm.pbf} or \code{.osm.bz2}, used to extract data on parking, if \code{parking = TRUE}. If given, data are extracted from this file with \pkg{rosmium},
+rather than being downloaded from the Overpass API. See
+\link{m4ra_parking}.}
 
 \item{day}{As for the 'gtfs_traveltimes' function of \pkg{gtfsrouter}, the
 day for which the matrix is to be calculated.}
