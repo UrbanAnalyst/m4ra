@@ -200,25 +200,15 @@ get_parking_data <- function (bb,
     )
     dat_p <- dat_p [which (!dat_p$amenity %in% not_these), ]
 
-    # Process "capacity" values first by taking mean of any ranges:
-    index <- grep ("\\-", dat_p$capacity)
-    if (length (index) > 0) {
-        cap <- sapply (
-            strsplit (dat_p$capacity [index], "-"),
-            function (i) mean (as.integer (i))
-        )
-        dat_p$capacity [index] <- round (cap)
-
-    }
-    # And remove everything except integers:
-    dat_p$capacity <- as.integer (gsub ("[^(0-9)+]", "", dat_p$capacity))
+    # Convert "capacity" values to numbers (see `parse_capacity()`):
+    dat_p$capacity <- parse_capacity (dat_p$capacity)
 
     # Then replace all NA "capacity" values by mean values for each pair of
-    # "amenity" and "parking" key-values:
+    # "amenity" and "parking" key-values. Groups with no capacity values at
+    # all remain NA, and are removed when aggregating.
     dat_p <- dplyr::group_by (dat_p, amenity, parking) |>
-        dplyr::mutate_at ("capacity", function (x) {
-            replace (x, is.na (x), mean (x, na.rm = TRUE))
-        })
+        dplyr::mutate_at ("capacity", fill_na_with_mean) |>
+        dplyr::ungroup ()
 
     # Finally add any on-street parking denoted with "parking:lane:<side>" keys.
     # This is done by converting the ways/lines to a `dodgr` network, and
@@ -226,6 +216,74 @@ get_parking_data <- function (bb,
     dat_l <- process_onstreet_lanes (dat_l)
 
     return (list (dat_p = dat_p, dat_l = dat_l))
+}
+
+#' Convert OSM "capacity" values to numbers of parking spaces.
+#'
+#' - Plain numbers are returned as they are (with thousands separators such as
+#' "1,000" removed).
+#' - Ranges like "10-20" are converted to their (rounded) mean.
+#' - Multiple values separated by ";" like "10;20" are summed, because these
+#' generally describe separate parking areas.
+#' - Anything else, including `NA`, is converted to the first number found in
+#' the value (so "50 spaces" is 50), or to `NA` if there is none.
+#'
+#' @param x Character vector of OSM "capacity" values.
+#' @return Numeric vector of the same length as `x`.
+#' @noRd
+parse_capacity <- function (x) {
+
+    parse_one <- function (i) {
+        i <- trimws (gsub ("(?<=[0-9]),(?=[0-9]{3}(\\D|$))", "", i, perl = TRUE))
+        rng <- regmatches (i, regexec ("^([0-9]+)\\s*[-\u2013]\\s*([0-9]+)$", i)) [[1]]
+        if (length (rng) == 3L) {
+            return (round (mean (as.numeric (rng [2:3]))))
+        }
+        num <- regmatches (i, regexpr ("[0-9]+", i))
+        ifelse (length (num) == 1L, as.numeric (num), NA_real_)
+    }
+
+    vapply (as.character (x), function (i) {
+        if (is.na (i)) {
+            return (NA_real_)
+        }
+        vals <- vapply (strsplit (i, ";") [[1]], parse_one, numeric (1L))
+        ifelse (all (is.na (vals)), NA_real_, sum (vals, na.rm = TRUE))
+    }, numeric (1L), USE.NAMES = FALSE)
+}
+
+#' Convert OSM building "height" values to metres.
+#'
+#' Values with "ft", "feet" or "'" are converted from feet to metres. Decimal
+#' commas such as "12,5" are accepted. Where several values are given (for
+#' example "10;12"), or other text is present, the first number is used. Values
+#' with no number are `NA`.
+#'
+#' @param x Character vector of OSM "height" values.
+#' @return Numeric vector of the same length as `x` (in metres).
+#' @noRd
+parse_height <- function (x) {
+
+    x <- as.character (x)
+    is_feet <- grepl ("(ft|feet|')\\s*$", x)
+    x <- gsub ("([0-9]),([0-9])", "\\1.\\2", x)
+    num <- regmatches (x, regexpr ("[0-9]+(\\.[0-9]+)?", x))
+    h <- rep (NA_real_, length (x))
+    h [grep ("[0-9]", x)] <- as.numeric (num)
+    h [is_feet & !is.na (h)] <- h [is_feet & !is.na (h)] * 12 * 0.0254
+
+    return (h)
+}
+
+#' Replace `NA` values by the mean of the other values, leaving `x` unchanged
+#' if all values are `NA` (rather than replacing with `NaN`).
+#' @noRd
+fill_na_with_mean <- function (x) {
+
+    if (all (is.na (x))) {
+        return (x)
+    }
+    replace (x, is.na (x), mean (x, na.rm = TRUE))
 }
 
 #' Combine parking points and polygons from OSM data into a single `data.frame`
@@ -403,17 +461,11 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
     }
 
     p <- dat_b$osm_polygons [, c (cols, "geometry")]
-    index <- grep ("ft$|feet$", p$height)
-    p$height [index] <-
-        as.numeric (gsub ("ft$|feet$", "", p$height [index])) * 12 * 0.0254
-    # Then remove everything that is not numeric:
-    p$height <- gsub ("[^(0-9)+(?\\.(0-9)+)]", "", p$height)
-    p$height <- as.numeric (p$height)
+    p$height <- parse_height (p$height)
 
     p <- dplyr::group_by (p, building) |>
-        dplyr::mutate_at ("height", function (x) {
-            replace (x, is.na (x), mean (x, na.rm = TRUE))
-        })
+        dplyr::mutate_at ("height", fill_na_with_mean) |>
+        dplyr::ungroup ()
     p$area <- sf::st_area (p)
     p$volume <- p$area * p$height
     p <- sf::st_centroid (p)
