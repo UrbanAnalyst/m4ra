@@ -116,6 +116,64 @@ m4ra_parking <- function (bb,
     return (v)
 }
 
+#' Find the cached file with parking data for a network.
+#'
+#' Files are named with a hash of the IDs of the vertices of the (contracted)
+#' network, so that there should be only one for any network.
+#'
+#' @param city_name Name of city used to name cached files.
+#' @param ids IDs of the vertices of the contracted network.
+#' @return Path of the file, or `character (0)` if there is none. An error is
+#' thrown if there are several files.
+#' @noRd
+find_parking_file <- function (city_name, ids) {
+
+    cache_dir <- m4ra_cache_dir (city_name)
+    hash <- substring (digest::digest (ids), 1, 6)
+
+    f <- as.character (fs::dir_ls (cache_dir, type = "file"))
+    f <- f [which (
+        grepl ("parking", basename (f), fixed = TRUE) &
+            grepl (hash, basename (f), fixed = TRUE)
+    )]
+
+    if (length (f) > 1L) {
+        stop (
+            "Multiple parking files match this network in [", cache_dir,
+            "]; please remove all but one:\n",
+            paste0 (f, collapse = "\n"),
+            call. = FALSE
+        )
+    }
+
+    return (f)
+}
+
+#' Path to the cached file with parking data for a city.
+#'
+#' This is the file of the results of \link{m4ra_parking}, which are used to
+#' add parking times to travel times by automobile.
+#'
+#' @param city_name Name of city used to name cached files.
+#' @param mode Mode of transport of the network used to calculate parking data
+#' (should generally be "motorcar").
+#' @return Path to the cached file, or `character (0)` if there is none. An
+#' error is thrown if there is more than one file for the cached network.
+#'
+#' @family cache
+#' @export
+m4ra_parking_file <- function (city_name, mode = "motorcar") {
+
+    graph_c <- m4ra_load_cached_network (
+        city = city_name,
+        mode = mode,
+        contracted = TRUE
+    )
+    v <- m4ra_vertices (graph_c, city_name)
+
+    find_parking_file (city_name, v$id)
+}
+
 #' Read a local OSM file written with \pkg{rosmium}.
 #'
 #' All keys of the file are read as columns, so no additional tags need to be

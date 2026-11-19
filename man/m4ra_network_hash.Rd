@@ -23,6 +23,7 @@ Other cache:
 \code{\link[=m4ra_batch_weight_networks]{m4ra_batch_weight_networks()}},
 \code{\link[=m4ra_cache_network]{m4ra_cache_network()}},
 \code{\link[=m4ra_load_cached_network]{m4ra_load_cached_network()}},
+\code{\link[=m4ra_parking_file]{m4ra_parking_file()}},
 \code{\link[=m4ra_weight_networks]{m4ra_weight_networks()}}
 }
 \concept{cache}
