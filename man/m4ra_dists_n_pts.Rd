@@ -7,7 +7,7 @@
 m4ra_dists_n_pts(graph, from = NULL, to = NULL, npts = 3L)
 }
 \arguments{
-\item{graph}{A \code{dodgr} network returned from the \link{weight_streetnet}
+\item{graph}{A \pkg{dodgr} network returned from the \link[dodgr]{weight_streetnet}
 function using a network obtained with the \pkg{osmdata} \code{osmdata_sc}
 function.}
 

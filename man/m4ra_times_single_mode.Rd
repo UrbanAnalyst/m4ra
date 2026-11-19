@@ -8,7 +8,7 @@ of transport.}
 m4ra_times_single_mode(graph, from = NULL, to = NULL, path = NULL)
 }
 \arguments{
-\item{graph}{A \code{dodgr} network returned from the \link{weight_streetnet}
+\item{graph}{A \pkg{dodgr} network returned from the \link[dodgr]{weight_streetnet}
 function using a network obtained with the \pkg{osmdata} \code{osmdata_sc}
 function.}
 

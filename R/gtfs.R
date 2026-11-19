@@ -258,7 +258,7 @@ gtfs_next_start_times <- function (gtfs, stops, start_times, start_interval) {
 #' Construct a travel time matrix to or from all stops in a 'GTFS' feed from or
 #' to to all points in a street network.
 #'
-#' @param graph A `dodgr` network returned from the \link{weight_streetnet}
+#' @param graph A \pkg{dodgr} network returned from the \link[dodgr]{weight_streetnet}
 #' function using a network obtained with the \pkg{osmdata} `osmdata_sc`
 #' function.
 #' @param gtfs A 'GTFS' feed extracted with the \pkg{gtfsrouter} function,

@@ -1,7 +1,7 @@
 #' Calculate matrix of pair-wise travel times between points using a single mode
 #' of transport.
 #'
-#' @param graph A `dodgr` network returned from the \link{weight_streetnet}
+#' @param graph A \pkg{dodgr} network returned from the \link[dodgr]{weight_streetnet}
 #' function using a network obtained with the \pkg{osmdata} `osmdata_sc`
 #' function.
 #' @param from Vector or matrix of points **from** which route distances are to

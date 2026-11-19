@@ -249,7 +249,7 @@ get_parking_data <- function (bb,
 #' @param dat_l List with a single `osm_lines` item with on-street parking
 #' lanes from "parking:lane:<side>" keys.
 #' @return A list of `dat_p` (points with capacities) and `dat_l` (a reduced
-#' `dodgr` network with on-street parking numbers).
+#' \pkg{dodgr} network with on-street parking numbers).
 #' @noRd
 process_parking_data <- function (dat_p, dat_a, dat_l) {
 
@@ -404,7 +404,7 @@ combine_pts_and_polys <- function (dat) {
 
 #' Calculate on-street parking denoted with "parking:lane:\<side\>" keys.
 #'
-#' This is done by converting the ways/lines to a `dodgr` network, and
+#' This is done by converting the ways/lines to a \pkg{dodgr} network, and
 #' matching vertices.
 #' @noRd
 process_onstreet_lanes <- function (dat_l) {
@@ -600,7 +600,7 @@ rescale_to_site_mean <- function (x, total, n_sites) {
 #'
 #' @param parking A list of two objects: `dat_p` containing vertices and
 #' capacities of parking from OSM nodes and polygons; and `dat_l` containing a
-#' reduced `dodgr` street network with numbers of onstreet parking spaces
+#' reduced \pkg{dodgr} street network with numbers of onstreet parking spaces
 #' calculated in `process_onstreet_lanes()`.
 #' @noRd
 aggregate_parking_data <- function (graph_c, city, parking,

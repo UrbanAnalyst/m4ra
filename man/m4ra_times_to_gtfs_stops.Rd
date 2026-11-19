@@ -8,7 +8,7 @@ to to all points in a street network.}
 m4ra_times_to_gtfs_stops(graph, gtfs, city, from = NULL, graph_to_gtfs = TRUE)
 }
 \arguments{
-\item{graph}{A \code{dodgr} network returned from the \link{weight_streetnet}
+\item{graph}{A \pkg{dodgr} network returned from the \link[dodgr]{weight_streetnet}
 function using a network obtained with the \pkg{osmdata} \code{osmdata_sc}
 function.}
 
