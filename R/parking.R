@@ -1,10 +1,18 @@
 # Global variables defining time penalties for parking a car at the start and
 # end of journeys. These are multiplied by the internal scale of the ratio of
-# nearby parking capacity divided by the cubic root of nearby building volume.
-# That ratio generally has mean and median values between 1 and 2, and maximal
-# values around 4-5. These ratios are then converted to corresponding times in
-# minutes by multiplying by the following factors, as documented in
-# https://github.com/UrbanAnalyst/m4ra/issues/9
+# nearby parking capacity (numbers of parking spaces) divided by the cubic root
+# of nearby building volume (in m^3, so the cubic root is in m). Both are
+# distance-weighted means over all nearby parking sites or buildings, rescaled
+# so that their mean over all vertices equals the overall mean capacity per
+# parking site, and the overall mean volume per building (see
+# `rescale_to_site_mean()`). That ratio generally has mean and median values
+# between 1 and 2, and maximal values around 4-5. Maximal values are not
+# limited by the rescaling, which only multiplies by constants, and may be
+# higher where much parking is close to few or small buildings. These ratios are
+# then converted to corresponding times in minutes by multiplying by the
+# following factors, as documented in
+# https://github.com/UrbanAnalyst/m4ra/issues/9, and the resulting penalties
+# are then given in seconds (by multiplying by 60).
 parking_ratio_multiplier_start <- 2
 parking_ratio_multiplier_end <- 3
 
@@ -26,7 +34,13 @@ parking_ratio_multiplier_end <- 3
 #' @param quiet If `FALSE`, display progress information on screen.
 #' @return A `data.frame` of the vertices of the (contracted) network, with
 #' additional columns quantifying number of parking spaces associated with each
-#' vertex, as well as the total volume of all surrounding buildings.
+#' vertex (`parking`), as well as the volume of all surrounding buildings, in
+#' cubic metres (`building_volume`). Both are distance-weighted means over
+#' nearby parking sites and buildings, rescaled so that their means over all
+#' vertices are the overall mean capacity per parking site, and mean volume per
+#' building. The `ratio` column is `parking / building_volume ^ (1 / 3)`, and
+#' `penalty_start` and `penalty_end` are the corresponding time penalties for
+#' parking at the start and end of journeys, in seconds.
 #'
 #' @family prep
 #' @export
@@ -187,6 +201,27 @@ get_parking_data <- function (bb,
             )) |>
             osmdata::osmdata_sf (quiet = quiet)
     }
+
+    process_parking_data (dat_p, dat_a, dat_l)
+}
+
+#' Process raw OSM parking data
+#'
+#' @param dat_p,dat_a Objects returned from `osmdata::osmdata_sf()` with
+#' parking data from the key "parking" (`dat_p`), and from the key-value pairs
+#' "amenity=parking" or "building=garage(s)" (`dat_a`).
+#' @param dat_l List with a single `osm_lines` item with on-street parking
+#' lanes from "parking:lane:<side>" keys.
+#' @return A list of `dat_p` (points with capacities) and `dat_l` (a reduced
+#' `dodgr` network with on-street parking numbers).
+#' @noRd
+process_parking_data <- function (dat_p, dat_a, dat_l) {
+
+    # suppress no visible binding notes:
+    amenity <- parking <- NULL
+
+    # `sf` methods for subsetting must be registered:
+    requireNamespace ("sf", quietly = TRUE)
 
     dat_p <- combine_pts_and_polys (dat_p)
     dat_a <- combine_pts_and_polys (dat_a)
@@ -465,8 +500,7 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
             extra_tags = cols,
             quiet = TRUE
         ) |> sf::st_cast ("POLYGON")
-        index <- which (sf::st_is_valid (dat_b))
-        dat_b <- list (osm_polygons = dat_b [index, ])
+        dat_b <- list (osm_polygons = dat_b)
 
     } else {
 
@@ -475,20 +509,76 @@ get_building_data <- function (bb, planet_file, city_name, quiet = FALSE) {
             osmdata::osmdata_sf (quiet = quiet)
     }
 
-    p <- dat_b$osm_polygons [, c (cols, "geometry")]
+    process_building_data (dat_b)
+}
+
+#' Process raw OSM building data
+#'
+#' @param dat_b Object returned from `osmdata::osmdata_sf()` with buildings
+#' (polygons and, optionally, multipolygons).
+#' @return Centroids of all buildings of sufficient size, with areas (in m^2)
+#' and volumes (in m^3), both as plain numeric values.
+#' @noRd
+process_building_data <- function (dat_b) {
+
+    # suppress no visible binding notes:
+    building <- NULL
+
+    # `sf` methods for subsetting must be registered:
+    requireNamespace ("sf", quietly = TRUE)
+
+    cols <- c ("building", "height")
+
+    get_polys <- function (p) {
+        for (col in cols [which (!cols %in% names (p))]) {
+            p [[col]] <- NA_character_
+        }
+        keep <- c (intersect ("osm_id", names (p)), cols, "geometry")
+        p [, keep]
+    }
+    p <- get_polys (dat_b$osm_polygons)
+    if (!is.null (dat_b$osm_multipolygons) &&
+        nrow (dat_b$osm_multipolygons) > 0L) {
+        mp <- suppressWarnings (
+            sf::st_cast (get_polys (dat_b$osm_multipolygons), "POLYGON")
+        )
+        p <- dplyr::bind_rows (p, mp)
+    }
+    p <- p [which (sf::st_is_valid (p)), ]
     p$height <- parse_height (p$height)
 
     p <- dplyr::group_by (p, building) |>
         dplyr::mutate_at ("height", fill_na_with_mean) |>
         dplyr::ungroup ()
-    p$area <- sf::st_area (p)
-    p$volume <- p$area * p$height
+    # Plain numbers, so that `volume` is not labelled with the units of area:
+    p$area <- as.numeric (sf::st_area (p)) # m^2
+    p$volume <- p$area * p$height # m^3
     p <- sf::st_centroid (p)
 
     # Finally, exclude any buildings < 20 m ^ 2 or < 3 m high
-    p <- p [which (as.numeric (p$area) > 20 & p$height > 3), ]
+    p <- p [which (p$area > 20 & p$height > 3), ]
 
     return (p)
+}
+
+#' Rescale distance-weighted means so that their mean is the overall mean per
+#' site.
+#'
+#' The weighted means `x` calculated by `rcpp_weighted_dists()` are means over
+#' sites (vertices with some parking, or some buildings), and so in the units
+#' of one site, but are biased by the weights. They are rescaled here so that
+#' their mean over all vertices is the overall mean per site, `total /
+#' n_sites`. This was previously calculated as `x * (n_vertices / n_sites) *
+#' total / (mean (x) * n_vertices)`, in which `n_vertices` cancels, so is not
+#' needed here.
+#'
+#' @param x Weighted means at each vertex.
+#' @param total Total capacity (spaces) or volume (m^3) of all sites.
+#' @param n_sites Number of sites.
+#' @noRd
+rescale_to_site_mean <- function (x, total, n_sites) {
+
+    x * total / (n_sites * mean (x, na.rm = TRUE))
 }
 
 #' Aggregate raw parking data to each vertex of a contracted graph.
@@ -558,7 +648,7 @@ aggregate_parking_data <- function (graph_c, city, parking,
     attr (graph_c, "turn_penalty") <- 0
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
-    n_p <- length (to_from_indices$from$index)
+    n_p <- length (to_from_indices$to$index)
     n_p <- format (n_p, big.mark = ",")
     cli::cli_alert_info (cli::col_blue (
         "Weighting {n_p} parking locations by distances to all vertices"
@@ -577,11 +667,11 @@ aggregate_parking_data <- function (graph_c, city, parking,
     ))
 
     capacity <- d [, 2] / d [, 1]
-    # Then re-scale to total actual capacity times relative difference in
-    # numbers of nodes
-    rel_nodes <- nrow (v) / nrow (parking)
-    capacity <- capacity * rel_nodes * sum (parking$capacity, na.rm = TRUE) /
-        sum (capacity, na.rm = TRUE)
+    capacity <- rescale_to_site_mean (
+        capacity,
+        sum (parking$capacity, na.rm = TRUE),
+        nrow (parking)
+    )
 
     return (capacity)
 }
@@ -621,7 +711,7 @@ aggregate_building_data <- function (graph_c, city, buildings,
     attr (graph_c, "turn_penalty") <- 0
     to_from_indices <- to_from_index_with_tp (graph_c, from, to)
 
-    n_b <- length (to_from_indices$from$index)
+    n_b <- length (to_from_indices$to$index)
     n_b <- format (n_b, big.mark = ",")
     cli::cli_alert_info (cli::col_blue (
         "Weighting {n_b} buildings by distances to all vertices"
@@ -640,9 +730,11 @@ aggregate_building_data <- function (graph_c, city, buildings,
     ))
 
     volume <- vol_wt [, 2] / vol_wt [, 1]
-    rel_nodes <- nrow (v) / nrow (buildings)
-    volume <- volume * rel_nodes * sum (buildings$volume, na.rm = TRUE) /
-        sum (volume, na.rm = TRUE)
+    volume <- rescale_to_site_mean (
+        volume,
+        sum (buildings$volume, na.rm = TRUE),
+        nrow (buildings)
+    )
 
     return (volume)
 }

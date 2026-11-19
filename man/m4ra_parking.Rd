@@ -39,7 +39,13 @@ decreases weight to 37\% at 1km, 14\% at 2km, and 0.6\% at 5km.}
 \value{
 A \code{data.frame} of the vertices of the (contracted) network, with
 additional columns quantifying number of parking spaces associated with each
-vertex, as well as the total volume of all surrounding buildings.
+vertex (\code{parking}), as well as the volume of all surrounding buildings, in
+cubic metres (\code{building_volume}). Both are distance-weighted means over
+nearby parking sites and buildings, rescaled so that their means over all
+vertices are the overall mean capacity per parking site, and mean volume per
+building. The \code{ratio} column is \code{parking / building_volume ^ (1 / 3)}, and
+\code{penalty_start} and \code{penalty_end} are the corresponding time penalties for
+parking at the start and end of journeys, in seconds.
 }
 \description{
 Get data on parking availability and building volumes to estimate time
