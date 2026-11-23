@@ -180,13 +180,36 @@ m4ra_prepare_data <- function (net_sc = NULL,
 
     files <- c (net_files, gtfs, fnames_gtfs)
 
-    f_closest_gtfs <- times_gtfs_to_net (
-        files,
-        mode = final_mode,
-        fast = fast,
-        n_closest = n_closest,
-        quiet = quiet
-    )
+    # Files from the stops of the GTFS feed to the network of the final mode are
+    # only checked against the stops and network (by reading both) if either
+    # input file has changed, or no file has been calculated for these inputs.
+    # This requires both to be given; otherwise any existing file is used.
+    f_closest_gtfs <- NULL
+    validate <- !is.null (net_sc) && !is.null (gtfs)
+    if (validate) {
+        fp <- input_fingerprint (
+            c (net_sc, gtfs), final_mode, fast, n_closest
+        )
+        f_closest_gtfs <-
+            cached_to_net_file (fp, final_mode, city_name, cache_dir)
+    }
+    if (is.null (f_closest_gtfs)) {
+        f_closest_gtfs <- times_gtfs_to_net (
+            files,
+            mode = final_mode,
+            fast = fast,
+            n_closest = n_closest,
+            quiet = quiet,
+            reuse = !validate
+        )
+        if (validate) {
+            tag <- gsub (
+                paste0 ("^m4ra\\-", city_name, "\\-gtfs\\-to\\-net\\-|\\.Rds$"),
+                "", basename (f_closest_gtfs)
+            )
+            write_input_marker (cache_dir, city_name, "tonet", fp, tag)
+        }
+    }
     files <- unique (c (files, f_closest_gtfs))
 
     f_parking <- NULL
@@ -267,17 +290,22 @@ times_gtfs_to_gtfs <- function (gtfs,
             ptn <- paste0 ("\\-", day, "\\-")
             fname_gtfs_pre <- grep (ptn, fname_gtfs_pre, value = TRUE)
         }
-        if (length (fname_gtfs_pre) > 0) {
-            fname_gtfs_times <-
-                grep ("\\-times\\-", fname_gtfs_pre, value = TRUE)
+        # Use files calculated for other data only where all three exist; any
+        # incomplete set (such as from a partly deleted cache) is not usable:
+        pre_times <- grep ("\\-times\\-", fname_gtfs_pre, value = TRUE)
+        complete <- vapply (pre_times, function (f) {
+            all (fs::file_exists (gtfs_matrix_files (f)))
+        }, logical (1L))
+        if (any (complete)) {
+            fname_gtfs_times <- pre_times [which (complete) [1]]
         }
     }
-    fname_gtfs_transfers <-
-        gsub ("\\-times\\-", "-transfers-", fname_gtfs_times)
-    fname_gtfs_intervals <-
-        gsub ("\\-times\\-", "-intervals-", fname_gtfs_times)
+    fname_gtfs_times <- fs::path (fname_gtfs_times)
+    fname_gtfs_transfers <- gtfs_matrix_files (fname_gtfs_times) [2]
+    fname_gtfs_intervals <- gtfs_matrix_files (fname_gtfs_times) [3]
 
-    if (!fs::file_exists (fname_gtfs_times)) {
+    # Calculate unless all three files exist:
+    if (!all (fs::file_exists (gtfs_matrix_files (fname_gtfs_times)))) {
 
         # tempdir for writing each stop done within 'gtfs_traveltimes'. Can then
         # be used to estimate remaining calculation time.
@@ -480,7 +508,8 @@ times_gtfs_to_net <- function (files,
                                mode = "foot",
                                fast = FALSE,
                                n_closest = 10L,
-                               quiet = FALSE) {
+                               quiet = FALSE,
+                               reuse = TRUE) {
 
     checkmate::assert_character (mode, len = 1L)
     mode <- match.arg (mode, c ("foot", "bicycle", "motorcar"))
@@ -508,7 +537,11 @@ times_gtfs_to_net <- function (files,
     # metres, and are no longer used:
     f_gtfs_to_net <- grep ("\\-secs\\-", f_gtfs_to_net, value = TRUE)
 
-    if (length (f_gtfs_to_net) == 1L) {
+    # An existing file is only reused without checking it against the current
+    # stops and network (which requires reading both) if 'reuse' is `TRUE`;
+    # `m4ra_prepare_data()` otherwise only does this where it has determined from
+    # file names that neither has changed.
+    if (reuse && length (f_gtfs_to_net) == 1L) {
         return (f_gtfs_to_net)
     }
     # Otherwise extract hashes to check whether times need to be re-calculated:
@@ -652,6 +685,12 @@ times_gtfs_to_net <- function (files,
         )
 
         saveRDS (closest, fname)
+    }
+
+    # Remove any files for other versions of the stops or network
+    old <- setdiff (as.character (f_gtfs_to_net), as.character (fname))
+    if (length (old) > 0L) {
+        fs::file_delete (old)
     }
 
     return (fname)
@@ -923,4 +962,35 @@ cached_gtfs_files <- function (gtfs, city_name, cache_dir, day, start_time_limit
         return (NULL)
     }
     return (files)
+}
+
+# The file of nearest GTFS stops to a network, if it was calculated for the
+# current input files (identified by the fingerprint), otherwise `NULL`. The
+# name of the file is held in the name of the marker file.
+cached_to_net_file <- function (fingerprint, mode, city_name, cache_dir) {
+
+    marker <- input_markers (cache_dir, city_name, "tonet", fingerprint)
+    if (length (marker) != 1L) {
+        return (NULL)
+    }
+    prefix <- paste0 ("m4ra-", city_name, "-input-tonet-", fingerprint, "-")
+    tag <- gsub ("\\.txt$", "", substring (basename (marker), nchar (prefix) + 1L))
+    f <- fs::path (
+        cache_dir, paste0 ("m4ra-", city_name, "-gtfs-to-net-", tag, ".Rds")
+    )
+    if (!fs::file_exists (f)) {
+        return (NULL)
+    }
+    return (f)
+}
+
+# The three files of GTFS travel times, transfers and intervals corresponding
+# to the file of travel times.
+gtfs_matrix_files <- function (f_times) {
+
+    unname (c (
+        f_times,
+        gsub ("\\-times\\-", "-transfers-", f_times),
+        gsub ("\\-times\\-", "-intervals-", f_times)
+    ))
 }

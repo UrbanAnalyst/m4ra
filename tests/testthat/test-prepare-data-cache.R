@@ -37,7 +37,8 @@ test_that ("repeated prepare data does not read inputs or recalculate", {
 
     f1 <- prepare ()
     expect_length (list.files (
-        m4ra_cache_dir ("cachetest"), pattern = "\\-input\\-(net|gtfs)\\-.*\\.txt$"
+        m4ra_cache_dir ("cachetest"),
+        pattern = "\\-input\\-(net|gtfs)\\-.*\\.txt$"
     ), 2L)
 
     # The same call again reads no files, including with 'readRDS' directly,
@@ -129,4 +130,97 @@ test_that ("prepare data recalculates when inputs change or cached files go", {
     fs::file_delete (fs::dir_ls (cache_dir, regexp = "\\-done$"))
     prepare ()
     expect_equal (c (n_weight, n_gtfs), c (2L, 2L))
+})
+
+test_that ("a partly removed set of GTFS matrices is calculated again", {
+
+    Sys.setenv ("M4RA_CACHE_DIR" = fs::path_temp ())
+    Sys.setenv ("M4RA_NUM_CORES" = 1L)
+
+    gtfs_path <- fs::path (fs::path_temp (), "cachetest-gtfs.Rds")
+    net_sc_path <- fs::path (fs::path_temp (), "cachetest-sc.Rds")
+    skip_if_not (fs::file_exists (gtfs_path) && fs::file_exists (net_sc_path))
+
+    cache_dir <- m4ra_cache_dir ("cachetest")
+    prepare <- function () {
+        suppressMessages (m4ra_prepare_data (
+            net_sc = net_sc_path,
+            gtfs = gtfs_path,
+            city_name = "cachetest",
+            day = "monday",
+            start_time_limits = 12:13 * 3600,
+            final_mode = "foot",
+            n_closest = 10L,
+            quiet = TRUE
+        ))
+    }
+    ptn <- "gtfs\\-[0-9a-f]+\\-(times|transfers|intervals)\\-mo\\-"
+    all_files <- function () fs::dir_ls (cache_dir, regexp = ptn)
+
+    prepare ()
+    expect_length (all_files (), 3L)
+    for (what in c ("times", "transfers", "intervals")) {
+        f <- grep (paste0 ("\\-", what, "\\-"), all_files (), value = TRUE)
+        fs::file_delete (f)
+        expect_length (all_files (), 2L)
+        expect_error (prepare (), NA)
+        expect_length (all_files (), 3L)
+    }
+
+    # and if the markers are also removed, so that nothing is known of them:
+    f <- grep ("\\-times\\-", all_files (), value = TRUE)
+    fs::file_delete (f)
+    fs::file_delete (fs::dir_ls (cache_dir, regexp = "\\-input\\-"))
+    expect_error (prepare (), NA)
+    expect_length (all_files (), 3L)
+})
+
+test_that ("nearest stops are calculated again when the stops or network change", {
+
+    Sys.setenv ("M4RA_CACHE_DIR" = fs::path_temp ())
+    Sys.setenv ("M4RA_NUM_CORES" = 1L)
+
+    gtfs_path <- fs::path (fs::path_temp (), "cachetest-gtfs.Rds")
+    net_sc_path <- fs::path (fs::path_temp (), "cachetest-sc.Rds")
+    skip_if_not (fs::file_exists (gtfs_path) && fs::file_exists (net_sc_path))
+
+    cache_dir <- m4ra_cache_dir ("cachetest")
+    prepare <- function (mode = "foot", gtfs = gtfs_path) {
+        suppressMessages (m4ra_prepare_data (
+            net_sc = net_sc_path,
+            gtfs = gtfs,
+            city_name = "cachetest",
+            day = "monday",
+            start_time_limits = 12:13 * 3600,
+            final_mode = mode,
+            n_closest = 10L,
+            quiet = TRUE
+        ))
+    }
+    to_net <- function (mode = "foot") {
+        fs::dir_ls (cache_dir, regexp = paste0 ("gtfs\\-to\\-net\\-", mode, "\\-"))
+    }
+
+    prepare ()
+    f1 <- to_net ()
+    expect_length (f1, 1L)
+
+    # Nothing changed: the same file, which is not even listed again
+    expect_identical (to_net (), f1)
+    # Another mode has its own file, and leaves this one
+    prepare ("bicycle")
+    expect_length (to_net ("bicycle"), 1L)
+    expect_identical (to_net (), f1)
+
+    # Changed stops give a file for those stops, and remove the old one. (The
+    # changed feed is in a new file, because files are memoised by path.)
+    gtfs <- readRDS (gtfs_path)
+    gtfs$stops$stop_name [1] <- paste (gtfs$stops$stop_name [1], "(changed)")
+    gtfs_path2 <- fs::path (fs::path_temp (), "cachetest-gtfs-changed.Rds")
+    saveRDS (gtfs, gtfs_path2)
+    prepare (gtfs = gtfs_path2)
+    f2 <- to_net ()
+    expect_length (f2, 1L)
+    expect_false (identical (f1, f2))
+    expect_length (to_net ("bicycle"), 1L)
 })
