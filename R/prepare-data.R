@@ -90,10 +90,22 @@ m4ra_prepare_data <- function (net_sc = NULL,
 
     cache_dir <- m4ra_cache_dir (city_name)
 
+    # Input files, which can be very large, are only read, and data only
+    # recalculated, if they have changed since the cached data were calculated,
+    # or if cached files have been removed. This is determined from file names
+    # alone, without reading any files.
     if (!is.null (net_sc)) {
         # (Re-)generate weighted networks
-        net <- m_readRDS (net_sc)
-        net_files <- m4ra_weight_networks (net, city = city_name, quiet = quiet)
+        net_files <- cached_network_files (net_sc, city_name, cache_dir)
+        if (is.null (net_files)) {
+            net <- m_readRDS (net_sc)
+            net_files <-
+                m4ra_weight_networks (net, city = city_name, quiet = quiet)
+            rm (net)
+            write_input_marker (
+                cache_dir, city_name, "net", input_fingerprint (net_sc)
+            )
+        }
     } else {
         # Just read weighted network files from cache_dir contents
         ptn <- paste0 (
@@ -107,15 +119,25 @@ m4ra_prepare_data <- function (net_sc = NULL,
     if (!is.null (gtfs)) {
 
         # (Re-)generate GTFS travel time matrix
-        fnames_gtfs <- times_gtfs_to_gtfs (
-            gtfs = gtfs,
-            city_name = city_name,
-            cache_dir = cache_dir,
-            day = day,
-            start_time_limits = start_time_limits,
-            batch_size = batch_size,
-            quiet = quiet
+        fnames_gtfs <- cached_gtfs_files (
+            gtfs, city_name, cache_dir, day, start_time_limits
         )
+        if (is.null (fnames_gtfs)) {
+            fnames_gtfs <- times_gtfs_to_gtfs (
+                gtfs = gtfs,
+                city_name = city_name,
+                cache_dir = cache_dir,
+                day = day,
+                start_time_limits = start_time_limits,
+                batch_size = batch_size,
+                quiet = quiet
+            )
+            hash <- gsub (".*\\-gtfs\\-([^\\-]+)\\-times\\-.*", "\\1", fnames_gtfs [1])
+            write_input_marker (
+                cache_dir, city_name, "gtfs",
+                input_fingerprint (gtfs, day, start_time_limits), hash
+            )
+        }
 
     } else {
 
@@ -803,4 +825,102 @@ reverse_graph <- function (graph) {
     swap (".vx0_x", ".vx1_x")
     swap (".vx0_y", ".vx1_y")
     return (graph)
+}
+
+# Cached data are matched to their input files by file names only, without
+# reading any file, because inputs and cached data can be very large. After
+# data have been calculated from an input file, an empty "marker" file is
+# written to the cache directory, with a name that identifies the input file
+# by its size and modification time (and, for GTFS, the day and start time
+# limits), so that a repeated call can recognise that nothing has changed.
+
+input_fingerprint <- function (f, ...) {
+
+    info <- file.info (f)
+    substring (
+        digest::digest (list (info$size, as.numeric (info$mtime), ...)), 1, 10
+    )
+}
+
+# Names of marker files for one type of input and fingerprint. The final
+# part of the name (after the fingerprint) holds any further information.
+input_markers <- function (cache_dir, city_name, type, fingerprint) {
+
+    ptn <- paste0 ("m4ra\\-", city_name, "\\-input\\-", type, "\\-", fingerprint)
+    as.character (fs::dir_ls (cache_dir, regexp = ptn, type = "file"))
+}
+
+# Write a marker, replacing any with the same fingerprint (markers of other
+# fingerprints, such as for other days or time limits, are kept)
+write_input_marker <- function (cache_dir, city_name, type, fingerprint,
+                                extra = NULL) {
+
+    old <- input_markers (cache_dir, city_name, type, fingerprint)
+    if (length (old) > 0L) {
+        fs::file_delete (old)
+    }
+    fname <- paste0 (
+        c (paste0 ("m4ra-", city_name, "-input-", type, "-", fingerprint), extra),
+        collapse = "-"
+    )
+    fs::file_touch (fs::path (cache_dir, paste0 (fname, ".txt")))
+}
+
+# Files of the cached weighted networks, as listed by `m4ra_weight_networks()`
+# (the file names are those which `m4ra_prepare_data()` otherwise reads from
+# the cache directory when no network is given). Only if the networks were
+# calculated from the current network file; otherwise `NULL`.
+cached_network_files <- function (net_sc, city_name, cache_dir) {
+
+    fp <- input_fingerprint (net_sc)
+    done <- fs::dir_ls (
+        cache_dir,
+        regexp = paste0 ("m4ra\\-", city_name, "\\-[^\\-]+\\-done$")
+    )
+    if (length (input_markers (cache_dir, city_name, "net", fp)) != 1L ||
+        length (done) == 0L) {
+        return (NULL)
+    }
+    ptn <- paste0 (
+        "m4ra\\-", city_name, "\\-(bicycle|foot|motorcar|vert\\-index)\\-"
+    )
+    files <- fs::dir_ls (cache_dir, regexp = ptn)
+    if (length (files) == 0L) {
+        return (NULL)
+    }
+    return (files)
+}
+
+# Files of the cached GTFS travel times, transfers and intervals, as returned
+# by `times_gtfs_to_gtfs()`, if calculated from the current GTFS file for the
+# same day and start time limits; otherwise `NULL`. The hash of the GTFS
+# data, which is part of the file names, is held in the name of the marker.
+cached_gtfs_files <- function (gtfs, city_name, cache_dir, day, start_time_limits) {
+
+    if (is.null (day) || is.null (start_time_limits)) {
+        return (NULL)
+    }
+    fp <- input_fingerprint (gtfs, day, start_time_limits)
+    marker <- input_markers (cache_dir, city_name, "gtfs", fp)
+    if (length (marker) != 1L) {
+        return (NULL)
+    }
+    hash <- gsub ("\\.txt$", "", gsub (".*\\-", "", basename (marker)))
+    f_times <- fs::path (
+        cache_dir,
+        paste0 (
+            "m4ra-", city_name, "-gtfs-", hash,
+            "-times-", substring (tolower (day), 1, 2),
+            "-", paste0 (start_time_limits, collapse = "-"), ".Rds"
+        )
+    )
+    files <- unname (c (
+        f_times,
+        gsub ("\\-times\\-", "-transfers-", f_times),
+        gsub ("\\-times\\-", "-intervals-", f_times)
+    ))
+    if (!all (fs::file_exists (files))) {
+        return (NULL)
+    }
+    return (files)
 }
