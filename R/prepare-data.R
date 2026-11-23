@@ -461,7 +461,7 @@ times_gtfs_to_net <- function (files,
                                quiet = FALSE) {
 
     checkmate::assert_character (mode, len = 1L)
-    mode <- match.arg (mode, c ("foot", "bicycle"))
+    mode <- match.arg (mode, c ("foot", "bicycle", "motorcar"))
 
     cache_files <- grep (m4ra_cache_dir (), files, fixed = TRUE, value = TRUE)
     dirs <- fs::path_split (cache_files) [[1]]
@@ -482,6 +482,9 @@ times_gtfs_to_net <- function (files,
         f_gtfs_to_net,
         value = TRUE
     )
+    # Only files with times in seconds; earlier versions stored distances in
+    # metres, and are no longer used:
+    f_gtfs_to_net <- grep ("\\-secs\\-", f_gtfs_to_net, value = TRUE)
 
     if (length (f_gtfs_to_net) == 1L) {
         return (f_gtfs_to_net)
@@ -525,7 +528,7 @@ times_gtfs_to_net <- function (files,
         city,
         "-gtfs-to-net-",
         mode,
-        "-ncl",
+        "-secs-ncl",
         n_closest,
         "-",
         gtfs_hash,
@@ -550,6 +553,12 @@ times_gtfs_to_net <- function (files,
         if (!quiet) {
             cli::cli_alert_success (cli::col_green ("Contracted network graph"))
         }
+
+        # The closest stops, and the values stored, are then in travel times
+        # rather than distances, because the values are added to times in
+        # `m4ra_times_multi_mode()`. Turn penalties are already in the
+        # contracted graph.
+        graph_c <- graph_with_times (graph_c)
 
         v <- m4ra_vertices (graph_c, city)
         n_closest <- update_n_closest (v, stops, n_closest, quiet = quiet)
@@ -609,6 +618,7 @@ times_gtfs_to_net <- function (files,
                 stops,
                 city,
                 n_closest = n_closest,
+                reverse = (mode == "motorcar"),
                 quiet = quiet
             )
         }
@@ -681,9 +691,17 @@ closest_gtfs_to_net_fast <- function (graph_c, stops, city, n_closest) {
 }
 
 closest_gtfs_to_net_slow <- function (graph_c, stops, city,
-                                      n_closest, quiet = FALSE) {
+                                      n_closest, reverse = FALSE,
+                                      quiet = FALSE) {
 
     v <- m4ra_vertices (graph_c, city)
+    # Times are required from stops to vertices. The routine below finds the
+    # closest stops from each vertex, which are the times from vertices to
+    # stops. These are only the same in networks without one-way edges, so
+    # directed networks (motorcar) are reversed.
+    if (reverse) {
+        graph_c <- reverse_graph (graph_c)
+    }
     from <- v$id
     to <- v$id [dodgr::match_points_to_verts (
         v, stops [, c ("stop_lon", "stop_lat")]
@@ -750,4 +768,39 @@ closest_gtfs_to_net_slow <- function (graph_c, stops, city,
     }
 
     return (res)
+}
+
+#' Replace distances of a graph with travel times, so that routines which take
+#' the 'd' and 'd_weighted' columns return times in seconds.
+#' @noRd
+graph_with_times <- function (graph) {
+
+    gr_cols <- dodgr_graph_cols (graph)
+    if (is.na (gr_cols$time) || is.na (gr_cols$time_weighted)) {
+        stop ("graph has no time and weighted time columns")
+    }
+    graph [[gr_cols$d]] <- graph [[gr_cols$time]]
+    graph [[gr_cols$d_weighted]] <- graph [[gr_cols$time_weighted]]
+    # Turn penalties are already part of the cached contracted graphs, and
+    # `to_from_index_with_tp` then returns indices into those graphs:
+    attr (graph, "turn_penalty") <- 0
+    return (graph)
+}
+
+#' Reverse the direction of every edge of a graph (including compound
+#' junctions, which are ordinary edges of the contracted graph).
+#' @noRd
+reverse_graph <- function (graph) {
+
+    swap <- function (a, b) {
+        if (all (c (a, b) %in% names (graph))) {
+            tmp <- graph [[a]]
+            graph [[a]] <<- graph [[b]]
+            graph [[b]] <<- tmp
+        }
+    }
+    swap (".vx0", ".vx1")
+    swap (".vx0_x", ".vx1_x")
+    swap (".vx0_y", ".vx1_y")
+    return (graph)
 }
